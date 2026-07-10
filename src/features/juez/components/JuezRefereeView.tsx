@@ -11,6 +11,15 @@ type JuezRefereeViewProps = {
   onToggleAvailability: (matchId: string) => void;
 };
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function JuezRefereeView({
   selectedRefereeId,
   referees,
@@ -31,6 +40,7 @@ export function JuezRefereeView({
           <div>
             <p className="juez-eyebrow">Arbitros</p>
             <h2>Confirmar disponibilidad</h2>
+            <p className="juez-section-copy">Pantalla simple para decidir rapido a qué partido puede ir cada juez.</p>
           </div>
         </div>
 
@@ -47,6 +57,7 @@ export function JuezRefereeView({
           </label>
 
           <div className="juez-role-strip">
+            <span className="juez-avatar juez-avatar--profile">{getInitials(selectedReferee.name)}</span>
             {selectedReferee.roles.map((role) => (
               <span key={role} className="juez-role-chip">
                 {ROLE_LABELS[role]}

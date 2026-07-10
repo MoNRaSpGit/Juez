@@ -26,6 +26,15 @@ type JuezAdminViewProps = {
   onToggleRefereeRole: (refereeId: string, role: RefereeRole) => void;
 };
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function JuezAdminView({
   matches,
   referees,
@@ -63,6 +72,7 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Administrador</p>
             <h2>Publicar partidos</h2>
+            <p className="juez-section-copy">Carga rapida para la jornada. Pensado para armar partidos desde el celu en pocos toques.</p>
           </div>
           <div className="juez-tournament-box" onDoubleClick={onStartTournamentEdit}>
             <span className="juez-tournament-box__label">Torneo fijo</span>
@@ -83,6 +93,7 @@ export function JuezAdminView({
             ) : (
               <strong>{currentTournament}</strong>
             )}
+            <small>Doble click para cambiar el torneo base.</small>
           </div>
         </div>
 
@@ -123,6 +134,7 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Jornada</p>
             <h2>Partidos publicados</h2>
+            <p className="juez-section-copy">Cada tarjeta resume el cruce, el estado y el horario.</p>
           </div>
         </div>
 
@@ -154,6 +166,7 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Roles</p>
             <h2>Jueces registrados</h2>
+            <p className="juez-section-copy">Define rapido qué puede hacer cada juez antes de cerrar inscripciones.</p>
           </div>
         </div>
 
@@ -161,9 +174,15 @@ export function JuezAdminView({
           {referees.map((referee) => (
             <article key={referee.id} className="juez-referee-admin-card">
               <div className="juez-referee-admin-card__head">
-                <div>
-                  <strong>{referee.name}</strong>
-                  <p>{referee.city}</p>
+                <div className="juez-referee-identity">
+                  <span className="juez-avatar">{getInitials(referee.name)}</span>
+                  <div>
+                    <strong>{referee.name}</strong>
+                    <p>{referee.city}</p>
+                  </div>
+                </div>
+                <div className="juez-referee-admin-card__meta">
+                  <span>{referee.roles.length} roles activos</span>
                 </div>
               </div>
 
@@ -177,6 +196,7 @@ export function JuezAdminView({
                       className={`juez-role-toggle ${isChecked ? "is-checked" : ""}`}
                       onClick={() => onToggleRefereeRole(referee.id, role)}
                     >
+                      <span className="juez-role-toggle__dot" />
                       {ROLE_LABELS[role]}
                     </button>
                   );
@@ -193,6 +213,7 @@ export function JuezAdminView({
             <div>
               <p className="juez-eyebrow">Designacion</p>
               <h2>{formatMatchLabel(selectedMatch)}</h2>
+              <p className="juez-section-copy">El sistema propone una terna en base a disponibilidad real y roles compatibles.</p>
             </div>
             <div className="juez-inline-actions">
               {selectedMatch.status === "open" ? (
@@ -246,8 +267,11 @@ export function JuezAdminView({
                   <div className="juez-mini-list">
                     {compatibleReferees.map((referee) => (
                       <div key={referee.id} className="juez-mini-list__item">
-                        <strong>{referee.name}</strong>
-                        <span>{referee.roles.map((item) => ROLE_LABELS[item]).join(" · ")}</span>
+                        <div className="juez-mini-list__identity">
+                          <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
+                          <strong>{referee.name}</strong>
+                        </div>
+                        <span>{referee.roles.map((item) => ROLE_LABELS[item]).join(" - ")}</span>
                       </div>
                     ))}
                     {!compatibleReferees.length ? <p className="juez-empty-inline">Sin arbitros compatibles todavia.</p> : null}
