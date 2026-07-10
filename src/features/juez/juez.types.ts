@@ -18,19 +18,15 @@ export type MatchStatus = "open" | "closed" | "assigned";
 export type Match = {
   id: string;
   tournament: string;
-  homeTeam: string;
-  awayTeam: string;
+  club: string;
   date: string;
   time: string;
-  court: string;
-  notes: string;
   status: MatchStatus;
 };
 
 export type AvailabilityEntry = {
   refereeId: string;
   matchId: string;
-  roles: RefereeRole[];
   createdAt: string;
 };
 
@@ -43,11 +39,7 @@ export type Assignment = {
 };
 
 export type MatchFormState = {
-  tournament: string;
-  homeTeam: string;
-  awayTeam: string;
+  club: string;
   date: string;
   time: string;
-  court: string;
-  notes: string;
 };

@@ -3,8 +3,15 @@ import { toast } from "react-toastify";
 import "./juez.css";
 import { JuezAdminView } from "./components/JuezAdminView";
 import { JuezRefereeView } from "./components/JuezRefereeView";
-import { EMPTY_MATCH_FORM, INITIAL_ASSIGNMENTS, INITIAL_AVAILABILITY, INITIAL_MATCHES, INITIAL_REFEREES } from "./juez.mock";
-import { buildMatchId } from "./juez.utils";
+import {
+  DEFAULT_TOURNAMENT,
+  EMPTY_MATCH_FORM,
+  INITIAL_ASSIGNMENTS,
+  INITIAL_AVAILABILITY,
+  INITIAL_MATCHES,
+  INITIAL_REFEREES
+} from "./juez.mock";
+import { buildMatchId, suggestAssignment } from "./juez.utils";
 import { Assignment, Match, MatchFormState, RefereeRole } from "./juez.types";
 
 type ViewMode = "admin" | "referees";
@@ -24,6 +31,9 @@ export function JuezHomePage() {
   const [selectedMatchId, setSelectedMatchId] = useState(INITIAL_MATCHES[1]?.id ?? INITIAL_MATCHES[0]?.id ?? "");
   const [matchForm, setMatchForm] = useState<MatchFormState>(EMPTY_MATCH_FORM);
   const [designationDraft, setDesignationDraft] = useState<Record<RefereeRole, string>>(EMPTY_DRAFT);
+  const [currentTournament, setCurrentTournament] = useState(DEFAULT_TOURNAMENT);
+  const [tournamentDraft, setTournamentDraft] = useState(DEFAULT_TOURNAMENT);
+  const [isEditingTournament, setIsEditingTournament] = useState(false);
 
   const summary = useMemo(() => {
     const openMatches = matches.filter((match) => match.status === "open").length;
@@ -37,56 +47,54 @@ export function JuezHomePage() {
   }
 
   function handleCreateMatch() {
-    if (!matchForm.tournament || !matchForm.homeTeam || !matchForm.awayTeam || !matchForm.date || !matchForm.time || !matchForm.court) {
-      toast.error("Completa los datos principales del partido para publicarlo.");
+    if (!matchForm.club || !matchForm.date || !matchForm.time) {
+      toast.error("Completa club, fecha y hora para publicar el partido.");
       return;
     }
 
     const nextMatch: Match = {
       id: buildMatchId(),
-      tournament: matchForm.tournament,
-      homeTeam: matchForm.homeTeam,
-      awayTeam: matchForm.awayTeam,
+      tournament: currentTournament,
+      club: matchForm.club,
       date: matchForm.date,
       time: matchForm.time,
-      court: matchForm.court,
-      notes: matchForm.notes,
       status: "open"
     };
 
     setMatches((current) => [nextMatch, ...current]);
     setSelectedMatchId(nextMatch.id);
     setMatchForm(EMPTY_MATCH_FORM);
-    toast.success("Partido publicado para que los arbitros indiquen disponibilidad.");
+    toast.success("Partido publicado para que los jueces confirmen si pueden ir.");
   }
 
-  function handleToggleAvailability(matchId: string, role: RefereeRole) {
-    const referee = INITIAL_REFEREES.find((item) => item.id === selectedRefereeId);
-    if (!referee || !referee.roles.includes(role)) {
-      toast.error("Ese rol no esta habilitado para este arbitro.");
-      return;
-    }
-
+  function handleToggleAvailability(matchId: string) {
     setAvailability((current) => {
       const existing = current.find((entry) => entry.refereeId === selectedRefereeId && entry.matchId === matchId);
-      if (!existing) {
-        return [...current, { refereeId: selectedRefereeId, matchId, roles: [role], createdAt: new Date().toISOString() }];
-      }
-
-      const hasRole = existing.roles.includes(role);
-      const nextRoles = hasRole ? existing.roles.filter((item) => item !== role) : [...existing.roles, role];
-
-      if (!nextRoles.length) {
+      if (existing) {
         return current.filter((entry) => entry !== existing);
       }
 
-      return current.map((entry) => (entry === existing ? { ...entry, roles: nextRoles } : entry));
+      return [...current, { refereeId: selectedRefereeId, matchId, createdAt: new Date().toISOString() }];
     });
+  }
+
+  function applySuggestedDesignation(matchId: string) {
+    const suggested = suggestAssignment(matchId, INITIAL_REFEREES, availability);
+    if (!suggested) {
+      toast.error("No hay suficientes arbitros compatibles para completar la designacion.");
+      return null;
+    }
+
+    setDesignationDraft(suggested);
+    return suggested;
   }
 
   function handleCloseRegistration(matchId: string) {
     setMatches((current) => current.map((match) => (match.id === matchId ? { ...match, status: "closed" } : match)));
-    toast.success("Inscripcion cerrada. Ya se puede realizar la designacion.");
+    const suggested = applySuggestedDesignation(matchId);
+    if (suggested) {
+      toast.success("Inscripcion cerrada. El sistema ya preparo una propuesta de designacion.");
+    }
   }
 
   function handleReopenRegistration(matchId: string) {
@@ -97,6 +105,19 @@ export function JuezHomePage() {
 
   function handleDesignationChange(role: RefereeRole, refereeId: string) {
     setDesignationDraft((current) => ({ ...current, [role]: refereeId }));
+  }
+
+  function handleUseSuggestedDesignation() {
+    const selectedMatch = matches.find((match) => match.id === selectedMatchId);
+    if (!selectedMatch) {
+      toast.error("Selecciona un partido para sugerir la designacion.");
+      return;
+    }
+
+    const suggested = applySuggestedDesignation(selectedMatch.id);
+    if (suggested) {
+      toast.success("Sugerencia del sistema aplicada.");
+    }
   }
 
   function handleConfirmDesignation() {
@@ -113,7 +134,7 @@ export function JuezHomePage() {
 
     const uniqueReferees = new Set(Object.values(designationDraft));
     if (uniqueReferees.size !== 3) {
-      toast.error("Para esta demo cada rol debe quedar asignado a una persona distinta.");
+      toast.error("Cada puesto debe quedar asignado a una persona distinta.");
       return;
     }
 
@@ -134,6 +155,24 @@ export function JuezHomePage() {
     toast.success("Designacion oficial confirmada.");
   }
 
+  function handleStartTournamentEdit() {
+    setTournamentDraft(currentTournament);
+    setIsEditingTournament(true);
+  }
+
+  function handleSaveTournament() {
+    const nextTournament = tournamentDraft.trim();
+    if (!nextTournament) {
+      setTournamentDraft(currentTournament);
+      setIsEditingTournament(false);
+      return;
+    }
+
+    setCurrentTournament(nextTournament);
+    setIsEditingTournament(false);
+    toast.success("Torneo predefinido actualizado.");
+  }
+
   return (
     <main className="juez-app">
       <section className="juez-shell">
@@ -143,8 +182,8 @@ export function JuezHomePage() {
               <p className="juez-eyebrow">SaasPro · demo visual</p>
               <h1 className="juez-title">Juez</h1>
               <p className="juez-subtitle">
-                Flujo visual para administrar designaciones arbitrales de voleibol: publicar partidos, recibir
-                disponibilidad, designar por rol compatible y mostrar historial de asignaciones.
+                Demo pensada para mostrar rapido el flujo: publicar partido, confirmar disponibilidad y dejar que el
+                sistema proponga la designacion segun los roles habilitados de cada juez.
               </p>
             </div>
 
@@ -153,7 +192,7 @@ export function JuezHomePage() {
                 Administrador
               </button>
               <button type="button" className={`juez-tab ${viewMode === "referees" ? "is-active" : ""}`} onClick={() => setViewMode("referees")}>
-                Arbitros
+                Jueces
               </button>
             </div>
           </div>
@@ -161,24 +200,24 @@ export function JuezHomePage() {
 
         <section className="juez-summary-grid">
           <article className="juez-summary-card">
-            <strong>Partidos publicados</strong>
+            <strong>Partidos</strong>
             <span>{matches.length}</span>
-            <p>Jornada total cargada</p>
+            <p>Jornada cargada</p>
           </article>
           <article className="juez-summary-card">
-            <strong>Inscripcion abierta</strong>
+            <strong>Abiertos</strong>
             <span>{summary.openMatches}</span>
-            <p>Esperando disponibilidad</p>
+            <p>Esperando confirmacion</p>
           </article>
           <article className="juez-summary-card">
-            <strong>Listos para designar</strong>
+            <strong>Por designar</strong>
             <span>{summary.pendingMatches}</span>
-            <p>Cierre completado</p>
+            <p>Con inscripcion cerrada</p>
           </article>
           <article className="juez-summary-card">
-            <strong>Designaciones oficiales</strong>
+            <strong>Oficiales</strong>
             <span>{summary.assignedMatches}</span>
-            <p>Historial confirmado</p>
+            <p>Designaciones cerradas</p>
           </article>
         </section>
 
@@ -191,13 +230,20 @@ export function JuezHomePage() {
             selectedMatchId={selectedMatchId}
             matchForm={matchForm}
             designationDraft={designationDraft}
+            currentTournament={currentTournament}
+            isEditingTournament={isEditingTournament}
+            tournamentDraft={tournamentDraft}
             onSelectMatch={setSelectedMatchId}
             onChangeMatchForm={handleChangeMatchForm}
             onCreateMatch={handleCreateMatch}
             onCloseRegistration={handleCloseRegistration}
             onReopenRegistration={handleReopenRegistration}
             onDesignationChange={handleDesignationChange}
+            onUseSuggestedDesignation={handleUseSuggestedDesignation}
             onConfirmDesignation={handleConfirmDesignation}
+            onStartTournamentEdit={handleStartTournamentEdit}
+            onTournamentDraftChange={setTournamentDraft}
+            onSaveTournament={handleSaveTournament}
           />
         ) : (
           <JuezRefereeView

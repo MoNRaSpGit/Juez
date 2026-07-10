@@ -1,11 +1,5 @@
-import { AvailabilityEntry, Assignment, Match, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
-import {
-  formatMatchDate,
-  formatMatchLabel,
-  getAssignedMatchesForReferee,
-  getAssignedRoleLabel,
-  getAvailabilityForReferee
-} from "../juez.utils";
+import { AvailabilityEntry, Assignment, Match, Referee, ROLE_LABELS } from "../juez.types";
+import { formatMatchDate, formatMatchLabel, getAssignedMatchesForReferee, getAssignedRoleLabel, getAvailabilityForReferee } from "../juez.utils";
 
 type JuezRefereeViewProps = {
   selectedRefereeId: string;
@@ -14,7 +8,7 @@ type JuezRefereeViewProps = {
   availability: AvailabilityEntry[];
   assignments: Assignment[];
   onSelectReferee: (refereeId: string) => void;
-  onToggleAvailability: (matchId: string, role: RefereeRole) => void;
+  onToggleAvailability: (matchId: string) => void;
 };
 
 export function JuezRefereeView({
@@ -33,14 +27,14 @@ export function JuezRefereeView({
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
+        <div className="juez-panel__heading juez-panel__heading--stack-mobile">
           <div>
             <p className="juez-eyebrow">Arbitros</p>
-            <h2>Disponibilidad por partido</h2>
+            <h2>Confirmar disponibilidad</h2>
           </div>
         </div>
 
-        <div className="juez-referee-toolbar">
+        <div className="juez-referee-toolbar juez-referee-toolbar--stack-mobile">
           <label className="juez-field juez-field--compact">
             <span>Perfil demo</span>
             <select value={selectedReferee.id} onChange={(event) => onSelectReferee(event.target.value)}>
@@ -65,8 +59,8 @@ export function JuezRefereeView({
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>
-            <p className="juez-eyebrow">Inscripcion</p>
-            <h2>Partidos disponibles</h2>
+            <p className="juez-eyebrow">Partidos</p>
+            <h2>Yo puedo ir a...</h2>
           </div>
         </div>
 
@@ -82,24 +76,18 @@ export function JuezRefereeView({
                   </div>
                   <div className="juez-referee-match-card__meta">
                     <span>{formatMatchDate(match.date, match.time)}</span>
-                    <span>{match.court}</span>
                   </div>
                 </div>
 
-                <div className="juez-role-toggle-row">
-                  {selectedReferee.roles.map((role) => {
-                    const isChecked = currentAvailability?.roles.includes(role) ?? false;
-                    return (
-                      <button
-                        key={role}
-                        type="button"
-                        className={`juez-role-toggle ${isChecked ? "is-checked" : ""}`}
-                        onClick={() => onToggleAvailability(match.id, role)}
-                      >
-                        {ROLE_LABELS[role]}
-                      </button>
-                    );
-                  })}
+                <div className="juez-referee-availability-bar">
+                  <p>El sistema despues decide si vas arriba, abajo o planilla segun tus roles habilitados.</p>
+                  <button
+                    type="button"
+                    className={`juez-button ${currentAvailability ? "juez-button--primary" : ""}`}
+                    onClick={() => onToggleAvailability(match.id)}
+                  >
+                    {currentAvailability ? "Confirmado para este partido" : "Puedo ir a este partido"}
+                  </button>
                 </div>
               </article>
             );
@@ -124,7 +112,7 @@ export function JuezRefereeView({
               <article key={match.id} className="juez-history-card">
                 <div>
                   <strong>{formatMatchLabel(match)}</strong>
-                  <p>{formatMatchDate(match.date, match.time)} · {match.court}</p>
+                  <p>{formatMatchDate(match.date, match.time)}</p>
                 </div>
                 <span className="juez-pill juez-pill--green">{roleLabel}</span>
               </article>
