@@ -14,7 +14,8 @@ export const INITIAL_MATCHES: Match[] = [
   {
     id: "match-1",
     tournament: DEFAULT_TOURNAMENT,
-    club: "Atenas vs Trouville",
+    homeSide: "Atenas",
+    awaySide: "Trouville",
     date: "2026-07-12",
     time: "18:30",
     status: "open"
@@ -22,7 +23,8 @@ export const INITIAL_MATCHES: Match[] = [
   {
     id: "match-2",
     tournament: DEFAULT_TOURNAMENT,
-    club: "Bohemios vs Malvin",
+    homeSide: "Bohemios",
+    awaySide: "Malvin",
     date: "2026-07-12",
     time: "20:15",
     status: "closed"
@@ -30,7 +32,8 @@ export const INITIAL_MATCHES: Match[] = [
   {
     id: "match-3",
     tournament: DEFAULT_TOURNAMENT,
-    club: "Urunday vs Atenas",
+    homeSide: "Urunday",
+    awaySide: "Atenas",
     date: "2026-07-13",
     time: "21:00",
     status: "assigned"
@@ -58,7 +61,8 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
 ];
 
 export const EMPTY_MATCH_FORM: MatchFormState = {
-  club: "",
+  homeSide: "",
+  awaySide: "",
   date: "",
   time: ""
 };

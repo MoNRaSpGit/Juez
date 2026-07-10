@@ -47,15 +47,16 @@ export function JuezHomePage() {
   }
 
   function handleCreateMatch() {
-    if (!matchForm.club || !matchForm.date || !matchForm.time) {
-      toast.error("Completa club, fecha y hora para publicar el partido.");
+    if (!matchForm.homeSide || !matchForm.awaySide || !matchForm.date || !matchForm.time) {
+      toast.error("Completa cuadro A, cuadro B, fecha y hora para publicar el partido.");
       return;
     }
 
     const nextMatch: Match = {
       id: buildMatchId(),
       tournament: currentTournament,
-      club: matchForm.club,
+      homeSide: matchForm.homeSide,
+      awaySide: matchForm.awaySide,
       date: matchForm.date,
       time: matchForm.time,
       status: "open"

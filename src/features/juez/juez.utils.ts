@@ -1,7 +1,7 @@
 import { Assignment, AvailabilityEntry, Match, Referee, RefereeRole, ROLE_LABELS } from "./juez.types";
 
 export function formatMatchLabel(match: Match) {
-  return match.club;
+  return `${match.homeSide} vs ${match.awaySide}`;
 }
 
 export function formatMatchDate(date: string, time: string) {

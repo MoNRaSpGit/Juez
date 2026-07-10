@@ -86,8 +86,20 @@ export function JuezAdminView({
 
         <div className="juez-form-grid juez-form-grid--mobile-first">
           <label className="juez-field juez-field--full-mobile">
-            <span>Club</span>
-            <input value={matchForm.club} onChange={(event) => onChangeMatchForm("club", event.target.value)} placeholder="Atenas vs Trouville" />
+            <span>Cuadro A</span>
+            <input
+              value={matchForm.homeSide}
+              onChange={(event) => onChangeMatchForm("homeSide", event.target.value)}
+              placeholder="Atenas"
+            />
+          </label>
+          <label className="juez-field juez-field--full-mobile">
+            <span>Cuadro B</span>
+            <input
+              value={matchForm.awaySide}
+              onChange={(event) => onChangeMatchForm("awaySide", event.target.value)}
+              placeholder="Trouville"
+            />
           </label>
           <label className="juez-field">
             <span>Fecha</span>
