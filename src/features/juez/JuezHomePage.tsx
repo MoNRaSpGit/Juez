@@ -24,6 +24,7 @@ const EMPTY_DRAFT: Record<RefereeRole, string> = {
 
 export function JuezHomePage() {
   const [viewMode, setViewMode] = useState<ViewMode>("admin");
+  const [referees, setReferees] = useState(INITIAL_REFEREES);
   const [matches, setMatches] = useState(INITIAL_MATCHES);
   const [availability, setAvailability] = useState(INITIAL_AVAILABILITY);
   const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
@@ -80,7 +81,7 @@ export function JuezHomePage() {
   }
 
   function applySuggestedDesignation(matchId: string) {
-    const suggested = suggestAssignment(matchId, INITIAL_REFEREES, availability);
+    const suggested = suggestAssignment(matchId, referees, availability);
     if (!suggested) {
       toast.error("No hay suficientes arbitros compatibles para completar la designacion.");
       return null;
@@ -174,6 +175,29 @@ export function JuezHomePage() {
     toast.success("Torneo predefinido actualizado.");
   }
 
+  function handleToggleRefereeRole(refereeId: string, role: RefereeRole) {
+    setReferees((current) =>
+      current.map((referee) => {
+        if (referee.id !== refereeId) {
+          return referee;
+        }
+
+        const hasRole = referee.roles.includes(role);
+        const nextRoles = hasRole ? referee.roles.filter((item) => item !== role) : [...referee.roles, role];
+
+        if (!nextRoles.length) {
+          toast.error("Cada juez debe conservar al menos un rol.");
+          return referee;
+        }
+
+        return {
+          ...referee,
+          roles: nextRoles
+        };
+      })
+    );
+  }
+
   return (
     <main className="juez-app">
       <section className="juez-shell">
@@ -225,7 +249,7 @@ export function JuezHomePage() {
         {viewMode === "admin" ? (
           <JuezAdminView
             matches={matches}
-            referees={INITIAL_REFEREES}
+            referees={referees}
             availability={availability}
             assignments={assignments}
             selectedMatchId={selectedMatchId}
@@ -245,11 +269,12 @@ export function JuezHomePage() {
             onStartTournamentEdit={handleStartTournamentEdit}
             onTournamentDraftChange={setTournamentDraft}
             onSaveTournament={handleSaveTournament}
+            onToggleRefereeRole={handleToggleRefereeRole}
           />
         ) : (
           <JuezRefereeView
             selectedRefereeId={selectedRefereeId}
-            referees={INITIAL_REFEREES}
+            referees={referees}
             matches={matches}
             availability={availability}
             assignments={assignments}

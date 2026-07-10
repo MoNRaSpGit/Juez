@@ -23,6 +23,7 @@ type JuezAdminViewProps = {
   onStartTournamentEdit: () => void;
   onTournamentDraftChange: (value: string) => void;
   onSaveTournament: () => void;
+  onToggleRefereeRole: (refereeId: string, role: RefereeRole) => void;
 };
 
 export function JuezAdminView({
@@ -46,7 +47,8 @@ export function JuezAdminView({
   onConfirmDesignation,
   onStartTournamentEdit,
   onTournamentDraftChange,
-  onSaveTournament
+  onSaveTournament,
+  onToggleRefereeRole
 }: JuezAdminViewProps) {
   const selectedMatch = matches.find((match) => match.id === selectedMatchId) ?? matches[0] ?? null;
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === selectedMatch?.id);
@@ -143,6 +145,44 @@ export function JuezAdminView({
                 <span>{formatMatchDate(match.date, match.time)}</span>
               </div>
             </button>
+          ))}
+        </div>
+      </article>
+
+      <article className="juez-panel juez-panel--span-2">
+        <div className="juez-panel__heading">
+          <div>
+            <p className="juez-eyebrow">Roles</p>
+            <h2>Jueces registrados</h2>
+          </div>
+        </div>
+
+        <div className="juez-referee-admin-list">
+          {referees.map((referee) => (
+            <article key={referee.id} className="juez-referee-admin-card">
+              <div className="juez-referee-admin-card__head">
+                <div>
+                  <strong>{referee.name}</strong>
+                  <p>{referee.city}</p>
+                </div>
+              </div>
+
+              <div className="juez-role-toggle-row">
+                {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
+                  const isChecked = referee.roles.includes(role);
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      className={`juez-role-toggle ${isChecked ? "is-checked" : ""}`}
+                      onClick={() => onToggleRefereeRole(referee.id, role)}
+                    >
+                      {ROLE_LABELS[role]}
+                    </button>
+                  );
+                })}
+              </div>
+            </article>
           ))}
         </div>
       </article>

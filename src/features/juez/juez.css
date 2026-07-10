@@ -193,7 +193,8 @@
 .juez-match-list,
 .juez-history-list,
 .juez-mini-list,
-.juez-referee-match-list {
+.juez-referee-match-list,
+.juez-referee-admin-list {
   display: grid;
   gap: 12px;
 }
@@ -201,6 +202,7 @@
 .juez-match-card,
 .juez-history-card,
 .juez-referee-match-card,
+.juez-referee-admin-card,
 .juez-role-card,
 .juez-designation-callout {
   width: 100%;
@@ -322,6 +324,21 @@
   display: grid;
   gap: 12px;
   margin-top: 12px;
+}
+
+.juez-referee-admin-card {
+  display: grid;
+  gap: 12px;
+}
+
+.juez-referee-admin-card__head strong {
+  display: block;
+  font-size: 16px;
+}
+
+.juez-referee-admin-card__head p {
+  margin: 6px 0 0;
+  color: #64748b;
 }
 
 .juez-empty-inline {
