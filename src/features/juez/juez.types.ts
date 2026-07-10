@@ -1,0 +1,53 @@
+export const ROLE_LABELS = {
+  principal: "Arbitro Principal",
+  secundario: "Arbitro Secundario",
+  planillero: "Planillero"
+} as const;
+
+export type RefereeRole = keyof typeof ROLE_LABELS;
+
+export type Referee = {
+  id: string;
+  name: string;
+  roles: RefereeRole[];
+  city: string;
+};
+
+export type MatchStatus = "open" | "closed" | "assigned";
+
+export type Match = {
+  id: string;
+  tournament: string;
+  homeTeam: string;
+  awayTeam: string;
+  date: string;
+  time: string;
+  court: string;
+  notes: string;
+  status: MatchStatus;
+};
+
+export type AvailabilityEntry = {
+  refereeId: string;
+  matchId: string;
+  roles: RefereeRole[];
+  createdAt: string;
+};
+
+export type Assignment = {
+  matchId: string;
+  principalRefereeId: string;
+  secondaryRefereeId: string;
+  scorerRefereeId: string;
+  confirmedAt: string;
+};
+
+export type MatchFormState = {
+  tournament: string;
+  homeTeam: string;
+  awayTeam: string;
+  date: string;
+  time: string;
+  court: string;
+  notes: string;
+};

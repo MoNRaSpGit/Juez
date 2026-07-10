@@ -1,0 +1,23 @@
+{
+  "name": "Juez",
+  "short_name": "Juez",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#101828",
+  "theme_color": "#101828",
+  "lang": "es-UY",
+  "icons": [
+    {
+      "src": "icons/juez-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/juez-icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

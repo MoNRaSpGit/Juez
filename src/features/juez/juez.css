@@ -1,0 +1,405 @@
+.juez-app {
+  min-height: 100vh;
+  background: #f3f6fb;
+  color: #0f172a;
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.juez-shell {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 18px 56px;
+  display: grid;
+  gap: 18px;
+}
+
+.juez-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+  border: 1px solid #dbe5f3;
+  border-radius: 8px;
+  padding: 26px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.juez-hero__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.juez-title {
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.juez-subtitle {
+  margin: 0;
+  max-width: 780px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.juez-eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.juez-summary-grid,
+.juez-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.juez-summary-card,
+.juez-panel {
+  background: #ffffff;
+  border: 1px solid #dbe5f3;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+}
+
+.juez-summary-card {
+  grid-column: span 3;
+}
+
+.juez-panel {
+  grid-column: span 6;
+}
+
+.juez-panel--span-2 {
+  grid-column: span 12;
+}
+
+.juez-panel__heading,
+.juez-hero__stats,
+.juez-match-card__main,
+.juez-confirm-bar,
+.juez-referee-toolbar,
+.juez-referee-match-card__head,
+.juez-role-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.juez-tab-row,
+.juez-role-strip,
+.juez-inline-actions,
+.juez-role-toggle-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.juez-tab {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid #c9d6ea;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.juez-tab.is-active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+.juez-summary-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.juez-summary-card span {
+  display: block;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.juez-summary-card p {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.juez-form-grid,
+.juez-designation-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.juez-field {
+  grid-column: span 4;
+  display: grid;
+  gap: 8px;
+}
+
+.juez-field--full {
+  grid-column: span 12;
+}
+
+.juez-field--compact {
+  width: min(300px, 100%);
+}
+
+.juez-field span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.juez-field input,
+.juez-field select,
+.juez-field textarea,
+.juez-role-card select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 0 12px;
+  color: #0f172a;
+  font: inherit;
+}
+
+.juez-field textarea {
+  min-height: 92px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.juez-button {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.juez-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.juez-button--primary {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.juez-button--ghost {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.juez-match-list,
+.juez-history-list,
+.juez-mini-list,
+.juez-referee-match-list {
+  display: grid;
+  gap: 12px;
+}
+
+.juez-match-card,
+.juez-history-card,
+.juez-referee-match-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #d7e1ef;
+  background: #fbfdff;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.juez-match-card {
+  cursor: pointer;
+}
+
+.juez-match-card.is-active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.juez-match-card__main strong,
+.juez-referee-match-card strong,
+.juez-history-card strong {
+  font-size: 16px;
+}
+
+.juez-match-card__main p,
+.juez-referee-match-card p,
+.juez-history-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.juez-match-card__meta,
+.juez-selected-match-meta,
+.juez-history-card__roles,
+.juez-referee-match-card__meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.juez-pill,
+.juez-role-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.juez-pill--blue {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.juez-pill--amber {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.juez-pill--green,
+.juez-role-chip {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.juez-role-card {
+  grid-column: span 4;
+  border: 1px solid #dbe5f3;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fbfdff;
+  display: grid;
+  gap: 12px;
+}
+
+.juez-role-card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.juez-role-card__header span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.juez-mini-list__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.juez-mini-list__item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.juez-mini-list__item span {
+  color: #64748b;
+}
+
+.juez-confirm-bar {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.juez-assignment-summary {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #dbe5f3;
+}
+
+.juez-assignment-summary ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.juez-role-toggle {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.juez-role-toggle.is-checked {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+.juez-empty-inline {
+  margin: 0;
+  color: #64748b;
+}
+
+@media (max-width: 1024px) {
+  .juez-summary-card,
+  .juez-panel,
+  .juez-panel--span-2,
+  .juez-role-card,
+  .juez-field {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 700px) {
+  .juez-shell {
+    padding: 16px 12px 40px;
+  }
+
+  .juez-hero,
+  .juez-summary-card,
+  .juez-panel {
+    padding: 16px;
+  }
+
+  .juez-panel__heading,
+  .juez-hero__top,
+  .juez-confirm-bar,
+  .juez-referee-toolbar,
+  .juez-referee-match-card__head,
+  .juez-role-card__header {
+    flex-direction: column;
+  }
+
+  .juez-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
