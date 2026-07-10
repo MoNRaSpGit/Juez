@@ -83,7 +83,7 @@ export function JuezRefereeView({
                 <div className="juez-referee-match-card__head">
                   <div>
                     <strong>{formatMatchLabel(match)}</strong>
-                    <p>{match.tournament}</p>
+                    <p>{match.tournament} · {match.venue}</p>
                   </div>
                   <div className="juez-referee-match-card__meta">
                     <span>{formatMatchDate(match.date, match.time)}</span>
@@ -123,7 +123,7 @@ export function JuezRefereeView({
               <article key={match.id} className="juez-history-card">
                 <div>
                   <strong>{formatMatchLabel(match)}</strong>
-                  <p>{formatMatchDate(match.date, match.time)}</p>
+                  <p>{match.venue} · {formatMatchDate(match.date, match.time)}</p>
                 </div>
                 <span className="juez-pill juez-pill--green">{roleLabel}</span>
               </article>

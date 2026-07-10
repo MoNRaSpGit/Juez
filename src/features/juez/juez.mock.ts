@@ -16,6 +16,7 @@ export const INITIAL_MATCHES: Match[] = [
     tournament: DEFAULT_TOURNAMENT,
     homeSide: "Atenas",
     awaySide: "Trouville",
+    venue: "Club Atenas",
     date: "2026-07-12",
     time: "18:30",
     status: "open"
@@ -25,6 +26,7 @@ export const INITIAL_MATCHES: Match[] = [
     tournament: DEFAULT_TOURNAMENT,
     homeSide: "Bohemios",
     awaySide: "Malvin",
+    venue: "Club Bohemios",
     date: "2026-07-12",
     time: "20:15",
     status: "closed"
@@ -34,6 +36,7 @@ export const INITIAL_MATCHES: Match[] = [
     tournament: DEFAULT_TOURNAMENT,
     homeSide: "Urunday",
     awaySide: "Atenas",
+    venue: "Club Urunday",
     date: "2026-07-13",
     time: "21:00",
     status: "assigned"
@@ -63,6 +66,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
 export const EMPTY_MATCH_FORM: MatchFormState = {
   homeSide: "",
   awaySide: "",
+  venue: "",
   date: "",
   time: ""
 };

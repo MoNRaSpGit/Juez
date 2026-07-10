@@ -114,6 +114,14 @@ export function JuezAdminView({
               placeholder="Trouville"
             />
           </label>
+          <label className="juez-field juez-field--full-mobile">
+            <span>Lugar / Club</span>
+            <input
+              value={matchForm.venue}
+              onChange={(event) => onChangeMatchForm("venue", event.target.value)}
+              placeholder="Club Atenas"
+            />
+          </label>
           <label className="juez-field">
             <span>Fecha</span>
             <input type="date" value={matchForm.date} onChange={(event) => onChangeMatchForm("date", event.target.value)} />
@@ -154,6 +162,7 @@ export function JuezAdminView({
                 <span className={`juez-pill juez-pill--${getStatusTone(match.status)}`}>{getStatusLabel(match.status)}</span>
               </div>
               <div className="juez-match-card__meta">
+                <span>{match.venue}</span>
                 <span>{formatMatchDate(match.date, match.time)}</span>
               </div>
             </button>
@@ -231,6 +240,7 @@ export function JuezAdminView({
 
           <div className="juez-selected-match-meta">
             <span>{selectedMatch.tournament}</span>
+            <span>{selectedMatch.venue}</span>
             <span>{formatMatchDate(selectedMatch.date, selectedMatch.time)}</span>
             <span>{selectedAvailability.length} arbitros confirmados</span>
           </div>
@@ -325,7 +335,7 @@ export function JuezAdminView({
               <article key={assignment.matchId} className="juez-history-card">
                 <div>
                   <strong>{formatMatchLabel(match)}</strong>
-                  <p>{formatMatchDate(match.date, match.time)}</p>
+                  <p>{match.venue} · {formatMatchDate(match.date, match.time)}</p>
                 </div>
                 <div className="juez-history-card__roles">
                   <span>P: {referees.find((item) => item.id === assignment.principalRefereeId)?.name}</span>

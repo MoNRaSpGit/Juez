@@ -20,6 +20,7 @@ export type Match = {
   tournament: string;
   homeSide: string;
   awaySide: string;
+  venue: string;
   date: string;
   time: string;
   status: MatchStatus;
@@ -42,6 +43,7 @@ export type Assignment = {
 export type MatchFormState = {
   homeSide: string;
   awaySide: string;
+  venue: string;
   date: string;
   time: string;
 };
