@@ -70,7 +70,7 @@ export function JuezRefereeView({
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">Partidos</p>
-            <h2>Yo puedo ir a...</h2>
+            <h2>Disponibles</h2>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ export function JuezRefereeView({
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">Designaciones</p>
-            <h2>Mis partidos asignados</h2>
+            <h2>Asignados</h2>
           </div>
         </div>
 

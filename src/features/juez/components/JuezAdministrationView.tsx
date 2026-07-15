@@ -21,7 +21,7 @@ export function JuezAdministrationView({ referees, onToggleRefereeRole }: JuezAd
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">Administracion</p>
-            <h2>Roles de jueces</h2>
+            <h2>Roles</h2>
           </div>
         </div>
 

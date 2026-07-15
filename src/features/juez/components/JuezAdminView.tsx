@@ -206,7 +206,7 @@ export function JuezAdminView({
                 <section key={role} className="juez-role-card">
                   <div className="juez-role-card__header">
                     <h3>{ROLE_LABELS[role]}</h3>
-                    <span>{compatibleReferees.length} compatibles</span>
+                    <span>{compatibleReferees.length}</span>
                   </div>
 
                   <select
@@ -232,7 +232,7 @@ export function JuezAdminView({
                         <span>{referee.roles.map((item) => ROLE_LABELS[item]).join(" - ")}</span>
                       </div>
                     ))}
-                    {!compatibleReferees.length ? <p className="juez-empty-inline">Sin arbitros compatibles todavia.</p> : null}
+                    {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
                   </div>
                 </section>
               );
@@ -242,7 +242,7 @@ export function JuezAdminView({
           <div className="juez-confirm-bar">
             <div className="juez-inline-actions">
               <button type="button" className="juez-button" onClick={onUseSuggestedDesignation} disabled={selectedMatch.status === "open"}>
-                Usar sugerencia del sistema
+                Sugerir
               </button>
               <button
                 type="button"
@@ -250,14 +250,14 @@ export function JuezAdminView({
                 onClick={onConfirmDesignation}
                 disabled={selectedMatch.status === "open"}
               >
-                Aceptar designacion
+                Confirmar
               </button>
             </div>
           </div>
 
           {selectedAssignment ? (
             <div className="juez-assignment-summary">
-              <strong>Designacion confirmada:</strong>
+              <strong>Designacion</strong>
               <ul>
                 <li>Principal: {referees.find((item) => item.id === selectedAssignment.principalRefereeId)?.name ?? "-"}</li>
                 <li>Secundario: {referees.find((item) => item.id === selectedAssignment.secondaryRefereeId)?.name ?? "-"}</li>
@@ -272,7 +272,7 @@ export function JuezAdminView({
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">Historial</p>
-            <h2>Designaciones oficiales</h2>
+            <h2>Historial</h2>
           </div>
         </div>
 

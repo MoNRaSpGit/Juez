@@ -206,9 +206,8 @@ export function JuezHomePage() {
         <header className="juez-hero">
           <div className="juez-hero__top">
             <div>
-              <p className="juez-eyebrow">SaasPro · demo visual</p>
+              <p className="juez-eyebrow">SaasPro</p>
               <h1 className="juez-title">Juez</h1>
-              <p className="juez-subtitle">Partidos, disponibilidad y designacion.</p>
             </div>
 
             <div className="juez-tab-row">
@@ -233,22 +232,22 @@ export function JuezHomePage() {
           <article className="juez-summary-card">
             <strong>Partidos</strong>
             <span>{matches.length}</span>
-            <p>Cargados</p>
+            <p>{summary.openMatches + summary.pendingMatches + summary.assignedMatches}</p>
           </article>
           <article className="juez-summary-card">
             <strong>Abiertos</strong>
             <span>{summary.openMatches}</span>
-            <p>En espera</p>
+            <p>{summary.openMatches}</p>
           </article>
           <article className="juez-summary-card">
             <strong>Por designar</strong>
             <span>{summary.pendingMatches}</span>
-            <p>Pendientes</p>
+            <p>{summary.pendingMatches}</p>
           </article>
           <article className="juez-summary-card">
             <strong>Oficiales</strong>
             <span>{summary.assignedMatches}</span>
-            <p>Confirmados</p>
+            <p>{summary.assignedMatches}</p>
           </article>
         </section>
 
