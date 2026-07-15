@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import "./juez.css";
 import { JuezAdminView } from "./components/JuezAdminView";
+import { JuezAdministrationView } from "./components/JuezAdministrationView";
 import { JuezRefereeView } from "./components/JuezRefereeView";
 import {
   DEFAULT_TOURNAMENT,
@@ -14,7 +15,7 @@ import {
 import { buildMatchId, suggestAssignment } from "./juez.utils";
 import { Assignment, Match, MatchFormState, RefereeRole } from "./juez.types";
 
-type ViewMode = "admin" | "referees";
+type ViewMode = "matches" | "referees" | "administration";
 
 const EMPTY_DRAFT: Record<RefereeRole, string> = {
   principal: "",
@@ -23,7 +24,7 @@ const EMPTY_DRAFT: Record<RefereeRole, string> = {
 };
 
 export function JuezHomePage() {
-  const [viewMode, setViewMode] = useState<ViewMode>("admin");
+  const [viewMode, setViewMode] = useState<ViewMode>("matches");
   const [referees, setReferees] = useState(INITIAL_REFEREES);
   const [matches, setMatches] = useState(INITIAL_MATCHES);
   const [availability, setAvailability] = useState(INITIAL_AVAILABILITY);
@@ -214,11 +215,18 @@ export function JuezHomePage() {
             </div>
 
             <div className="juez-tab-row">
-              <button type="button" className={`juez-tab ${viewMode === "admin" ? "is-active" : ""}`} onClick={() => setViewMode("admin")}>
-                Administrador
+              <button type="button" className={`juez-tab ${viewMode === "matches" ? "is-active" : ""}`} onClick={() => setViewMode("matches")}>
+                Partidos
               </button>
               <button type="button" className={`juez-tab ${viewMode === "referees" ? "is-active" : ""}`} onClick={() => setViewMode("referees")}>
                 Jueces
+              </button>
+              <button
+                type="button"
+                className={`juez-tab ${viewMode === "administration" ? "is-active" : ""}`}
+                onClick={() => setViewMode("administration")}
+              >
+                Administracion
               </button>
             </div>
           </div>
@@ -247,7 +255,7 @@ export function JuezHomePage() {
           </article>
         </section>
 
-        {viewMode === "admin" ? (
+        {viewMode === "matches" ? (
           <JuezAdminView
             matches={matches}
             referees={referees}
@@ -270,9 +278,10 @@ export function JuezHomePage() {
             onStartTournamentEdit={handleStartTournamentEdit}
             onTournamentDraftChange={setTournamentDraft}
             onSaveTournament={handleSaveTournament}
-            onToggleRefereeRole={handleToggleRefereeRole}
           />
-        ) : (
+        ) : null}
+
+        {viewMode === "referees" ? (
           <JuezRefereeView
             selectedRefereeId={selectedRefereeId}
             referees={referees}
@@ -282,7 +291,11 @@ export function JuezHomePage() {
             onSelectReferee={setSelectedRefereeId}
             onToggleAvailability={handleToggleAvailability}
           />
-        )}
+        ) : null}
+
+        {viewMode === "administration" ? (
+          <JuezAdministrationView referees={referees} onToggleRefereeRole={handleToggleRefereeRole} />
+        ) : null}
       </section>
     </main>
   );

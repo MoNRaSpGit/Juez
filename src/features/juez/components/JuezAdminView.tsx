@@ -23,7 +23,6 @@ type JuezAdminViewProps = {
   onStartTournamentEdit: () => void;
   onTournamentDraftChange: (value: string) => void;
   onSaveTournament: () => void;
-  onToggleRefereeRole: (refereeId: string, role: RefereeRole) => void;
 };
 
 function getInitials(name: string) {
@@ -56,8 +55,7 @@ export function JuezAdminView({
   onConfirmDesignation,
   onStartTournamentEdit,
   onTournamentDraftChange,
-  onSaveTournament,
-  onToggleRefereeRole
+  onSaveTournament
 }: JuezAdminViewProps) {
   const selectedMatch = matches.find((match) => match.id === selectedMatchId) ?? matches[0] ?? null;
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === selectedMatch?.id);
@@ -70,7 +68,7 @@ export function JuezAdminView({
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading juez-panel__heading--stack-mobile">
           <div>
-            <p className="juez-eyebrow">Administrador</p>
+            <p className="juez-eyebrow">Partidos</p>
             <h2>Publicar partidos</h2>
             <p className="juez-section-copy">Carga rapida para la jornada. Pensado para armar partidos desde el celu en pocos toques.</p>
           </div>
@@ -170,52 +168,6 @@ export function JuezAdminView({
         </div>
       </article>
 
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
-          <div>
-            <p className="juez-eyebrow">Roles</p>
-            <h2>Jueces registrados</h2>
-            <p className="juez-section-copy">Define rapido qué puede hacer cada juez antes de cerrar inscripciones.</p>
-          </div>
-        </div>
-
-        <div className="juez-referee-admin-list">
-          {referees.map((referee) => (
-            <article key={referee.id} className="juez-referee-admin-card">
-              <div className="juez-referee-admin-card__head">
-                <div className="juez-referee-identity">
-                  <span className="juez-avatar">{getInitials(referee.name)}</span>
-                  <div>
-                    <strong>{referee.name}</strong>
-                    <p>{referee.city}</p>
-                  </div>
-                </div>
-                <div className="juez-referee-admin-card__meta">
-                  <span>{referee.roles.length} roles activos</span>
-                </div>
-              </div>
-
-              <div className="juez-role-toggle-row">
-                {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
-                  const isChecked = referee.roles.includes(role);
-                  return (
-                    <button
-                      key={role}
-                      type="button"
-                      className={`juez-role-toggle ${isChecked ? "is-checked" : ""}`}
-                      onClick={() => onToggleRefereeRole(referee.id, role)}
-                    >
-                      <span className="juez-role-toggle__dot" />
-                      {ROLE_LABELS[role]}
-                    </button>
-                  );
-                })}
-              </div>
-            </article>
-          ))}
-        </div>
-      </article>
-
       {selectedMatch ? (
         <article className="juez-panel juez-panel--span-2">
           <div className="juez-panel__heading juez-panel__heading--stack-mobile">
@@ -247,7 +199,10 @@ export function JuezAdminView({
 
           <div className="juez-designation-callout">
             <strong>Funcion del sistema</strong>
-            <p>El arbitro solo confirma si puede ir al partido. El sistema propone automaticamente quien va arriba, abajo y planilla segun los roles habilitados. El admin puede aceptar o editar.</p>
+            <p>
+              El arbitro solo confirma si puede ir al partido. El sistema propone automaticamente quien va arriba,
+              abajo y planilla segun los roles habilitados. El admin puede aceptar o editar.
+            </p>
           </div>
 
           <div className="juez-designation-grid">
@@ -299,7 +254,12 @@ export function JuezAdminView({
               <button type="button" className="juez-button" onClick={onUseSuggestedDesignation} disabled={selectedMatch.status === "open"}>
                 Usar sugerencia del sistema
               </button>
-              <button type="button" className="juez-button juez-button--primary" onClick={onConfirmDesignation} disabled={selectedMatch.status === "open"}>
+              <button
+                type="button"
+                className="juez-button juez-button--primary"
+                onClick={onConfirmDesignation}
+                disabled={selectedMatch.status === "open"}
+              >
                 Aceptar designacion
               </button>
             </div>
@@ -335,7 +295,9 @@ export function JuezAdminView({
               <article key={assignment.matchId} className="juez-history-card">
                 <div>
                   <strong>{formatMatchLabel(match)}</strong>
-                  <p>{match.venue} · {formatMatchDate(match.date, match.time)}</p>
+                  <p>
+                    {match.venue} · {formatMatchDate(match.date, match.time)}
+                  </p>
                 </div>
                 <div className="juez-history-card__roles">
                   <span>P: {referees.find((item) => item.id === assignment.principalRefereeId)?.name}</span>
