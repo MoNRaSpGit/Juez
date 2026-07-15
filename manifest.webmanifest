@@ -1,10 +1,12 @@
 {
   "name": "Juez",
   "short_name": "Juez",
+  "id": ".",
+  "scope": ".",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#101828",
-  "theme_color": "#101828",
+  "background_color": "#1f2937",
+  "theme_color": "#1f2937",
   "lang": "es-UY",
   "icons": [
     {
