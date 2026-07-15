@@ -1,0 +1,86 @@
+@media (max-width: 767px) {
+  .juez-shell {
+    padding: 14px 10px 28px;
+  }
+
+  .juez-hero,
+  .juez-panel {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .juez-topbar {
+    align-items: flex-start;
+  }
+
+  .juez-topbar__title {
+    font-size: 15px;
+  }
+
+  .juez-menu__trigger {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+
+  .juez-menu__panel {
+    width: min(100vw - 20px, 280px);
+  }
+
+  .juez-layout-grid {
+    gap: 10px;
+  }
+
+  .juez-referee-match-card__head,
+  .juez-match-card__main,
+  .juez-referee-toolbar,
+  .juez-panel__heading,
+  .juez-role-card__header,
+  .juez-confirm-bar {
+    gap: 10px;
+  }
+
+  .juez-referee-match-card__meta {
+    align-items: flex-start;
+  }
+
+  .juez-referee-match-card__time {
+    font-size: 16px;
+  }
+
+  .juez-designation-result__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .juez-designation-result__row strong {
+    text-align: left;
+  }
+
+  .juez-button,
+  .juez-role-toggle,
+  .juez-menu__item {
+    min-height: 42px;
+  }
+
+  .juez-modal {
+    padding: 10px;
+  }
+
+  .juez-modal__dialog {
+    max-height: calc(100vh - 20px);
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .juez-modal__header {
+    flex-direction: column;
+  }
+
+  .juez-modal__footer {
+    justify-content: stretch;
+  }
+
+  .juez-modal__footer .juez-button {
+    width: 100%;
+  }
+}

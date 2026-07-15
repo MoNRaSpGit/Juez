@@ -9,7 +9,7 @@ import {
   INITIAL_MATCHES,
   INITIAL_REFEREES
 } from "../juez.mock";
-import { buildMatchId, suggestAssignment } from "../juez.utils";
+import { buildMatchId } from "../juez.utils";
 import { Assignment, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
 
 export type ViewMode = "matches" | "referees" | "administration";
@@ -29,8 +29,21 @@ const EMPTY_DRAFT: Record<RefereeRole, string> = {
   planillero: ""
 };
 
+function createDesignationDraftFromAssignment(assignment?: Assignment | null) {
+  if (!assignment) {
+    return { ...EMPTY_DRAFT };
+  }
+
+  return {
+    principal: assignment.principalRefereeId,
+    secundario: assignment.secondaryRefereeId,
+    planillero: assignment.scorerRefereeId
+  };
+}
+
 const REFEREES_STORAGE_KEY = "juez-referees";
 const SESSION_STORAGE_KEY = "juez-session";
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,72}$/;
 
 function createEmptyAuthForm(): AuthFormState {
   return {
@@ -117,7 +130,7 @@ export function useJuezHomePageController() {
   const [matches, setMatches] = useState(INITIAL_MATCHES);
   const [availability, setAvailability] = useState(INITIAL_AVAILABILITY);
   const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
-  const [selectedMatchId, setSelectedMatchId] = useState(INITIAL_MATCHES[1]?.id ?? INITIAL_MATCHES[0]?.id ?? "");
+  const [selectedMatchId, setSelectedMatchId] = useState("");
   const [matchForm, setMatchForm] = useState<MatchFormState>(EMPTY_MATCH_FORM);
   const [designationDraft, setDesignationDraft] = useState<Record<RefereeRole, string>>(EMPTY_DRAFT);
   const [currentTournament, setCurrentTournament] = useState(DEFAULT_TOURNAMENT);
@@ -170,6 +183,12 @@ export function useJuezHomePageController() {
 
   function handleChangeMatchForm(field: keyof MatchFormState, value: string) {
     setMatchForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function handleSelectMatch(matchId: string) {
+    setSelectedMatchId(matchId);
+    const existingAssignment = assignments.find((assignment) => assignment.matchId === matchId);
+    setDesignationDraft(createDesignationDraftFromAssignment(existingAssignment));
   }
 
   function handleChangeAuthField(field: keyof Omit<AuthFormState, "roles">, value: string) {
@@ -227,6 +246,11 @@ export function useJuezHomePageController() {
 
     if (!name || !email || !password || !confirmPassword) {
       toast.error("Completa nombre, email y contrasenas.");
+      return;
+    }
+
+    if (!STRONG_PASSWORD_REGEX.test(password)) {
+      toast.error("Usa una contraseña de 12 caracteres o mas, con mayuscula, minuscula, numero y simbolo.");
       return;
     }
 
@@ -290,33 +314,21 @@ export function useJuezHomePageController() {
   function handleToggleAvailability(matchId: string) {
     if (!currentUser) return;
 
-    setAvailability((current) => {
-      const existing = current.find((entry) => entry.refereeId === currentUser.id && entry.matchId === matchId);
-      if (existing) {
-        return current.filter((entry) => entry !== existing);
-      }
+    const existing = availability.find((entry) => entry.refereeId === currentUser.id && entry.matchId === matchId);
 
-      return [...current, { refereeId: currentUser.id, matchId, createdAt: new Date().toISOString() }];
-    });
-  }
-
-  function applySuggestedDesignation(matchId: string) {
-    const suggested = suggestAssignment(matchId, referees, availability);
-    if (!suggested) {
-      toast.error("No hay suficientes arbitros compatibles para completar la designacion.");
-      return null;
+    if (existing) {
+      setAvailability((current) => current.filter((entry) => entry !== existing));
+      toast.info("Se quito tu confirmacion para este partido.");
+      return;
     }
 
-    setDesignationDraft(suggested);
-    return suggested;
+    setAvailability((current) => [...current, { refereeId: currentUser.id, matchId, createdAt: new Date().toISOString() }]);
+    toast.success("Quedaste confirmado para este partido.");
   }
 
   function handleCloseRegistration(matchId: string) {
     setMatches((current) => current.map((match) => (match.id === matchId ? { ...match, status: "closed" } : match)));
-    const suggested = applySuggestedDesignation(matchId);
-    if (suggested) {
-      toast.success("Inscripcion cerrada. El sistema ya preparo una propuesta de designacion.");
-    }
+    toast.success("Inscripcion cerrada. Ahora podes asignar los jueces manualmente.");
   }
 
   function handleReopenRegistration(matchId: string) {
@@ -327,19 +339,6 @@ export function useJuezHomePageController() {
 
   function handleDesignationChange(role: RefereeRole, refereeId: string) {
     setDesignationDraft((current) => ({ ...current, [role]: refereeId }));
-  }
-
-  function handleUseSuggestedDesignation() {
-    const selectedMatch = matches.find((match) => match.id === selectedMatchId);
-    if (!selectedMatch) {
-      toast.error("Selecciona un partido para sugerir la designacion.");
-      return;
-    }
-
-    const suggested = applySuggestedDesignation(selectedMatch.id);
-    if (suggested) {
-      toast.success("Sugerencia del sistema aplicada.");
-    }
   }
 
   function handleConfirmDesignation() {
@@ -373,6 +372,7 @@ export function useJuezHomePageController() {
       return [nextAssignment, ...withoutCurrent];
     });
     setMatches((current) => current.map((match) => (match.id === selectedMatch.id ? { ...match, status: "assigned" } : match)));
+    setSelectedMatchId("");
     setDesignationDraft(EMPTY_DRAFT);
     toast.success("Designacion oficial confirmada.");
   }
@@ -434,7 +434,6 @@ export function useJuezHomePageController() {
     handleToggleAuthRole,
     handleToggleAvailability,
     handleToggleRefereeRole,
-    handleUseSuggestedDesignation,
     isEditingTournament,
     matchForm,
     matches,
@@ -442,7 +441,7 @@ export function useJuezHomePageController() {
     selectedMatchId,
     setAuthForm,
     setAuthMode,
-    setSelectedMatchId,
+    setSelectedMatchId: handleSelectMatch,
     setTournamentDraft,
     summary,
     tournamentDraft,
@@ -454,3 +453,5 @@ export function useJuezHomePageController() {
 }
 
 export type JuezHomePageController = ReturnType<typeof useJuezHomePageController>;
+
+

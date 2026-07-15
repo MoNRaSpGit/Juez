@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { JuezAdminView } from "./JuezAdminView";
 import { JuezAdministrationView } from "./JuezAdministrationView";
 import { JuezRefereeView } from "./JuezRefereeView";
@@ -13,17 +14,14 @@ type JuezDashboardScreenProps = Pick<
   | "currentUser"
   | "designationDraft"
   | "handleChangeMatchForm"
-  | "handleCloseRegistration"
   | "handleConfirmDesignation"
   | "handleCreateMatch"
   | "handleDesignationChange"
   | "handleLogout"
-  | "handleReopenRegistration"
   | "handleSaveTournament"
   | "handleStartTournamentEdit"
   | "handleToggleAvailability"
   | "handleToggleRefereeRole"
-  | "handleUseSuggestedDesignation"
   | "isEditingTournament"
   | "matchForm"
   | "matches"
@@ -31,7 +29,6 @@ type JuezDashboardScreenProps = Pick<
   | "selectedMatchId"
   | "setSelectedMatchId"
   | "setTournamentDraft"
-  | "summary"
   | "tournamentDraft"
   | "viewMode"
   | "setViewMode"
@@ -45,17 +42,14 @@ export function JuezDashboardScreen({
   currentUser,
   designationDraft,
   handleChangeMatchForm,
-  handleCloseRegistration,
   handleConfirmDesignation,
   handleCreateMatch,
   handleDesignationChange,
   handleLogout,
-  handleReopenRegistration,
   handleSaveTournament,
   handleStartTournamentEdit,
   handleToggleAvailability,
   handleToggleRefereeRole,
-  handleUseSuggestedDesignation,
   isEditingTournament,
   matchForm,
   matches,
@@ -63,76 +57,104 @@ export function JuezDashboardScreen({
   selectedMatchId,
   setSelectedMatchId,
   setTournamentDraft,
-  summary,
   tournamentDraft,
   viewMode,
   setViewMode
 }: JuezDashboardScreenProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const currentUserInitials = currentUser?.name
+    ?.split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
   return (
     <main className="juez-app">
       <section className="juez-shell">
         <header className="juez-hero">
-          <div className="juez-hero__top">
-            <div>
-              <p className="juez-eyebrow">SaasPro</p>
-              <h1 className="juez-title">Juez</h1>
+          <div className="juez-topbar">
+            <div className="juez-topbar__brand">
+              <span className="juez-topbar__logo">J</span>
+              <strong className="juez-topbar__title">Juez</strong>
             </div>
 
-            <div className="juez-hero__actions">
-              <div className="juez-tab-row">
-                <button type="button" className={`juez-tab ${viewMode === "matches" ? "is-active" : ""}`} onClick={() => setViewMode("matches")}>
-                  Partidos
-                </button>
-                <button type="button" className={`juez-tab ${viewMode === "referees" ? "is-active" : ""}`} onClick={() => setViewMode("referees")}>
-                  Jueces
-                </button>
-                {canManageAdministration ? (
-                  <button
-                    type="button"
-                    className={`juez-tab ${viewMode === "administration" ? "is-active" : ""}`}
-                    onClick={() => setViewMode("administration")}
-                  >
-                    Administracion
-                  </button>
-                ) : null}
-              </div>
+            <div className="juez-menu">
+              <button
+                type="button"
+                className="juez-menu__trigger"
+                aria-expanded={menuOpen}
+                aria-controls="juez-menu-panel"
+                onClick={() => setMenuOpen((current) => !current)}
+              >
+                <span className="juez-menu__avatar">{currentUserInitials}</span>
+                <span className="juez-menu__icon" aria-hidden="true">
+                  <UserMenuIcon />
+                </span>
+                <span className="juez-menu__lines" aria-hidden="true">
+                  <HamburgerIcon />
+                </span>
+              </button>
 
-              <div className="juez-session-bar">
-                <div className="juez-session-chip">
-                  <strong>{currentUser?.name}</strong>
-                  <span>{currentUser?.city}</span>
-                  <span>{currentUser?.accountRole === "admin" ? "Administrador" : "Juez"}</span>
+              {menuOpen ? (
+                <div id="juez-menu-panel" className="juez-menu__panel">
+                  <div className="juez-menu__user">
+                    <span className="juez-menu__user-avatar">{currentUserInitials}</span>
+                    <strong>{currentUser?.name}</strong>
+                  </div>
+
+                  <div className="juez-menu__group">
+                    <button
+                      type="button"
+                      className={`juez-menu__item ${viewMode === "matches" ? "is-active" : ""}`}
+                      onClick={() => {
+                        setViewMode("matches");
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Partidos
+                    </button>
+                    <button
+                      type="button"
+                      className={`juez-menu__item ${viewMode === "referees" ? "is-active" : ""}`}
+                      onClick={() => {
+                        setViewMode("referees");
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Jueces
+                    </button>
+                    {canManageAdministration ? (
+                      <button
+                        type="button"
+                        className={`juez-menu__item ${viewMode === "administration" ? "is-active" : ""}`}
+                        onClick={() => {
+                          setViewMode("administration");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Admin
+                      </button>
+                    ) : null}
+                  </div>
+
+                  <div className="juez-menu__group juez-menu__group--last">
+                    <button
+                      type="button"
+                      className="juez-menu__item juez-menu__item--danger"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      Salir
+                    </button>
+                  </div>
                 </div>
-                <button type="button" className="juez-button juez-button--ghost" onClick={handleLogout}>
-                  Salir
-                </button>
-              </div>
+              ) : null}
             </div>
           </div>
         </header>
-
-        <section className="juez-summary-grid">
-          <article className="juez-summary-card">
-            <strong>Partidos</strong>
-            <span>{matches.length}</span>
-            <p>{summary.openMatches + summary.pendingMatches + summary.assignedMatches}</p>
-          </article>
-          <article className="juez-summary-card">
-            <strong>Abiertos</strong>
-            <span>{summary.openMatches}</span>
-            <p>{summary.openMatches}</p>
-          </article>
-          <article className="juez-summary-card">
-            <strong>Por designar</strong>
-            <span>{summary.pendingMatches}</span>
-            <p>{summary.pendingMatches}</p>
-          </article>
-          <article className="juez-summary-card">
-            <strong>Oficiales</strong>
-            <span>{summary.assignedMatches}</span>
-            <p>{summary.assignedMatches}</p>
-          </article>
-        </section>
 
         {viewMode === "matches" ? (
           <JuezAdminView
@@ -149,10 +171,7 @@ export function JuezDashboardScreen({
             onSelectMatch={setSelectedMatchId}
             onChangeMatchForm={handleChangeMatchForm}
             onCreateMatch={handleCreateMatch}
-            onCloseRegistration={handleCloseRegistration}
-            onReopenRegistration={handleReopenRegistration}
             onDesignationChange={handleDesignationChange}
-            onUseSuggestedDesignation={handleUseSuggestedDesignation}
             onConfirmDesignation={handleConfirmDesignation}
             onStartTournamentEdit={handleStartTournamentEdit}
             onTournamentDraftChange={setTournamentDraft}
@@ -165,7 +184,6 @@ export function JuezDashboardScreen({
             currentReferee={currentUser!}
             matches={matches}
             availability={availability}
-            assignments={assignments}
             onToggleAvailability={handleToggleAvailability}
           />
         ) : null}
@@ -175,5 +193,22 @@ export function JuezDashboardScreen({
         ) : null}
       </section>
     </main>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+function UserMenuIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 21a8 8 0 0 0-16 0" />
+      <circle cx="12" cy="8" r="4" />
+    </svg>
   );
 }

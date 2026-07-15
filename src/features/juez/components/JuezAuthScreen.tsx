@@ -47,10 +47,17 @@ export function JuezAuthScreen({
               <span>Contraseña</span>
               <input
                 type="password"
+                minLength={authMode === "register" ? 12 : undefined}
+                autoComplete={authMode === "register" ? "new-password" : "current-password"}
                 value={authForm.password}
                 onChange={(event) => handleChangeAuthField("password", event.target.value)}
                 placeholder="********"
               />
+              {authMode === "register" ? (
+                <small className="juez-field-help">
+                  12 caracteres o mas, con mayuscula, minuscula, numero y simbolo.
+                </small>
+              ) : null}
             </label>
 
             {authMode === "register" ? (
@@ -58,6 +65,8 @@ export function JuezAuthScreen({
                 <span>Confirmar contraseña</span>
                 <input
                   type="password"
+                  minLength={12}
+                  autoComplete="new-password"
                   value={authForm.confirmPassword}
                   onChange={(event) => handleChangeAuthField("confirmPassword", event.target.value)}
                   placeholder="********"

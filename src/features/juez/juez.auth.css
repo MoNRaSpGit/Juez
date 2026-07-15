@@ -30,6 +30,14 @@
   gap: 14px;
 }
 
+.juez-field-help {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .juez-auth-roles {
   display: grid;
   gap: 10px;

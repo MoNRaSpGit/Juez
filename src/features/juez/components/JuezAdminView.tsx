@@ -17,10 +17,7 @@ type JuezAdminViewProps = {
   onSelectMatch: (matchId: string) => void;
   onChangeMatchForm: (field: keyof MatchFormState, value: string) => void;
   onCreateMatch: () => void;
-  onCloseRegistration: (matchId: string) => void;
-  onReopenRegistration: (matchId: string) => void;
   onDesignationChange: (role: RefereeRole, refereeId: string) => void;
-  onUseSuggestedDesignation: () => void;
   onConfirmDesignation: () => void;
   onStartTournamentEdit: () => void;
   onTournamentDraftChange: (value: string) => void;
@@ -34,6 +31,10 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+function getRefereeName(referees: Referee[], refereeId: string) {
+  return referees.find((referee) => referee.id === refereeId)?.name ?? "Sin asignar";
 }
 
 export function JuezAdminView({
@@ -50,20 +51,17 @@ export function JuezAdminView({
   onSelectMatch,
   onChangeMatchForm,
   onCreateMatch,
-  onCloseRegistration,
-  onReopenRegistration,
   onDesignationChange,
-  onUseSuggestedDesignation,
   onConfirmDesignation,
   onStartTournamentEdit,
   onTournamentDraftChange,
   onSaveTournament
 }: JuezAdminViewProps) {
-  const selectedMatch = matches.find((match) => match.id === selectedMatchId) ?? matches[0] ?? null;
+  const selectedMatch = matches.find((match) => match.id === selectedMatchId) ?? null;
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === selectedMatch?.id);
-  const selectedAvailability = selectedMatch
-    ? availability.filter((entry) => entry.matchId === selectedMatch.id)
-    : [];
+  const selectedAvailability = selectedMatch ? availability.filter((entry) => entry.matchId === selectedMatch.id) : [];
+  const selectedRefereeIds = Object.values(designationDraft).filter(Boolean);
+  const selectedMatchResult = selectedMatch && selectedAssignment ? selectedAssignment : null;
 
   return (
     <section className="juez-layout-grid">
@@ -168,137 +166,118 @@ export function JuezAdminView({
             </button>
           ))}
         </div>
-      </article>
 
-      {selectedMatch ? (
-        <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading juez-panel__heading--stack-mobile">
-          <div>
-            <p className="juez-eyebrow">Designacion</p>
-            <h2>{formatMatchLabel(selectedMatch)}</h2>
-          </div>
-          <div className="juez-inline-actions">
-              {selectedMatch.status === "open" ? (
-                <button type="button" className="juez-button" onClick={() => onCloseRegistration(selectedMatch.id)}>
-                  Cerrar inscripcion
-                </button>
-              ) : null}
-              {selectedMatch.status !== "open" ? (
-                <button type="button" className="juez-button juez-button--ghost" onClick={() => onReopenRegistration(selectedMatch.id)}>
-                  Reabrir
-                </button>
-              ) : null}
+        <article className="juez-designation-result">
+          <div className="juez-designation-result__head">
+            <div>
+              <p className="juez-eyebrow">Resultado de designaciones</p>
+              <h3>{selectedMatch ? formatMatchLabel(selectedMatch) : "Selecciona un partido"}</h3>
             </div>
+            {selectedMatch ? <span className={`juez-pill juez-pill--${getStatusTone(selectedMatch.status)}`}>{getStatusLabel(selectedMatch.status)}</span> : null}
           </div>
 
-          <div className="juez-selected-match-meta">
-            <span>{selectedMatch.tournament}</span>
-            <span>{selectedMatch.venue}</span>
-            <span>{formatMatchDate(selectedMatch.date, selectedMatch.time)}</span>
-            <span>{selectedAvailability.length} arbitros confirmados</span>
-          </div>
-
-          <div className="juez-designation-grid">
-            {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
-              const compatibleReferees = getCompatibleReferees(role, selectedMatch.id, referees, availability);
-
-              return (
-                <section key={role} className="juez-role-card">
-                  <div className="juez-role-card__header">
-                    <h3>{ROLE_LABELS[role]}</h3>
-                    <span>{compatibleReferees.length}</span>
-                  </div>
-
-                  <select
-                    value={designationDraft[role]}
-                    onChange={(event) => onDesignationChange(role, event.target.value)}
-                    disabled={selectedMatch.status === "open"}
-                  >
-                    <option value="">Seleccionar</option>
-                    {compatibleReferees.map((referee) => (
-                      <option key={referee.id} value={referee.id}>
-                        {referee.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <div className="juez-mini-list">
-                    {compatibleReferees.map((referee) => (
-                      <div key={referee.id} className="juez-mini-list__item">
-                        <div className="juez-mini-list__identity">
-                          <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
-                          <strong>{referee.name}</strong>
-                        </div>
-                        <span>{referee.roles.map((item) => ROLE_LABELS[item]).join(" - ")}</span>
-                      </div>
-                    ))}
-                    {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-
-          <div className="juez-confirm-bar">
-            <div className="juez-inline-actions">
-              <button type="button" className="juez-button" onClick={onUseSuggestedDesignation} disabled={selectedMatch.status === "open"}>
-                Sugerir
-              </button>
-              <button
-                type="button"
-                className="juez-button juez-button--primary"
-                onClick={onConfirmDesignation}
-                disabled={selectedMatch.status === "open"}
-              >
-                Confirmar
-              </button>
+          {selectedMatchResult ? (
+            <div className="juez-designation-result__grid">
+              <div className="juez-designation-result__row">
+                <span>Juez arriba</span>
+                <strong>{getRefereeName(referees, selectedMatchResult.principalRefereeId)}</strong>
+              </div>
+              <div className="juez-designation-result__row">
+                <span>Juez abajo</span>
+                <strong>{getRefereeName(referees, selectedMatchResult.secondaryRefereeId)}</strong>
+              </div>
+              <div className="juez-designation-result__row">
+                <span>Planillero</span>
+                <strong>{getRefereeName(referees, selectedMatchResult.scorerRefereeId)}</strong>
+              </div>
             </div>
-          </div>
+          ) : selectedMatch ? (
+            <div className="juez-designation-result__empty">
+              <p className="juez-empty-inline">Todavía no tiene una designación confirmada.</p>
+            </div>
+          ) : (
+            <p className="juez-empty-inline">Elegí un partido publicado para ver o confirmar su designación abajo.</p>
+          )}
 
-          {selectedAssignment ? (
-            <div className="juez-assignment-summary">
-              <strong>Designacion</strong>
-              <ul>
-                <li>Principal: {referees.find((item) => item.id === selectedAssignment.principalRefereeId)?.name ?? "-"}</li>
-                <li>Secundario: {referees.find((item) => item.id === selectedAssignment.secondaryRefereeId)?.name ?? "-"}</li>
-                <li>Planillero: {referees.find((item) => item.id === selectedAssignment.scorerRefereeId)?.name ?? "-"}</li>
-              </ul>
+          {selectedMatch ? (
+            <div className="juez-designation-result__actions">
+              <button type="button" className="juez-button juez-button--ghost" onClick={() => onSelectMatch(selectedMatch.id)}>
+                Cambiar jueces
+              </button>
+              <p className="juez-designation-result__hint">Se puede editar aunque el partido ya esté cerrado.</p>
             </div>
           ) : null}
         </article>
-      ) : null}
-
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
-          <div>
-            <p className="juez-eyebrow">Historial</p>
-            <h2>Historial</h2>
-          </div>
-        </div>
-
-        <div className="juez-history-list">
-          {assignments.map((assignment) => {
-            const match = matches.find((item) => item.id === assignment.matchId);
-            if (!match) return null;
-
-            return (
-              <article key={assignment.matchId} className="juez-history-card">
-                <div>
-                  <strong>{formatMatchLabel(match)}</strong>
-                  <p>
-                    {match.venue} · {formatMatchDate(match.date, match.time)}
-                  </p>
-                </div>
-                <div className="juez-history-card__roles">
-                  <span>P: {referees.find((item) => item.id === assignment.principalRefereeId)?.name}</span>
-                  <span>S: {referees.find((item) => item.id === assignment.secondaryRefereeId)?.name}</span>
-                  <span>Pl: {referees.find((item) => item.id === assignment.scorerRefereeId)?.name}</span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
       </article>
+
+      {selectedMatch ? (
+        <div className="juez-modal" role="presentation" onClick={() => onSelectMatch("")}>
+          <div className="juez-modal__backdrop" />
+          <article
+            className="juez-modal__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Designar jueces para ${formatMatchLabel(selectedMatch)}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="juez-modal__header">
+              <div>
+                <p className="juez-eyebrow">Designacion</p>
+                <h2>{formatMatchLabel(selectedMatch)}</h2>
+                <p className="juez-modal__meta">
+                  {selectedMatch.tournament} · {selectedMatch.venue} · {formatMatchDate(selectedMatch.date, selectedMatch.time)}
+                </p>
+              </div>
+              <button type="button" className="juez-modal__close" onClick={() => onSelectMatch("")}>
+                Cerrar
+              </button>
+            </div>
+
+            <div className="juez-modal__summary">
+              <span>{selectedAvailability.length} arbitros confirmados</span>
+              {selectedAssignment ? <span>Ya asignado</span> : null}
+            </div>
+
+            <div className="juez-modal__grid">
+              {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
+                const compatibleReferees = getCompatibleReferees(role, selectedMatch.id, referees, availability).filter(
+                  (referee) => referee.id === designationDraft[role] || !selectedRefereeIds.includes(referee.id)
+                );
+
+                return (
+                  <section key={role} className="juez-modal__role">
+                    <div className="juez-role-card__header">
+                      <h3>{ROLE_LABELS[role]}</h3>
+                      <span>{compatibleReferees.length}</span>
+                    </div>
+
+                    <div className="juez-judge-pick-list">
+                      {compatibleReferees.map((referee) => (
+                        <button
+                          key={referee.id}
+                          type="button"
+                          className={`juez-judge-pick ${designationDraft[role] === referee.id ? "is-selected" : ""}`}
+                          onClick={() => onDesignationChange(role, referee.id)}
+                        >
+                          <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
+                          <span className="juez-judge-pick__name">{referee.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
+                  </section>
+                );
+              })}
+            </div>
+
+            <div className="juez-modal__footer">
+              <button type="button" className="juez-button juez-button--primary" onClick={onConfirmDesignation}>
+                Guardar y cerrar
+              </button>
+            </div>
+          </article>
+        </div>
+      ) : null}
     </section>
   );
 }

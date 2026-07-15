@@ -1,4 +1,6 @@
 import "./juez.css";
+import "./juez.mobile.css";
+import "./juez.desktop.css";
 import "./juez.layout.css";
 import "./juez.auth.css";
 import { JuezAuthScreen } from "./components/JuezAuthScreen";
