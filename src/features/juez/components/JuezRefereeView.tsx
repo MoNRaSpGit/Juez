@@ -40,7 +40,6 @@ export function JuezRefereeView({
           <div>
             <p className="juez-eyebrow">Arbitros</p>
             <h2>Confirmar disponibilidad</h2>
-            <p className="juez-section-copy">Pantalla simple para decidir rapido a qué partido puede ir cada juez.</p>
           </div>
         </div>
 
@@ -91,7 +90,6 @@ export function JuezRefereeView({
                 </div>
 
                 <div className="juez-referee-availability-bar">
-                  <p>El sistema despues decide si vas arriba, abajo o planilla segun tus roles habilitados.</p>
                   <button
                     type="button"
                     className={`juez-button ${currentAvailability ? "juez-button--primary" : ""}`}

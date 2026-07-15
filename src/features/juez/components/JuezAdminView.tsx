@@ -1,6 +1,8 @@
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
 import { formatMatchDate, formatMatchLabel, getCompatibleReferees, getStatusLabel, getStatusTone } from "../juez.utils";
 
+const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
+
 type JuezAdminViewProps = {
   matches: Match[];
   referees: Referee[];
@@ -70,7 +72,6 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Partidos</p>
             <h2>Publicar partidos</h2>
-            <p className="juez-section-copy">Carga rapida para la jornada. Pensado para armar partidos desde el celu en pocos toques.</p>
           </div>
           <div className="juez-tournament-box" onDoubleClick={onStartTournamentEdit}>
             <span className="juez-tournament-box__label">Torneo fijo</span>
@@ -91,7 +92,6 @@ export function JuezAdminView({
             ) : (
               <strong>{currentTournament}</strong>
             )}
-            <small>Doble click para cambiar el torneo base.</small>
           </div>
         </div>
 
@@ -114,11 +114,14 @@ export function JuezAdminView({
           </label>
           <label className="juez-field juez-field--full-mobile">
             <span>Lugar / Club</span>
-            <input
-              value={matchForm.venue}
-              onChange={(event) => onChangeMatchForm("venue", event.target.value)}
-              placeholder="Club Atenas"
-            />
+            <select value={matchForm.venue} onChange={(event) => onChangeMatchForm("venue", event.target.value)}>
+              <option value="">Seleccionar</option>
+              {CLUB_OPTIONS.map((club) => (
+                <option key={club} value={club}>
+                  {club}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="juez-field">
             <span>Fecha</span>
@@ -140,7 +143,6 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Jornada</p>
             <h2>Partidos publicados</h2>
-            <p className="juez-section-copy">Cada tarjeta resume el cruce, el estado y el horario.</p>
           </div>
         </div>
 
@@ -170,13 +172,12 @@ export function JuezAdminView({
 
       {selectedMatch ? (
         <article className="juez-panel juez-panel--span-2">
-          <div className="juez-panel__heading juez-panel__heading--stack-mobile">
-            <div>
-              <p className="juez-eyebrow">Designacion</p>
-              <h2>{formatMatchLabel(selectedMatch)}</h2>
-              <p className="juez-section-copy">El sistema propone una terna en base a disponibilidad real y roles compatibles.</p>
-            </div>
-            <div className="juez-inline-actions">
+        <div className="juez-panel__heading juez-panel__heading--stack-mobile">
+          <div>
+            <p className="juez-eyebrow">Designacion</p>
+            <h2>{formatMatchLabel(selectedMatch)}</h2>
+          </div>
+          <div className="juez-inline-actions">
               {selectedMatch.status === "open" ? (
                 <button type="button" className="juez-button" onClick={() => onCloseRegistration(selectedMatch.id)}>
                   Cerrar inscripcion
@@ -195,14 +196,6 @@ export function JuezAdminView({
             <span>{selectedMatch.venue}</span>
             <span>{formatMatchDate(selectedMatch.date, selectedMatch.time)}</span>
             <span>{selectedAvailability.length} arbitros confirmados</span>
-          </div>
-
-          <div className="juez-designation-callout">
-            <strong>Funcion del sistema</strong>
-            <p>
-              El arbitro solo confirma si puede ir al partido. El sistema propone automaticamente quien va arriba,
-              abajo y planilla segun los roles habilitados. El admin puede aceptar o editar.
-            </p>
           </div>
 
           <div className="juez-designation-grid">
@@ -247,9 +240,6 @@ export function JuezAdminView({
           </div>
 
           <div className="juez-confirm-bar">
-            <div>
-              <strong>Sugerencia automatica:</strong> el sistema intenta armar la terna con los disponibles y roles compatibles.
-            </div>
             <div className="juez-inline-actions">
               <button type="button" className="juez-button" onClick={onUseSuggestedDesignation} disabled={selectedMatch.status === "open"}>
                 Usar sugerencia del sistema

@@ -208,10 +208,7 @@ export function JuezHomePage() {
             <div>
               <p className="juez-eyebrow">SaasPro · demo visual</p>
               <h1 className="juez-title">Juez</h1>
-              <p className="juez-subtitle">
-                Demo pensada para mostrar rapido el flujo: publicar partido, confirmar disponibilidad y dejar que el
-                sistema proponga la designacion segun los roles habilitados de cada juez.
-              </p>
+              <p className="juez-subtitle">Partidos, disponibilidad y designacion.</p>
             </div>
 
             <div className="juez-tab-row">
@@ -236,22 +233,22 @@ export function JuezHomePage() {
           <article className="juez-summary-card">
             <strong>Partidos</strong>
             <span>{matches.length}</span>
-            <p>Jornada cargada</p>
+            <p>Cargados</p>
           </article>
           <article className="juez-summary-card">
             <strong>Abiertos</strong>
             <span>{summary.openMatches}</span>
-            <p>Esperando confirmacion</p>
+            <p>En espera</p>
           </article>
           <article className="juez-summary-card">
             <strong>Por designar</strong>
             <span>{summary.pendingMatches}</span>
-            <p>Con inscripcion cerrada</p>
+            <p>Pendientes</p>
           </article>
           <article className="juez-summary-card">
             <strong>Oficiales</strong>
             <span>{summary.assignedMatches}</span>
-            <p>Designaciones cerradas</p>
+            <p>Confirmados</p>
           </article>
         </section>
 

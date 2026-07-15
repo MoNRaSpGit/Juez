@@ -22,10 +22,6 @@ export function JuezAdministrationView({ referees, onToggleRefereeRole }: JuezAd
           <div>
             <p className="juez-eyebrow">Administracion</p>
             <h2>Roles de jueces</h2>
-            <p className="juez-section-copy">
-              Aqui definimos que puede hacer cada juez. Despues el sistema usa estos roles para proponer la designacion
-              correcta en cada partido.
-            </p>
           </div>
         </div>
 
