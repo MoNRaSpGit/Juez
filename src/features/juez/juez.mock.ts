@@ -3,11 +3,60 @@ import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee } from ".
 export const DEFAULT_TOURNAMENT = "Torneo Mayores";
 
 export const INITIAL_REFEREES: Referee[] = [
-  { id: "ref-1", name: "Lucia Ramirez", roles: ["principal", "secundario"], city: "Montevideo" },
-  { id: "ref-2", name: "Tomas Pereira", roles: ["principal", "planillero"], city: "Canelones" },
-  { id: "ref-3", name: "Valentina Sosa", roles: ["secundario", "planillero"], city: "Maldonado" },
-  { id: "ref-4", name: "Martin Silva", roles: ["principal", "secundario", "planillero"], city: "Las Piedras" },
-  { id: "ref-5", name: "Camila Duarte", roles: ["planillero"], city: "Pando" }
+  {
+    id: "admin-1",
+    name: "Administrador",
+    roles: ["principal", "secundario", "planillero"],
+    city: "Sistema",
+    accountRole: "admin",
+    email: "admin",
+    password: "admin"
+  },
+  {
+    id: "ref-1",
+    name: "Lucia Ramirez",
+    roles: ["principal", "secundario"],
+    city: "Montevideo",
+    accountRole: "juez",
+    email: "lucia@juez.local",
+    password: "123456"
+  },
+  {
+    id: "ref-2",
+    name: "Tomas Pereira",
+    roles: ["principal", "planillero"],
+    city: "Canelones",
+    accountRole: "juez",
+    email: "tomas@juez.local",
+    password: "123456"
+  },
+  {
+    id: "ref-3",
+    name: "Valentina Sosa",
+    roles: ["secundario", "planillero"],
+    city: "Maldonado",
+    accountRole: "juez",
+    email: "valentina@juez.local",
+    password: "123456"
+  },
+  {
+    id: "ref-4",
+    name: "Martin Silva",
+    roles: ["principal", "secundario", "planillero"],
+    city: "Las Piedras",
+    accountRole: "juez",
+    email: "martin@juez.local",
+    password: "123456"
+  },
+  {
+    id: "ref-5",
+    name: "Camila Duarte",
+    roles: ["planillero"],
+    city: "Pando",
+    accountRole: "juez",
+    email: "camila@juez.local",
+    password: "123456"
+  }
 ];
 
 export const INITIAL_MATCHES: Match[] = [

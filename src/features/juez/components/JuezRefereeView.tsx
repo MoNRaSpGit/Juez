@@ -2,12 +2,10 @@ import { AvailabilityEntry, Assignment, Match, Referee, ROLE_LABELS } from "../j
 import { formatMatchDate, formatMatchLabel, getAssignedMatchesForReferee, getAssignedRoleLabel, getAvailabilityForReferee } from "../juez.utils";
 
 type JuezRefereeViewProps = {
-  selectedRefereeId: string;
-  referees: Referee[];
+  currentReferee: Referee;
   matches: Match[];
   availability: AvailabilityEntry[];
   assignments: Assignment[];
-  onSelectReferee: (refereeId: string) => void;
   onToggleAvailability: (matchId: string) => void;
 };
 
@@ -21,17 +19,14 @@ function getInitials(name: string) {
 }
 
 export function JuezRefereeView({
-  selectedRefereeId,
-  referees,
+  currentReferee,
   matches,
   availability,
   assignments,
-  onSelectReferee,
   onToggleAvailability
 }: JuezRefereeViewProps) {
-  const selectedReferee = referees.find((referee) => referee.id === selectedRefereeId) ?? referees[0];
   const openMatches = matches.filter((match) => match.status === "open");
-  const assignedMatches = getAssignedMatchesForReferee(selectedReferee.id, matches, assignments);
+  const assignedMatches = getAssignedMatchesForReferee(currentReferee.id, matches, assignments);
 
   return (
     <section className="juez-layout-grid">
@@ -39,25 +34,18 @@ export function JuezRefereeView({
         <div className="juez-panel__heading juez-panel__heading--stack-mobile">
           <div>
             <p className="juez-eyebrow">Arbitros</p>
-            <h2>Confirmar disponibilidad</h2>
+            <h2>Mi perfil</h2>
           </div>
         </div>
 
         <div className="juez-referee-toolbar juez-referee-toolbar--stack-mobile">
-          <label className="juez-field juez-field--compact">
-            <span>Perfil demo</span>
-            <select value={selectedReferee.id} onChange={(event) => onSelectReferee(event.target.value)}>
-              {referees.map((referee) => (
-                <option key={referee.id} value={referee.id}>
-                  {referee.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
           <div className="juez-role-strip">
-            <span className="juez-avatar juez-avatar--profile">{getInitials(selectedReferee.name)}</span>
-            {selectedReferee.roles.map((role) => (
+            <span className="juez-avatar juez-avatar--profile">{getInitials(currentReferee.name)}</span>
+            <div className="juez-referee-profile">
+              <strong>{currentReferee.name}</strong>
+              <span>{currentReferee.city}</span>
+            </div>
+            {currentReferee.roles.map((role) => (
               <span key={role} className="juez-role-chip">
                 {ROLE_LABELS[role]}
               </span>
@@ -76,7 +64,7 @@ export function JuezRefereeView({
 
         <div className="juez-referee-match-list">
           {openMatches.map((match) => {
-            const currentAvailability = getAvailabilityForReferee(selectedReferee.id, match.id, availability);
+            const currentAvailability = getAvailabilityForReferee(currentReferee.id, match.id, availability);
             return (
               <article key={match.id} className="juez-referee-match-card">
                 <div className="juez-referee-match-card__head">
@@ -116,7 +104,7 @@ export function JuezRefereeView({
         <div className="juez-history-list">
           {assignedMatches.map((match) => {
             const assignment = assignments.find((item) => item.matchId === match.id);
-            const roleLabel = getAssignedRoleLabel(selectedReferee.id, assignment);
+            const roleLabel = getAssignedRoleLabel(currentReferee.id, assignment);
             return (
               <article key={match.id} className="juez-history-card">
                 <div>

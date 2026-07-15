@@ -11,6 +11,9 @@ export type Referee = {
   name: string;
   roles: RefereeRole[];
   city: string;
+  accountRole: "admin" | "juez";
+  email?: string;
+  password?: string;
 };
 
 export type MatchStatus = "open" | "closed" | "assigned";

@@ -1,0 +1,56 @@
+.juez-auth-card {
+  display: grid;
+  gap: 18px;
+  padding: 28px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+}
+
+.juez-auth-card__header {
+  display: grid;
+  gap: 8px;
+}
+
+.juez-auth-card__header h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 2rem);
+  line-height: 1.1;
+}
+
+.juez-auth-card__copy {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.juez-auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.juez-auth-roles {
+  display: grid;
+  gap: 10px;
+}
+
+.juez-auth-switch {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  margin-top: 4px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.juez-auth-switch__link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #2563eb;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
