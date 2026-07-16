@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
-import { formatMatchDate, formatMatchLabel, getEligibleRefereesForRole, getStatusLabel, getStatusTone } from "../juez.utils";
+import { formatMatchDate, formatMatchLabel, getCompatibleReferees, getStatusLabel, getStatusTone } from "../juez.utils";
 
 const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
 
@@ -232,19 +232,19 @@ export function JuezAdminView({
               <>
                 <div className="juez-modal__grid">
                   {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
-                    const eligibleReferees = getEligibleRefereesForRole(role, selectedMatch.id, referees, availability).filter(
-                      ({ referee }) => referee.id === designationDraft[role] || !selectedRefereeIds.includes(referee.id)
+                    const compatibleReferees = getCompatibleReferees(role, selectedMatch.id, referees, availability).filter(
+                      (referee) => referee.id === designationDraft[role] || !selectedRefereeIds.includes(referee.id)
                     );
 
                     return (
                       <section key={role} className="juez-modal__role">
                         <div className="juez-role-card__header">
                           <h3>{ROLE_LABELS[role]}</h3>
-                          <span>{eligibleReferees.length}</span>
+                          <span>{compatibleReferees.length}</span>
                         </div>
 
                         <div className="juez-judge-pick-list">
-                          {eligibleReferees.map(({ referee, isAvailable }) => (
+                          {compatibleReferees.map((referee) => (
                             <button
                               key={referee.id}
                               type="button"
@@ -253,11 +253,10 @@ export function JuezAdminView({
                             >
                               <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
                               <span className="juez-judge-pick__name">{referee.name}</span>
-                              {isAvailable ? <span className="juez-judge-pick__badge">Confirmado</span> : null}
                             </button>
                           ))}
                         </div>
-                        {!eligibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
+                        {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
                       </section>
                     );
                   })}
