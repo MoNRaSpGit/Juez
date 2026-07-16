@@ -306,7 +306,6 @@ export function useJuezHomePageController() {
     };
 
     setMatches((current) => [nextMatch, ...current]);
-    setSelectedMatchId(nextMatch.id);
     setMatchForm(EMPTY_MATCH_FORM);
     toast.success("Partido publicado para que los jueces confirmen si pueden ir.");
   }
