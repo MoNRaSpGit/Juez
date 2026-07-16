@@ -32,8 +32,19 @@ export function getAvailableReferees(matchId: string, referees: Referee[], avail
   return referees.filter((referee) => availableIds.has(referee.id));
 }
 
-export function getCompatibleReferees(role: RefereeRole, matchId: string, referees: Referee[], availability: AvailabilityEntry[]) {
-  return getAvailableReferees(matchId, referees, availability).filter((referee) => referee.roles.includes(role));
+export function getEligibleRefereesForRole(role: RefereeRole, matchId: string, referees: Referee[], availability: AvailabilityEntry[]) {
+  return referees
+    .filter((referee) => referee.roles.includes(role))
+    .map((referee) => ({
+      referee,
+      isAvailable: Boolean(getAvailabilityForReferee(referee.id, matchId, availability))
+    }))
+    .sort((left, right) => {
+      if (left.isAvailable !== right.isAvailable) {
+        return left.isAvailable ? -1 : 1;
+      }
+      return left.referee.name.localeCompare(right.referee.name);
+    });
 }
 
 export function getAvailabilityForReferee(refereeId: string, matchId: string, availability: AvailabilityEntry[]) {
