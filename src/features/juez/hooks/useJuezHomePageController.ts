@@ -10,7 +10,7 @@ import {
   INITIAL_REFEREES
 } from "../juez.mock";
 import { buildMatchId } from "../juez.utils";
-import { Assignment, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
+import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
 
 export type ViewMode = "matches" | "referees" | "administration";
 export type AuthMode = "login" | "register";
@@ -39,6 +39,19 @@ function createDesignationDraftFromAssignment(assignment?: Assignment | null) {
     secundario: assignment.secondaryRefereeId,
     planillero: assignment.scorerRefereeId
   };
+}
+
+// TEST-ONLY: fakes a few referees already confirming availability for a brand new match,
+// so the designation picker has candidates to try the flow with before real judges apply.
+// Remove this once matches go live with real referees confirming for real.
+const FAKE_AVAILABILITY_REFEREE_IDS = ["ref-1", "ref-2", "ref-3", "ref-4"];
+
+function buildFakeAvailabilityForTesting(matchId: string): AvailabilityEntry[] {
+  return FAKE_AVAILABILITY_REFEREE_IDS.map((refereeId) => ({
+    refereeId,
+    matchId,
+    createdAt: new Date().toISOString()
+  }));
 }
 
 const REFEREES_STORAGE_KEY = "juez-referees";
@@ -306,6 +319,7 @@ export function useJuezHomePageController() {
     };
 
     setMatches((current) => [nextMatch, ...current]);
+    setAvailability((current) => [...current, ...buildFakeAvailabilityForTesting(nextMatch.id)]);
     setMatchForm(EMPTY_MATCH_FORM);
     toast.success("Partido publicado para que los jueces confirmen si pueden ir.");
   }
