@@ -432,29 +432,6 @@
   gap: 12px;
 }
 
-.juez-designation-result {
-  margin-top: 14px;
-  padding: 14px;
-  border: 1px solid #dbe5f3;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  display: grid;
-  gap: 12px;
-}
-
-.juez-designation-result__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.juez-designation-result__head h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
 .juez-designation-result__grid {
   display: grid;
   gap: 10px;
@@ -478,19 +455,6 @@
 
 .juez-designation-result__row strong {
   color: #0f172a;
-  text-align: right;
-}
-
-.juez-designation-result__actions {
-  display: grid;
-  gap: 8px;
-  justify-items: end;
-}
-
-.juez-designation-result__hint {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
   text-align: right;
 }
 

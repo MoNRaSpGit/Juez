@@ -62,7 +62,6 @@ export function JuezAdminView({
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === selectedMatch?.id);
   const selectedAvailability = selectedMatch ? availability.filter((entry) => entry.matchId === selectedMatch.id) : [];
   const selectedRefereeIds = Object.values(designationDraft).filter(Boolean);
-  const selectedMatchResult = selectedMatch && selectedAssignment ? selectedAssignment : null;
 
   const [isRedesignating, setIsRedesignating] = useState(false);
 
@@ -150,6 +149,7 @@ export function JuezAdminView({
           <div>
             <p className="juez-eyebrow">Jornada</p>
             <h2>Partidos publicados</h2>
+            <p className="juez-empty-inline">Doble click en un partido para ver o designar sus jueces.</p>
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export function JuezAdminView({
               key={match.id}
               type="button"
               className={`juez-match-card ${selectedMatchId === match.id ? "is-active" : ""}`}
-              onClick={() => onSelectMatch(match.id)}
+              onDoubleClick={() => onSelectMatch(match.id)}
             >
               <div className="juez-match-card__main">
                 <div>
@@ -175,48 +175,6 @@ export function JuezAdminView({
             </button>
           ))}
         </div>
-
-        <article className="juez-designation-result">
-          <div className="juez-designation-result__head">
-            <div>
-              <p className="juez-eyebrow">Resultado de designaciones</p>
-              <h3>{selectedMatch ? formatMatchLabel(selectedMatch) : "Selecciona un partido"}</h3>
-            </div>
-            {selectedMatch ? <span className={`juez-pill juez-pill--${getStatusTone(selectedMatch.status)}`}>{getStatusLabel(selectedMatch.status)}</span> : null}
-          </div>
-
-          {selectedMatchResult ? (
-            <div className="juez-designation-result__grid">
-              <div className="juez-designation-result__row">
-                <span>Juez arriba</span>
-                <strong>{getRefereeName(referees, selectedMatchResult.principalRefereeId)}</strong>
-              </div>
-              <div className="juez-designation-result__row">
-                <span>Juez abajo</span>
-                <strong>{getRefereeName(referees, selectedMatchResult.secondaryRefereeId)}</strong>
-              </div>
-              <div className="juez-designation-result__row">
-                <span>Planillero</span>
-                <strong>{getRefereeName(referees, selectedMatchResult.scorerRefereeId)}</strong>
-              </div>
-            </div>
-          ) : selectedMatch ? (
-            <div className="juez-designation-result__empty">
-              <p className="juez-empty-inline">Todavía no tiene una designación confirmada.</p>
-            </div>
-          ) : (
-            <p className="juez-empty-inline">Elegí un partido publicado para ver o confirmar su designación abajo.</p>
-          )}
-
-          {selectedMatch ? (
-            <div className="juez-designation-result__actions">
-              <button type="button" className="juez-button juez-button--ghost" onClick={() => onSelectMatch(selectedMatch.id)}>
-                Cambiar jueces
-              </button>
-              <p className="juez-designation-result__hint">Se puede editar aunque el partido ya esté cerrado.</p>
-            </div>
-          ) : null}
-        </article>
       </article>
 
       {selectedMatch ? (
