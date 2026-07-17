@@ -1,4 +1,9 @@
-import "./juez.css";
+import "./juez.shell.css";
+import "./juez.topbar.css";
+import "./juez.forms.css";
+import "./juez.matches.css";
+import "./juez.modal.css";
+import "./juez.referee.css";
 import "./juez.mobile.css";
 import "./juez.desktop.css";
 import "./juez.layout.css";

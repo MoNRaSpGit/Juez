@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import "./juez.css";
+import "./juez.shell.css";
+import "./juez.forms.css";
 import "./juez.layout.css";
 import "./juez.auth.css";
 import { confirmJudgeEmail } from "./juez.auth.client";

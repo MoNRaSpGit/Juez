@@ -1,18 +1,8 @@
-import { useEffect, useState } from "react";
-import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
-import {
-  buildRefereeEarningsSummary,
-  formatCurrency,
-  formatMatchDate,
-  formatMatchLabel,
-  getCompatibleReferees,
-  getRefereeEarnings,
-  getStatusLabel,
-  getStatusTone
-} from "../juez.utils";
-import { RefereeEarningsCard } from "./RefereeEarningsCard";
-
-const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
+import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
+import { DesignationModal } from "./DesignationModal";
+import { MatchList } from "./MatchList";
+import { PublishMatchForm } from "./PublishMatchForm";
+import { RefereeEarningsPanel } from "./RefereeEarningsPanel";
 
 type JuezAdminViewProps = {
   matches: Match[];
@@ -35,19 +25,6 @@ type JuezAdminViewProps = {
   onSaveTournament: () => void;
 };
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-function getRefereeName(referees: Referee[], refereeId: string) {
-  return referees.find((referee) => referee.id === refereeId)?.name ?? "Sin asignar";
-}
-
 export function JuezAdminView({
   matches,
   referees,
@@ -69,239 +46,36 @@ export function JuezAdminView({
   onSaveTournament
 }: JuezAdminViewProps) {
   const selectedMatch = matches.find((match) => match.id === selectedMatchId) ?? null;
-  const selectedAssignment = assignments.find((assignment) => assignment.matchId === selectedMatch?.id);
-  const selectedAvailability = selectedMatch ? availability.filter((entry) => entry.matchId === selectedMatch.id) : [];
-  const selectedRefereeIds = Object.values(designationDraft).filter(Boolean);
-
-  const [isRedesignating, setIsRedesignating] = useState(false);
-
-  useEffect(() => {
-    setIsRedesignating(false);
-  }, [selectedMatchId]);
-
-  const showPicker = !selectedAssignment || isRedesignating;
-  const earningsSummary = buildRefereeEarningsSummary(referees, assignments);
 
   return (
     <section className="juez-layout-grid">
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading juez-panel__heading--stack-mobile">
-          <div>
-            <p className="juez-eyebrow">Partidos</p>
-            <h2>Publicar partidos</h2>
-          </div>
-          <div className="juez-tournament-box" onDoubleClick={onStartTournamentEdit}>
-            <span className="juez-tournament-box__label">Torneo fijo</span>
-            {isEditingTournament ? (
-              <div className="juez-tournament-box__editor">
-                <input
-                  value={tournamentDraft}
-                  onChange={(event) => onTournamentDraftChange(event.target.value)}
-                  onBlur={onSaveTournament}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      onSaveTournament();
-                    }
-                  }}
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <strong>{currentTournament}</strong>
-            )}
-          </div>
-        </div>
+      <PublishMatchForm
+        matchForm={matchForm}
+        currentTournament={currentTournament}
+        isEditingTournament={isEditingTournament}
+        tournamentDraft={tournamentDraft}
+        onChangeMatchForm={onChangeMatchForm}
+        onCreateMatch={onCreateMatch}
+        onStartTournamentEdit={onStartTournamentEdit}
+        onTournamentDraftChange={onTournamentDraftChange}
+        onSaveTournament={onSaveTournament}
+      />
 
-        <div className="juez-form-grid juez-form-grid--mobile-first">
-          <label className="juez-field juez-field--full-mobile">
-            <span>Cuadro A</span>
-            <input
-              value={matchForm.homeSide}
-              onChange={(event) => onChangeMatchForm("homeSide", event.target.value)}
-              placeholder="Atenas"
-            />
-          </label>
-          <label className="juez-field juez-field--full-mobile">
-            <span>Cuadro B</span>
-            <input
-              value={matchForm.awaySide}
-              onChange={(event) => onChangeMatchForm("awaySide", event.target.value)}
-              placeholder="Trouville"
-            />
-          </label>
-          <label className="juez-field juez-field--full-mobile">
-            <span>Lugar / Club</span>
-            <select value={matchForm.venue} onChange={(event) => onChangeMatchForm("venue", event.target.value)}>
-              <option value="">Seleccionar</option>
-              {CLUB_OPTIONS.map((club) => (
-                <option key={club} value={club}>
-                  {club}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="juez-field">
-            <span>Fecha</span>
-            <input type="date" value={matchForm.date} onChange={(event) => onChangeMatchForm("date", event.target.value)} />
-          </label>
-          <label className="juez-field">
-            <span>Hora</span>
-            <input type="time" value={matchForm.time} onChange={(event) => onChangeMatchForm("time", event.target.value)} />
-          </label>
-        </div>
+      <MatchList matches={matches} selectedMatchId={selectedMatchId} onSelectMatch={onSelectMatch} />
 
-        <button type="button" className="juez-button juez-button--primary juez-button--full-mobile" onClick={onCreateMatch}>
-          Publicar partido
-        </button>
-      </article>
-
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
-          <div>
-            <p className="juez-eyebrow">Jornada</p>
-            <h2>Partidos publicados</h2>
-            <p className="juez-empty-inline">Doble click en un partido para ver o designar sus jueces.</p>
-          </div>
-        </div>
-
-        <div className="juez-match-list">
-          {matches.map((match) => (
-            <button
-              key={match.id}
-              type="button"
-              className={`juez-match-card ${selectedMatchId === match.id ? "is-active" : ""}`}
-              onDoubleClick={() => onSelectMatch(match.id)}
-            >
-              <div className="juez-match-card__main">
-                <div>
-                  <strong>{formatMatchLabel(match)}</strong>
-                  <p>{match.tournament}</p>
-                </div>
-                <span className={`juez-pill juez-pill--${getStatusTone(match.status)}`}>{getStatusLabel(match.status)}</span>
-              </div>
-              <div className="juez-match-card__meta">
-                <span>{match.venue}</span>
-                <span>{formatMatchDate(match.date, match.time)}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </article>
-
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
-          <div>
-            <p className="juez-eyebrow">Resumen</p>
-            <h2>Cuanto va cobrando cada juez</h2>
-          </div>
-        </div>
-
-        <div className="juez-referee-admin-list">
-          {earningsSummary.map((summary) => (
-            <RefereeEarningsCard key={summary.refereeId} summary={summary} matches={matches} />
-          ))}
-          {!earningsSummary.length ? <p className="juez-empty-inline">Todavia no hay designaciones confirmadas.</p> : null}
-        </div>
-      </article>
+      <RefereeEarningsPanel referees={referees} assignments={assignments} matches={matches} />
 
       {selectedMatch ? (
-        <div className="juez-modal" role="presentation" onClick={() => onSelectMatch("")}>
-          <div className="juez-modal__backdrop" />
-          <article
-            className="juez-modal__dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Designar jueces para ${formatMatchLabel(selectedMatch)}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="juez-modal__header">
-              <div>
-                <p className="juez-eyebrow">Designacion</p>
-                <h2>{formatMatchLabel(selectedMatch)}</h2>
-                <p className="juez-modal__meta">
-                  {selectedMatch.tournament} · {selectedMatch.venue} · {formatMatchDate(selectedMatch.date, selectedMatch.time)}
-                </p>
-              </div>
-              <button type="button" className="juez-modal__close" onClick={() => onSelectMatch("")}>
-                Cerrar
-              </button>
-            </div>
-
-            <div className="juez-modal__summary">
-              <span>{selectedAvailability.length} arbitros confirmados</span>
-              {selectedAssignment ? <span>Ya asignado</span> : null}
-            </div>
-
-            {!showPicker && selectedAssignment ? (
-              <>
-                <div className="juez-designation-result__grid">
-                  <div className="juez-designation-result__row">
-                    <span>Juez arriba</span>
-                    <strong>{getRefereeName(referees, selectedAssignment.principalRefereeId)}</strong>
-                  </div>
-                  <div className="juez-designation-result__row">
-                    <span>Juez abajo</span>
-                    <strong>{getRefereeName(referees, selectedAssignment.secondaryRefereeId)}</strong>
-                  </div>
-                  <div className="juez-designation-result__row">
-                    <span>Planillero</span>
-                    <strong>{getRefereeName(referees, selectedAssignment.scorerRefereeId)}</strong>
-                  </div>
-                </div>
-
-                <div className="juez-modal__footer">
-                  <button type="button" className="juez-button juez-button--primary" onClick={() => setIsRedesignating(true)}>
-                    Redesignar jueces
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="juez-modal__grid">
-                  {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => {
-                    const compatibleReferees = getCompatibleReferees(role, selectedMatch.id, referees, availability).filter(
-                      (referee) => referee.id === designationDraft[role] || !selectedRefereeIds.includes(referee.id)
-                    );
-
-                    return (
-                      <section key={role} className="juez-modal__role">
-                        <div className="juez-role-card__header">
-                          <h3>{ROLE_LABELS[role]}</h3>
-                          <span>{compatibleReferees.length}</span>
-                        </div>
-
-                        <div className="juez-judge-pick-list">
-                          {compatibleReferees.map((referee) => {
-                            const earnings = getRefereeEarnings(referee.id, assignments);
-                            return (
-                              <button
-                                key={referee.id}
-                                type="button"
-                                className={`juez-judge-pick ${designationDraft[role] === referee.id ? "is-selected" : ""}`}
-                                onClick={() => onDesignationChange(role, referee.id)}
-                              >
-                                <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
-                                <span className="juez-judge-pick__name">{referee.name}</span>
-                                {earnings > 0 ? <span className="juez-judge-pick__badge">+{formatCurrency(earnings)}</span> : null}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
-                      </section>
-                    );
-                  })}
-                </div>
-
-                <div className="juez-modal__footer">
-                  <button type="button" className="juez-button juez-button--primary" onClick={onConfirmDesignation}>
-                    Guardar y cerrar
-                  </button>
-                </div>
-              </>
-            )}
-          </article>
-        </div>
+        <DesignationModal
+          match={selectedMatch}
+          referees={referees}
+          availability={availability}
+          assignments={assignments}
+          designationDraft={designationDraft}
+          onDesignationChange={onDesignationChange}
+          onConfirmDesignation={onConfirmDesignation}
+          onClose={() => onSelectMatch("")}
+        />
       ) : null}
     </section>
   );

@@ -1,0 +1,132 @@
+.juez-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.juez-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.46);
+  backdrop-filter: blur(6px);
+}
+
+.juez-modal__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 780px);
+  max-height: min(90vh, 920px);
+  overflow: auto;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+}
+
+.juez-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.juez-modal__meta {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.juez-modal__close {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 800;
+}
+
+.juez-modal__summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.juez-modal__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.juez-modal__role {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.juez-role-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.juez-role-card__header span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.juez-judge-pick-list {
+  display: grid;
+  gap: 8px;
+}
+
+.juez-judge-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.juez-judge-pick.is-selected {
+  border-color: #94a3b8;
+  background: #eef2f7;
+}
+
+.juez-judge-pick__name {
+  flex: 1;
+}
+
+.juez-judge-pick__badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.juez-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+}

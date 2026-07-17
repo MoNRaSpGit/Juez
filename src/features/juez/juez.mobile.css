@@ -32,10 +32,8 @@
 
   .juez-referee-match-card__head,
   .juez-match-card__main,
-  .juez-referee-toolbar,
   .juez-panel__heading,
-  .juez-role-card__header,
-  .juez-confirm-bar {
+  .juez-role-card__header {
     gap: 10px;
   }
 

@@ -3,20 +3,12 @@
     padding: 24px 18px 56px;
   }
 
-  .juez-summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   .juez-form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .juez-form-grid--mobile-first .juez-field--full-mobile {
     grid-column: 1 / -1;
-  }
-
-  .juez-designation-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .juez-referee-admin-list {
