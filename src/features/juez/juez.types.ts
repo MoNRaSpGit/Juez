@@ -6,6 +6,12 @@ export const ROLE_LABELS = {
 
 export type RefereeRole = keyof typeof ROLE_LABELS;
 
+export const ROLE_RATES: Record<RefereeRole, number> = {
+  principal: 500,
+  secundario: 350,
+  planillero: 250
+};
+
 export type Referee = {
   id: string;
   name: string;

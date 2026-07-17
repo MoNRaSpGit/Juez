@@ -184,12 +184,13 @@ export function JuezDashboardScreen({
             currentReferee={currentUser!}
             matches={matches}
             availability={availability}
+            assignments={assignments}
             onToggleAvailability={handleToggleAvailability}
           />
         ) : null}
 
         {viewMode === "administration" && canManageAdministration ? (
-          <JuezAdministrationView referees={referees} onToggleRefereeRole={handleToggleRefereeRole} />
+          <JuezAdministrationView referees={referees} assignments={assignments} onToggleRefereeRole={handleToggleRefereeRole} />
         ) : null}
       </section>
     </main>

@@ -1,10 +1,11 @@
-import { AvailabilityEntry, Match, Referee } from "../juez.types";
-import { formatMatchLabel, getAvailabilityForReferee } from "../juez.utils";
+import { Assignment, AvailabilityEntry, Match, Referee } from "../juez.types";
+import { formatCurrency, formatMatchLabel, getAvailabilityForReferee, getRefereeEarnings } from "../juez.utils";
 
 type JuezRefereeViewProps = {
   currentReferee: Referee;
   matches: Match[];
   availability: AvailabilityEntry[];
+  assignments: Assignment[];
   onToggleAvailability: (matchId: string) => void;
 };
 
@@ -36,11 +37,28 @@ function formatMatchHour(date: string, time: string) {
   }).format(normalized);
 }
 
-export function JuezRefereeView({ currentReferee, matches, availability, onToggleAvailability }: JuezRefereeViewProps) {
+export function JuezRefereeView({ currentReferee, matches, availability, assignments, onToggleAvailability }: JuezRefereeViewProps) {
   const openMatches = matches.filter((match) => match.status === "open");
+  const earnings = getRefereeEarnings(currentReferee.id, assignments);
 
   return (
     <section className="juez-layout-grid">
+      <article className="juez-panel juez-panel--span-2">
+        <div className="juez-panel__heading">
+          <div>
+            <p className="juez-eyebrow">Tu resumen</p>
+            <h2>Acumulado</h2>
+          </div>
+        </div>
+
+        <div className="juez-designation-result__grid">
+          <div className="juez-designation-result__row">
+            <span>Ganado hasta ahora</span>
+            <strong>{formatCurrency(earnings)}</strong>
+          </div>
+        </div>
+      </article>
+
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>

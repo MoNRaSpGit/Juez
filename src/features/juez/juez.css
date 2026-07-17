@@ -448,6 +448,17 @@
   border: 1px solid #e2e8f0;
 }
 
+.juez-designation-result__row--total {
+  margin-top: 4px;
+  border-color: #4f46e5;
+  background: rgba(79, 70, 229, 0.06);
+}
+
+.juez-designation-result__row--total span,
+.juez-designation-result__row--total strong {
+  color: #0f172a;
+}
+
 .juez-designation-result__row span {
   color: #64748b;
   font-weight: 700;
@@ -864,6 +875,16 @@
 
 .juez-judge-pick__name {
   flex: 1;
+}
+
+.juez-judge-pick__badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .juez-modal__footer {

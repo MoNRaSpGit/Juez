@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
-import { formatMatchDate, formatMatchLabel, getCompatibleReferees, getStatusLabel, getStatusTone } from "../juez.utils";
+import {
+  buildRefereeEarningsSummary,
+  formatCurrency,
+  formatMatchDate,
+  formatMatchLabel,
+  getCompatibleReferees,
+  getRefereeEarnings,
+  getStatusLabel,
+  getStatusTone
+} from "../juez.utils";
+import { RefereeEarningsCard } from "./RefereeEarningsCard";
 
 const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
 
@@ -70,6 +80,7 @@ export function JuezAdminView({
   }, [selectedMatchId]);
 
   const showPicker = !selectedAssignment || isRedesignating;
+  const earningsSummary = buildRefereeEarningsSummary(referees, assignments);
 
   return (
     <section className="juez-layout-grid">
@@ -177,6 +188,22 @@ export function JuezAdminView({
         </div>
       </article>
 
+      <article className="juez-panel juez-panel--span-2">
+        <div className="juez-panel__heading">
+          <div>
+            <p className="juez-eyebrow">Resumen</p>
+            <h2>Cuanto va cobrando cada juez</h2>
+          </div>
+        </div>
+
+        <div className="juez-referee-admin-list">
+          {earningsSummary.map((summary) => (
+            <RefereeEarningsCard key={summary.refereeId} summary={summary} matches={matches} />
+          ))}
+          {!earningsSummary.length ? <p className="juez-empty-inline">Todavia no hay designaciones confirmadas.</p> : null}
+        </div>
+      </article>
+
       {selectedMatch ? (
         <div className="juez-modal" role="presentation" onClick={() => onSelectMatch("")}>
           <div className="juez-modal__backdrop" />
@@ -244,17 +271,21 @@ export function JuezAdminView({
                         </div>
 
                         <div className="juez-judge-pick-list">
-                          {compatibleReferees.map((referee) => (
-                            <button
-                              key={referee.id}
-                              type="button"
-                              className={`juez-judge-pick ${designationDraft[role] === referee.id ? "is-selected" : ""}`}
-                              onClick={() => onDesignationChange(role, referee.id)}
-                            >
-                              <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
-                              <span className="juez-judge-pick__name">{referee.name}</span>
-                            </button>
-                          ))}
+                          {compatibleReferees.map((referee) => {
+                            const earnings = getRefereeEarnings(referee.id, assignments);
+                            return (
+                              <button
+                                key={referee.id}
+                                type="button"
+                                className={`juez-judge-pick ${designationDraft[role] === referee.id ? "is-selected" : ""}`}
+                                onClick={() => onDesignationChange(role, referee.id)}
+                              >
+                                <span className="juez-avatar juez-avatar--small">{getInitials(referee.name)}</span>
+                                <span className="juez-judge-pick__name">{referee.name}</span>
+                                {earnings > 0 ? <span className="juez-judge-pick__badge">+{formatCurrency(earnings)}</span> : null}
+                              </button>
+                            );
+                          })}
                         </div>
                         {!compatibleReferees.length ? <p className="juez-empty-inline">-</p> : null}
                       </section>

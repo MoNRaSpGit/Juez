@@ -1,7 +1,9 @@
-import { Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
+import { Assignment, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
+import { formatCurrency, getRefereeEarnings } from "../juez.utils";
 
 type JuezAdministrationViewProps = {
   referees: Referee[];
+  assignments: Assignment[];
   onToggleRefereeRole: (refereeId: string, role: RefereeRole) => void;
 };
 
@@ -14,7 +16,7 @@ function getInitials(name: string) {
     .join("");
 }
 
-export function JuezAdministrationView({ referees, onToggleRefereeRole }: JuezAdministrationViewProps) {
+export function JuezAdministrationView({ referees, assignments, onToggleRefereeRole }: JuezAdministrationViewProps) {
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
@@ -37,7 +39,9 @@ export function JuezAdministrationView({ referees, onToggleRefereeRole }: JuezAd
                   </div>
                 </div>
                 <div className="juez-referee-admin-card__meta">
-                  <span>{referee.roles.length} roles activos</span>
+                  <span>
+                    {referee.roles.length} roles activos · {formatCurrency(getRefereeEarnings(referee.id, assignments))} ganados
+                  </span>
                 </div>
               </div>
 

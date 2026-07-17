@@ -1,7 +1,64 @@
-import { Assignment, AvailabilityEntry, Match, Referee, RefereeRole, ROLE_LABELS } from "./juez.types";
+import { Assignment, AvailabilityEntry, Match, Referee, RefereeRole, ROLE_LABELS, ROLE_RATES } from "./juez.types";
 
 export function formatMatchLabel(match: Match) {
   return `${match.homeSide} vs ${match.awaySide}`;
+}
+
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("es-UY", {
+    style: "currency",
+    currency: "UYU",
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+export function getRefereeEarnings(refereeId: string, assignments: Assignment[]) {
+  return assignments.reduce((total, assignment) => {
+    if (assignment.principalRefereeId === refereeId) return total + ROLE_RATES.principal;
+    if (assignment.secondaryRefereeId === refereeId) return total + ROLE_RATES.secundario;
+    if (assignment.scorerRefereeId === refereeId) return total + ROLE_RATES.planillero;
+    return total;
+  }, 0);
+}
+
+export type RefereeEarningsLineItem = {
+  matchId: string;
+  role: RefereeRole;
+  amount: number;
+};
+
+export type RefereeEarningsSummary = {
+  refereeId: string;
+  name: string;
+  lineItems: RefereeEarningsLineItem[];
+  totalEarnings: number;
+};
+
+export function buildRefereeEarningsSummary(referees: Referee[], assignments: Assignment[]): RefereeEarningsSummary[] {
+  const summaries = new Map<string, RefereeEarningsSummary>();
+
+  function addLine(refereeId: string, matchId: string, role: RefereeRole) {
+    const referee = referees.find((item) => item.id === refereeId);
+    const existing = summaries.get(refereeId) ?? {
+      refereeId,
+      name: referee?.name ?? "Desconocido",
+      lineItems: [],
+      totalEarnings: 0
+    };
+
+    const amount = ROLE_RATES[role];
+    existing.lineItems.push({ matchId, role, amount });
+    existing.totalEarnings += amount;
+    summaries.set(refereeId, existing);
+  }
+
+  assignments.forEach((assignment) => {
+    addLine(assignment.principalRefereeId, assignment.matchId, "principal");
+    addLine(assignment.secondaryRefereeId, assignment.matchId, "secundario");
+    addLine(assignment.scorerRefereeId, assignment.matchId, "planillero");
+  });
+
+  return Array.from(summaries.values()).sort((left, right) => right.totalEarnings - left.totalEarnings);
 }
 
 export function formatMatchDate(date: string, time: string) {
