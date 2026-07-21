@@ -6,16 +6,45 @@ export function formatMatchLabel(match: Match) {
 
 export type JuezPlayerExpiryUrgency = "expired" | "red" | "yellow" | "normal";
 
-export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrgency {
+export function getDaysUntilExpiry(expiryDate: string) {
   const today = new Date();
   const dueDate = new Date(`${expiryDate}T00:00:00`);
   const diffMs = dueDate.getTime() - new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
+
+export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrgency {
+  const diffDays = getDaysUntilExpiry(expiryDate);
 
   if (diffDays < 0) return "expired";
   if (diffDays <= 30) return "red";
   if (diffDays <= 45) return "yellow";
   return "normal";
+}
+
+export function formatDaysUntilExpiry(expiryDate: string) {
+  const diffDays = getDaysUntilExpiry(expiryDate);
+
+  if (diffDays < 0) {
+    const overdueDays = Math.abs(diffDays);
+    return overdueDays === 1 ? "Vencio hace 1 dia" : `Vencio hace ${overdueDays} dias`;
+  }
+  if (diffDays === 0) return "Vence hoy";
+  return diffDays === 1 ? "Vence en 1 dia" : `Vence en ${diffDays} dias`;
+}
+
+export function getAge(birthDate: string) {
+  const today = new Date();
+  const birth = new Date(`${birthDate}T00:00:00`);
+  let age = today.getFullYear() - birth.getFullYear();
+  const hasHadBirthdayThisYear =
+    today.getMonth() > birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() >= birth.getDate());
+
+  if (!hasHadBirthdayThisYear) {
+    age -= 1;
+  }
+
+  return age;
 }
 
 export function formatCurrency(amount: number) {

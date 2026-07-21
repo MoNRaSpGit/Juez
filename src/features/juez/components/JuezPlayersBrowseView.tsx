@@ -1,4 +1,5 @@
-import { getPlayerExpiryUrgency } from "../juez.utils";
+import { useState } from "react";
+import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
 import { JuezPlayer, JuezPlayerDivision, JuezPlayerSex } from "../juez.players.types";
 
 type JuezPlayersBrowseViewProps = {
@@ -13,8 +14,59 @@ type JuezPlayersBrowseViewProps = {
   setBrowseSex: (value: JuezPlayerSex) => void;
 };
 
+const URGENCY_BADGE_LABEL: Record<string, string> = {
+  expired: "Vencido",
+  red: "Vence pronto",
+  yellow: "Por vencer"
+};
+
 function formatDateOnly(value: string) {
   return new Intl.DateTimeFormat("es-UY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00`));
+}
+
+function JuezPlayerCard({ player }: { player: JuezPlayer }) {
+  const [showDetails, setShowDetails] = useState(false);
+  const urgency = getPlayerExpiryUrgency(player.expiryDate);
+  const badgeLabel = URGENCY_BADGE_LABEL[urgency];
+
+  return (
+    <article className={`juez-player-card juez-player-card--${urgency}`}>
+      <div className="juez-player-card__top">
+        <strong className="juez-player-card__name">{player.name}</strong>
+        {badgeLabel ? <span className={`juez-player-card__badge juez-player-card__badge--${urgency}`}>{badgeLabel}</span> : null}
+      </div>
+
+      <p className="juez-player-card__expiry">{formatDaysUntilExpiry(player.expiryDate)}</p>
+
+      <button
+        type="button"
+        className={`juez-player-card__details-toggle ${showDetails ? "is-open" : ""}`}
+        onClick={() => setShowDetails((current) => !current)}
+      >
+        {showDetails ? "Ocultar detalle" : "Detalle"}
+        <span className="juez-player-card__details-chevron" aria-hidden="true">
+          ⌄
+        </span>
+      </button>
+
+      {showDetails ? (
+        <dl className="juez-player-card__details">
+          <div>
+            <dt>Vencimiento</dt>
+            <dd>{formatDateOnly(player.expiryDate)}</dd>
+          </div>
+          <div>
+            <dt>Cedula</dt>
+            <dd>{player.cedula || "Sin cargar"}</dd>
+          </div>
+          <div>
+            <dt>Nacimiento</dt>
+            <dd>{player.birthDate ? `${formatDateOnly(player.birthDate)} (${getAge(player.birthDate)} anios)` : "Sin cargar"}</dd>
+          </div>
+        </dl>
+      ) : null}
+    </article>
+  );
 }
 
 export function JuezPlayersBrowseView({
@@ -83,20 +135,9 @@ export function JuezPlayersBrowseView({
         {!isLoading && !browsedPlayers.length ? <p className="juez-empty-inline">No hay jugadores en esta categoria.</p> : null}
 
         <div className="juez-player-grid">
-          {browsedPlayers.map((player) => {
-            const urgency = getPlayerExpiryUrgency(player.expiryDate);
-            return (
-              <article key={player.id} className={`juez-player-card juez-player-card--${urgency}`}>
-                <strong>{player.name}</strong>
-                <p>
-                  Vence: {formatDateOnly(player.expiryDate)}
-                  {urgency === "expired" ? " (vencido)" : null}
-                </p>
-                {player.cedula ? <span>CI: {player.cedula}</span> : null}
-                {player.birthDate ? <span>Nace: {formatDateOnly(player.birthDate)}</span> : null}
-              </article>
-            );
-          })}
+          {browsedPlayers.map((player) => (
+            <JuezPlayerCard key={player.id} player={player} />
+          ))}
         </div>
       </article>
     </section>
