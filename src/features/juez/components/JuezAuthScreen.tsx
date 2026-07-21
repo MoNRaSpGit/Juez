@@ -23,6 +23,11 @@ export function JuezAuthScreen({
             <p className="juez-eyebrow">SaasPro Juez</p>
             <h1>Ingresar</h1>
             <p className="juez-auth-card__copy">Accedé con tu correo y contraseña para seguir con tus designaciones.</p>
+            {authMode === "login" ? (
+              <p className="juez-auth-card__test-hint">
+                Pruebas rapidas: apreta <strong>Entrar</strong> sin escribir nada (admin) &middot; <strong>juez / juez</strong> (arbitro)
+              </p>
+            ) : null}
           </div>
 
           <form className="juez-auth-form" onSubmit={handleAuthSubmit}>

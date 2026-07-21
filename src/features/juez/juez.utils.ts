@@ -4,6 +4,20 @@ export function formatMatchLabel(match: Match) {
   return `${match.homeSide} vs ${match.awaySide}`;
 }
 
+export type JuezPlayerExpiryUrgency = "expired" | "red" | "yellow" | "normal";
+
+export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrgency {
+  const today = new Date();
+  const dueDate = new Date(`${expiryDate}T00:00:00`);
+  const diffMs = dueDate.getTime() - new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return "expired";
+  if (diffDays <= 30) return "red";
+  if (diffDays <= 45) return "yellow";
+  return "normal";
+}
+
 export function formatCurrency(amount: number) {
   return new Intl.NumberFormat("es-UY", {
     style: "currency",

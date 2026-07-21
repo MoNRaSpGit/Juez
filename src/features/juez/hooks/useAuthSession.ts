@@ -163,7 +163,10 @@ export function useAuthSession() {
       .map(([role]) => role);
 
     if (authMode === "login") {
-      if (email === "admin" && password === "admin") {
+      // Entrar sin escribir nada tambien cuenta como acceso rapido de admin.
+      const isBlankSubmit = !email && !password;
+
+      if (isBlankSubmit || (email === "admin" && password === "admin")) {
         const existingAdmin = referees.find((referee) => referee.accountRole === "admin" || referee.email === "admin");
         const matchedAdmin = existingAdmin ?? INITIAL_REFEREES[0];
 
@@ -172,6 +175,21 @@ export function useAuthSession() {
         }
 
         setCurrentUserId(matchedAdmin.id);
+        setAuthForm(createEmptyAuthForm());
+        toast.success("Sesion iniciada.");
+        return;
+      }
+
+      // Acceso rapido de prueba para el rol juez, en espejo del bypass de admin.
+      if (email === "juez" && password === "juez") {
+        const existingTestJudge = referees.find((referee) => referee.email === "lucia@juez.local");
+        const matchedTestJudge = existingTestJudge ?? INITIAL_REFEREES[1];
+
+        if (!existingTestJudge) {
+          setReferees((current) => [matchedTestJudge, ...current]);
+        }
+
+        setCurrentUserId(matchedTestJudge.id);
         setAuthForm(createEmptyAuthForm());
         toast.success("Sesion iniciada.");
         return;

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { JuezAdminView } from "./JuezAdminView";
 import { JuezAdministrationView } from "./JuezAdministrationView";
+import { JuezPlayersBrowseView } from "./JuezPlayersBrowseView";
+import { JuezPlayersView } from "./JuezPlayersView";
 import { JuezRefereeView } from "./JuezRefereeView";
 import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
@@ -9,13 +11,20 @@ type JuezDashboardScreenProps = Pick<
   | "availability"
   | "assignments"
   | "authMode"
+  | "browseDivision"
+  | "browseSex"
+  | "browseTeam"
+  | "browsedPlayers"
   | "canManageAdministration"
   | "currentTournament"
   | "currentUser"
   | "designationDraft"
+  | "filteredPlayers"
   | "handleChangeMatchForm"
+  | "handleChangePlayerForm"
   | "handleConfirmDesignation"
   | "handleCreateMatch"
+  | "handleCreatePlayer"
   | "handleDesignationChange"
   | "handleLogout"
   | "handleSaveTournament"
@@ -23,12 +32,24 @@ type JuezDashboardScreenProps = Pick<
   | "handleToggleAvailability"
   | "handleToggleRefereeRole"
   | "isEditingTournament"
+  | "isLoadingPlayers"
   | "matchForm"
   | "matches"
+  | "playerDivision"
+  | "playerForm"
+  | "playerSex"
+  | "playerTeam"
   | "referees"
   | "selectedMatchId"
+  | "setBrowseDivision"
+  | "setBrowseSex"
+  | "setBrowseTeam"
+  | "setPlayerDivision"
+  | "setPlayerSex"
+  | "setPlayerTeam"
   | "setSelectedMatchId"
   | "setTournamentDraft"
+  | "teamOptions"
   | "tournamentDraft"
   | "viewMode"
   | "setViewMode"
@@ -37,13 +58,20 @@ type JuezDashboardScreenProps = Pick<
 export function JuezDashboardScreen({
   availability,
   assignments,
+  browseDivision,
+  browseSex,
+  browseTeam,
+  browsedPlayers,
   canManageAdministration,
   currentTournament,
   currentUser,
   designationDraft,
+  filteredPlayers,
   handleChangeMatchForm,
+  handleChangePlayerForm,
   handleConfirmDesignation,
   handleCreateMatch,
+  handleCreatePlayer,
   handleDesignationChange,
   handleLogout,
   handleSaveTournament,
@@ -51,12 +79,24 @@ export function JuezDashboardScreen({
   handleToggleAvailability,
   handleToggleRefereeRole,
   isEditingTournament,
+  isLoadingPlayers,
   matchForm,
   matches,
+  playerDivision,
+  playerForm,
+  playerSex,
+  playerTeam,
   referees,
   selectedMatchId,
+  setBrowseDivision,
+  setBrowseSex,
+  setBrowseTeam,
+  setPlayerDivision,
+  setPlayerSex,
+  setPlayerTeam,
   setSelectedMatchId,
   setTournamentDraft,
+  teamOptions,
   tournamentDraft,
   viewMode,
   setViewMode
@@ -127,6 +167,30 @@ export function JuezDashboardScreen({
                     {canManageAdministration ? (
                       <button
                         type="button"
+                        className={`juez-menu__item ${viewMode === "players" ? "is-active" : ""}`}
+                        onClick={() => {
+                          setViewMode("players");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Jugadores
+                      </button>
+                    ) : null}
+                    {canManageAdministration ? (
+                      <button
+                        type="button"
+                        className={`juez-menu__item ${viewMode === "players-browse" ? "is-active" : ""}`}
+                        onClick={() => {
+                          setViewMode("players-browse");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Consultar Jugadores
+                      </button>
+                    ) : null}
+                    {canManageAdministration ? (
+                      <button
+                        type="button"
                         className={`juez-menu__item ${viewMode === "administration" ? "is-active" : ""}`}
                         onClick={() => {
                           setViewMode("administration");
@@ -191,6 +255,36 @@ export function JuezDashboardScreen({
 
         {viewMode === "administration" && canManageAdministration ? (
           <JuezAdministrationView referees={referees} assignments={assignments} onToggleRefereeRole={handleToggleRefereeRole} />
+        ) : null}
+
+        {viewMode === "players" && canManageAdministration ? (
+          <JuezPlayersView
+            filteredPlayers={filteredPlayers}
+            isLoading={isLoadingPlayers}
+            team={playerTeam}
+            setTeam={setPlayerTeam}
+            division={playerDivision}
+            setDivision={setPlayerDivision}
+            sex={playerSex}
+            setSex={setPlayerSex}
+            playerForm={playerForm}
+            onChangePlayerForm={handleChangePlayerForm}
+            onCreatePlayer={handleCreatePlayer}
+          />
+        ) : null}
+
+        {viewMode === "players-browse" && canManageAdministration ? (
+          <JuezPlayersBrowseView
+            browsedPlayers={browsedPlayers}
+            isLoading={isLoadingPlayers}
+            teamOptions={teamOptions}
+            browseTeam={browseTeam}
+            setBrowseTeam={setBrowseTeam}
+            browseDivision={browseDivision}
+            setBrowseDivision={setBrowseDivision}
+            browseSex={browseSex}
+            setBrowseSex={setBrowseSex}
+          />
         ) : null}
       </section>
     </main>
