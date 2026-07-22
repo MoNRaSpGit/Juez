@@ -155,10 +155,14 @@
   color: #92400e;
 }
 
-.juez-player-card__badge--red,
-.juez-player-card__badge--expired {
+.juez-player-card__badge--red {
   background: rgba(220, 38, 38, 0.12);
   color: #b91c1c;
+}
+
+.juez-player-card__badge--expired {
+  background: rgba(126, 34, 206, 0.12);
+  color: #7e22ce;
 }
 
 .juez-player-card__expiry {
@@ -172,9 +176,12 @@
   border-left-color: #f59e0b;
 }
 
-.juez-player-card--red,
-.juez-player-card--expired {
+.juez-player-card--red {
   border-left-color: #dc2626;
+}
+
+.juez-player-card--expired {
+  border-left-color: #7e22ce;
 }
 
 .juez-player-card__details-toggle {
