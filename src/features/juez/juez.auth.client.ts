@@ -15,6 +15,10 @@ type JudgeAuthResponse = {
   user: JudgeAuthUser;
 };
 
+type ListJudgeAccountsResponse = {
+  items: JudgeAuthUser[];
+};
+
 function buildUrl(path: string) {
   return `${API_BASE_URL}${path}`;
 }
@@ -51,6 +55,32 @@ export async function loginJudgeAccount(email: string, password: string) {
   const data = (await response.json().catch(() => ({}))) as Partial<JudgeAuthResponse> & { message?: string };
   if (!response.ok || !data.user) {
     throw new Error(data.message || "No se pudo iniciar sesion.");
+  }
+
+  return data.user;
+}
+
+export async function listJudgeAccounts() {
+  const response = await fetch(buildUrl("/juez-auth/accounts"));
+  const data = (await response.json().catch(() => ({}))) as Partial<ListJudgeAccountsResponse> & { message?: string };
+
+  if (!response.ok) {
+    throw new Error(data.message || "No se pudieron cargar los jueces.");
+  }
+
+  return data.items ?? [];
+}
+
+export async function updateJudgeAccountRoles(accountId: number, roles: RefereeRole[]) {
+  const response = await fetch(buildUrl(`/juez-auth/accounts/${accountId}/roles`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roles })
+  });
+
+  const data = (await response.json().catch(() => ({}))) as Partial<JudgeAuthResponse> & { message?: string };
+  if (!response.ok || !data.user) {
+    throw new Error(data.message || "No se pudieron actualizar los roles.");
   }
 
   return data.user;

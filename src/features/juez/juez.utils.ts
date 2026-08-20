@@ -162,32 +162,3 @@ export function getAssignedRoleLabel(refereeId: string, assignment: Assignment |
   return null;
 }
 
-export function buildMatchId() {
-  return `match-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-export function suggestAssignment(matchId: string, referees: Referee[], availability: AvailabilityEntry[]) {
-  const available = getAvailableReferees(matchId, referees, availability);
-  const roles: RefereeRole[] = ["planillero", "principal", "secundario"];
-  const used = new Set<string>();
-  const result: Partial<Record<RefereeRole, string>> = {};
-
-  for (const role of roles) {
-    const candidate = available
-      .filter((referee) => referee.roles.includes(role) && !used.has(referee.id))
-      .sort((a, b) => a.roles.length - b.roles.length || a.name.localeCompare(b.name))[0];
-
-    if (!candidate) {
-      return null;
-    }
-
-    result[role] = candidate.id;
-    used.add(candidate.id);
-  }
-
-  return {
-    principal: result.principal ?? "",
-    secundario: result.secundario ?? "",
-    planillero: result.planillero ?? ""
-  };
-}

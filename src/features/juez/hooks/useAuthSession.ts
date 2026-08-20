@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { toast } from "react-toastify";
-import { loginJudgeAccount, registerJudgeAccount, type JudgeAuthUser } from "../juez.auth.client";
+import {
+  listJudgeAccounts,
+  loginJudgeAccount,
+  registerJudgeAccount,
+  updateJudgeAccountRoles,
+  type JudgeAuthUser
+} from "../juez.auth.client";
 import { INITIAL_REFEREES } from "../juez.mock";
 import { Referee, RefereeRole } from "../juez.types";
 
@@ -14,7 +20,6 @@ export type AuthFormState = {
   roles: Record<RefereeRole, boolean>;
 };
 
-const REFEREES_STORAGE_KEY = "juez-referees";
 const SESSION_STORAGE_KEY = "juez-session";
 const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,72}$/;
 
@@ -32,31 +37,6 @@ function createEmptyAuthForm(): AuthFormState {
   };
 }
 
-function loadStoredReferees() {
-  if (typeof window === "undefined") return INITIAL_REFEREES;
-
-  try {
-    const raw = window.localStorage.getItem(REFEREES_STORAGE_KEY);
-    if (!raw) return INITIAL_REFEREES;
-
-    const parsed = JSON.parse(raw) as Referee[];
-    if (!Array.isArray(parsed) || !parsed.length) return INITIAL_REFEREES;
-
-    const normalized = parsed.map((referee) => ({
-      ...referee,
-      accountRole: referee.accountRole ?? (referee.email === "admin" ? "admin" : "juez")
-    }));
-
-    if (normalized.some((referee) => referee.accountRole === "admin" || referee.email === "admin")) {
-      return normalized;
-    }
-
-    return [INITIAL_REFEREES[0], ...normalized];
-  } catch {
-    return INITIAL_REFEREES;
-  }
-}
-
 function loadStoredSession() {
   if (typeof window === "undefined") return "";
   try {
@@ -66,9 +46,11 @@ function loadStoredSession() {
   }
 }
 
+const NUMERIC_ID_REGEX = /^\d+$/;
+
 function createRefereeFromJudgeUser(user: JudgeAuthUser): Referee {
   return {
-    id: `juez-${user.id}`,
+    id: String(user.id),
     name: user.fullName?.trim() || user.email,
     city: user.city?.trim() || "Montevideo",
     accountRole: user.accountRole,
@@ -97,7 +79,7 @@ function upsertRefereeFromJudgeUser(current: Referee[], user: JudgeAuthUser) {
 export function useAuthSession() {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [authForm, setAuthForm] = useState<AuthFormState>(() => createEmptyAuthForm());
-  const [referees, setReferees] = useState<Referee[]>(() => loadStoredReferees());
+  const [referees, setReferees] = useState<Referee[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>(() => loadStoredSession());
 
   const currentUser = useMemo(
@@ -107,12 +89,22 @@ export function useAuthSession() {
   const canManageAdministration = currentUser?.accountRole === "admin";
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(REFEREES_STORAGE_KEY, JSON.stringify(referees));
-    } catch {
-      // ignore
+    let active = true;
+
+    async function loadReferees() {
+      try {
+        const accounts = await listJudgeAccounts();
+        if (active) setReferees(accounts.map(createRefereeFromJudgeUser));
+      } catch {
+        if (active) toast.error("No se pudieron cargar los jueces.");
+      }
     }
-  }, [referees]);
+
+    void loadReferees();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!currentUserId) {
@@ -246,22 +238,31 @@ export function useAuthSession() {
     }
   }
 
-  function handleToggleRefereeRole(refereeId: string, role: RefereeRole) {
-    setReferees((current) =>
-      current.map((referee) => {
-        if (referee.id !== refereeId) return referee;
+  async function handleToggleRefereeRole(refereeId: string, role: RefereeRole) {
+    const referee = referees.find((item) => item.id === refereeId);
+    if (!referee) return;
 
-        const hasRole = referee.roles.includes(role);
-        const nextRoles = hasRole ? referee.roles.filter((item) => item !== role) : [...referee.roles, role];
+    const hasRole = referee.roles.includes(role);
+    const nextRoles = hasRole ? referee.roles.filter((item) => item !== role) : [...referee.roles, role];
 
-        if (!nextRoles.length) {
-          toast.error("Cada juez debe conservar al menos un rol.");
-          return referee;
-        }
+    if (!nextRoles.length) {
+      toast.error("Cada juez debe conservar al menos un rol.");
+      return;
+    }
 
-        return { ...referee, roles: nextRoles };
-      })
-    );
+    // Los ids numericos son cuentas reales del backend; los accesos rapidos
+    // de prueba (admin-1, ref-1, etc.) solo existen en memoria del navegador.
+    if (!NUMERIC_ID_REGEX.test(refereeId)) {
+      setReferees((current) => current.map((item) => (item.id === refereeId ? { ...item, roles: nextRoles } : item)));
+      return;
+    }
+
+    try {
+      await updateJudgeAccountRoles(Number(refereeId), nextRoles);
+      setReferees((current) => current.map((item) => (item.id === refereeId ? { ...item, roles: nextRoles } : item)));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudieron actualizar los roles.");
+    }
   }
 
   function logout() {

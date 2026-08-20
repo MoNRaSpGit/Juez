@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { EMPTY_MATCH_FORM, INITIAL_ASSIGNMENTS, INITIAL_AVAILABILITY, INITIAL_MATCHES } from "../juez.mock";
-import { buildMatchId } from "../juez.utils";
+import { EMPTY_MATCH_FORM } from "../juez.mock";
+import {
+  confirmJuezAssignment,
+  createJuezMatch,
+  listJuezAssignments,
+  listJuezAvailability,
+  listJuezMatches,
+  toggleJuezAvailability
+} from "../juez.matches.client";
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
 
 const EMPTY_DRAFT: Record<RefereeRole, string> = {
@@ -22,31 +29,44 @@ function createDesignationDraftFromAssignment(assignment?: Assignment | null) {
   };
 }
 
-// TEST-ONLY: fakes a few referees already confirming availability for a brand new match,
-// so the designation picker has candidates to try the flow with before real judges apply.
-// Remove this once matches go live with real referees confirming for real.
-const FAKE_AVAILABILITY_REFEREE_IDS = ["ref-1", "ref-2", "ref-3", "ref-4"];
-
-function buildFakeAvailabilityForTesting(matchId: string): AvailabilityEntry[] {
-  return FAKE_AVAILABILITY_REFEREE_IDS.map((refereeId) => ({
-    refereeId,
-    matchId,
-    createdAt: new Date().toISOString()
-  }));
-}
-
 type UseMatchesAndDesignationOptions = {
   currentTournament: string;
   currentUser: Referee | null;
 };
 
 export function useMatchesAndDesignation({ currentTournament, currentUser }: UseMatchesAndDesignationOptions) {
-  const [matches, setMatches] = useState(INITIAL_MATCHES);
-  const [availability, setAvailability] = useState(INITIAL_AVAILABILITY);
-  const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [availability, setAvailability] = useState<AvailabilityEntry[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedMatchId, setSelectedMatchIdState] = useState("");
   const [matchForm, setMatchForm] = useState<MatchFormState>(EMPTY_MATCH_FORM);
   const [designationDraft, setDesignationDraft] = useState<Record<RefereeRole, string>>(EMPTY_DRAFT);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadAll() {
+      try {
+        const [matchItems, availabilityItems, assignmentItems] = await Promise.all([
+          listJuezMatches(),
+          listJuezAvailability(),
+          listJuezAssignments()
+        ]);
+
+        if (!active) return;
+        setMatches(matchItems);
+        setAvailability(availabilityItems);
+        setAssignments(assignmentItems);
+      } catch {
+        if (active) toast.error("No se pudieron cargar los partidos.");
+      }
+    }
+
+    void loadAll();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function handleChangeMatchForm(field: keyof MatchFormState, value: string) {
     setMatchForm((current) => ({ ...current, [field]: value }));
@@ -58,49 +78,45 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
     setDesignationDraft(createDesignationDraftFromAssignment(existingAssignment));
   }
 
-  function handleCreateMatch() {
+  async function handleCreateMatch() {
     if (!matchForm.homeSide || !matchForm.awaySide || !matchForm.venue || !matchForm.date || !matchForm.time) {
       toast.error("Completa cuadro A, cuadro B, lugar, fecha y hora para publicar el partido.");
       return;
     }
 
-    const nextMatch: Match = {
-      id: buildMatchId(),
-      tournament: currentTournament,
-      homeSide: matchForm.homeSide,
-      awaySide: matchForm.awaySide,
-      venue: matchForm.venue,
-      date: matchForm.date,
-      time: matchForm.time,
-      status: "open"
-    };
-
-    setMatches((current) => [nextMatch, ...current]);
-    setAvailability((current) => [...current, ...buildFakeAvailabilityForTesting(nextMatch.id)]);
-    setMatchForm(EMPTY_MATCH_FORM);
-    toast.success("Partido publicado para que los jueces confirmen si pueden ir.");
+    try {
+      const item = await createJuezMatch({ tournament: currentTournament, ...matchForm });
+      setMatches((current) => [item, ...current]);
+      setMatchForm(EMPTY_MATCH_FORM);
+      toast.success("Partido publicado para que los jueces confirmen si pueden ir.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo publicar el partido.");
+    }
   }
 
-  function handleToggleAvailability(matchId: string) {
+  async function handleToggleAvailability(matchId: string) {
     if (!currentUser) return;
 
-    const existing = availability.find((entry) => entry.refereeId === currentUser.id && entry.matchId === matchId);
+    try {
+      const items = await toggleJuezAvailability(matchId, currentUser.id);
+      setAvailability(items);
 
-    if (existing) {
-      setAvailability((current) => current.filter((entry) => entry !== existing));
-      toast.info("Se quito tu confirmacion para este partido.");
-      return;
+      const isNowAvailable = items.some((entry) => entry.refereeId === currentUser.id && entry.matchId === matchId);
+      if (isNowAvailable) {
+        toast.success("Quedaste confirmado para este partido.");
+      } else {
+        toast.info("Se quito tu confirmacion para este partido.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo actualizar tu disponibilidad.");
     }
-
-    setAvailability((current) => [...current, { refereeId: currentUser.id, matchId, createdAt: new Date().toISOString() }]);
-    toast.success("Quedaste confirmado para este partido.");
   }
 
   function handleDesignationChange(role: RefereeRole, refereeId: string) {
     setDesignationDraft((current) => ({ ...current, [role]: refereeId }));
   }
 
-  function handleConfirmDesignation() {
+  async function handleConfirmDesignation() {
     const selectedMatch = matches.find((match) => match.id === selectedMatchId);
     if (!selectedMatch) {
       toast.error("Selecciona un partido para designar.");
@@ -118,22 +134,21 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
       return;
     }
 
-    const nextAssignment: Assignment = {
-      matchId: selectedMatch.id,
-      principalRefereeId: designationDraft.principal,
-      secondaryRefereeId: designationDraft.secundario,
-      scorerRefereeId: designationDraft.planillero,
-      confirmedAt: new Date().toISOString()
-    };
+    try {
+      const items = await confirmJuezAssignment(selectedMatch.id, {
+        principalRefereeId: designationDraft.principal,
+        secondaryRefereeId: designationDraft.secundario,
+        scorerRefereeId: designationDraft.planillero
+      });
 
-    setAssignments((current) => {
-      const withoutCurrent = current.filter((assignment) => assignment.matchId !== selectedMatch.id);
-      return [nextAssignment, ...withoutCurrent];
-    });
-    setMatches((current) => current.map((match) => (match.id === selectedMatch.id ? { ...match, status: "assigned" } : match)));
-    setSelectedMatchIdState("");
-    setDesignationDraft(EMPTY_DRAFT);
-    toast.success("Designacion oficial confirmada.");
+      setAssignments(items);
+      setMatches((current) => current.map((match) => (match.id === selectedMatch.id ? { ...match, status: "assigned" } : match)));
+      setSelectedMatchIdState("");
+      setDesignationDraft(EMPTY_DRAFT);
+      toast.success("Designacion oficial confirmada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo confirmar la designacion.");
+    }
   }
 
   function resetDesignationDraft() {
