@@ -104,7 +104,8 @@
   gap: 10px;
 }
 
-.juez-vs-field input {
+.juez-vs-field input,
+.juez-vs-field select {
   flex: 1;
   min-width: 0;
 }

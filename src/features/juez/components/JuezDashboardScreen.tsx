@@ -232,6 +232,7 @@ export function JuezDashboardScreen({
             referees={referees}
             availability={availability}
             assignments={assignments}
+            teams={teams}
             selectedMatchId={selectedMatchId}
             matchForm={matchForm}
             designationDraft={designationDraft}

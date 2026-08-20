@@ -1,9 +1,30 @@
+import { useState } from "react";
 import { MatchFormState } from "../juez.types";
+import { JuezPlayerDivision, JuezPlayerSex } from "../juez.players.types";
+import { JuezTeam } from "../juez.teams.types";
 
 const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
 
+type MatchCategory = { division: JuezPlayerDivision; sex: JuezPlayerSex };
+
+const CATEGORY_OPTIONS: MatchCategory[] = [
+  { division: "A", sex: "masculino" },
+  { division: "B", sex: "masculino" },
+  { division: "A", sex: "femenino" },
+  { division: "B", sex: "femenino" }
+];
+
+function formatCategoryLabel(category: MatchCategory) {
+  return `${category.sex === "masculino" ? "Masculino" : "Femenino"} ${category.division}`;
+}
+
+function isSameCategory(left: MatchCategory | null, right: MatchCategory) {
+  return left?.division === right.division && left?.sex === right.sex;
+}
+
 type PublishMatchFormProps = {
   matchForm: MatchFormState;
+  teams: JuezTeam[];
   currentTournament: string;
   isEditingTournament: boolean;
   tournamentDraft: string;
@@ -16,6 +37,7 @@ type PublishMatchFormProps = {
 
 export function PublishMatchForm({
   matchForm,
+  teams,
   currentTournament,
   isEditingTournament,
   tournamentDraft,
@@ -25,6 +47,14 @@ export function PublishMatchForm({
   onTournamentDraftChange,
   onSaveTournament
 }: PublishMatchFormProps) {
+  const [category, setCategory] = useState<MatchCategory | null>(null);
+
+  const categoryTeams = category
+    ? teams
+        .filter((team) => team.division === category.division && team.sex === category.sex)
+        .sort((left, right) => left.name.localeCompare(right.name))
+    : [];
+
   return (
     <article className="juez-panel juez-panel--span-2">
       <div className="juez-panel__heading juez-panel__heading--stack-mobile">
@@ -54,23 +84,54 @@ export function PublishMatchForm({
         </div>
       </div>
 
+      <div className="juez-field juez-field--full-mobile">
+        <span>Categoria</span>
+        <div className="juez-role-toggle-row">
+          {CATEGORY_OPTIONS.map((option) => (
+            <button
+              key={`${option.division}-${option.sex}`}
+              type="button"
+              className={`juez-role-toggle ${isSameCategory(category, option) ? "is-checked" : ""}`}
+              onClick={() => setCategory(option)}
+            >
+              <span className="juez-role-toggle__dot" />
+              {formatCategoryLabel(option)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="juez-form-grid juez-form-grid--mobile-first">
         <div className="juez-field juez-field--full-mobile">
           <span>Partido</span>
           <div className="juez-vs-field">
-            <input
+            <select
               value={matchForm.homeSide}
               onChange={(event) => onChangeMatchForm("homeSide", event.target.value)}
-              placeholder="Atenas"
+              disabled={!category}
               aria-label="Equipo local"
-            />
+            >
+              <option value="">{category ? "Local" : "Elegi categoria"}</option>
+              {categoryTeams.map((team) => (
+                <option key={team.id} value={team.name}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
             <span className="juez-vs-field__vs">Vs</span>
-            <input
+            <select
               value={matchForm.awaySide}
               onChange={(event) => onChangeMatchForm("awaySide", event.target.value)}
-              placeholder="Trouville"
+              disabled={!category}
               aria-label="Equipo visitante"
-            />
+            >
+              <option value="">{category ? "Visitante" : "Elegi categoria"}</option>
+              {categoryTeams.map((team) => (
+                <option key={team.id} value={team.name}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <label className="juez-field juez-field--full-mobile">

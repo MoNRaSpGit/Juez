@@ -1,4 +1,5 @@
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
+import { JuezTeam } from "../juez.teams.types";
 import { DesignationModal } from "./DesignationModal";
 import { MatchList } from "./MatchList";
 import { PublishMatchForm } from "./PublishMatchForm";
@@ -9,6 +10,7 @@ type JuezAdminViewProps = {
   referees: Referee[];
   availability: AvailabilityEntry[];
   assignments: Assignment[];
+  teams: JuezTeam[];
   selectedMatchId: string;
   matchForm: MatchFormState;
   designationDraft: Record<RefereeRole, string>;
@@ -30,6 +32,7 @@ export function JuezAdminView({
   referees,
   availability,
   assignments,
+  teams,
   selectedMatchId,
   matchForm,
   designationDraft,
@@ -50,6 +53,7 @@ export function JuezAdminView({
   return (
     <section className="juez-layout-grid">
       <PublishMatchForm
+        teams={teams}
         matchForm={matchForm}
         currentTournament={currentTournament}
         isEditingTournament={isEditingTournament}
