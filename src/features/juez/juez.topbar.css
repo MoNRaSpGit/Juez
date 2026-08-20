@@ -145,7 +145,7 @@
 }
 
 .juez-menu__item:hover {
-  background: #eef2ff;
+  background: #c7d2fe;
 }
 
 .juez-menu__item.is-active {
@@ -154,7 +154,7 @@
 }
 
 .juez-menu__item.is-active:hover {
-  background: #e5e7eb;
+  background: #cbd5e1;
 }
 
 .juez-menu__item--danger {
