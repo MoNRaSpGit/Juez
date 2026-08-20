@@ -1,4 +1,6 @@
 import { ChangeEvent } from "react";
+import { compressImageFile } from "../juez.image";
+import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex, JuezPlayer } from "../juez.players.types";
 import { JuezTeam, JuezTeamFormState } from "../juez.teams.types";
 
@@ -47,18 +49,19 @@ export function JuezPlayersView({
   onChangePlayerForm,
   onCreatePlayer
 }: JuezPlayersViewProps) {
-  function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) {
       onChangePlayerForm("photoDataUrl", "");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChangePlayerForm("photoDataUrl", typeof reader.result === "string" ? reader.result : "");
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageFile(file);
+      onChangePlayerForm("photoDataUrl", compressed);
+    } catch {
+      onChangePlayerForm("photoDataUrl", "");
+    }
   }
 
   return (
@@ -223,7 +226,7 @@ export function JuezPlayersView({
                 <div className="juez-match-card__main">
                   <div className="juez-player-row">
                     <span className="juez-avatar juez-avatar--small">
-                      {player.photoDataUrl ? <img src={player.photoDataUrl} alt="" /> : getInitials(player.name, player.lastName)}
+                      {player.hasPhoto ? <img src={buildJuezPlayerPhotoUrl(player.id)} alt="" /> : getInitials(player.name, player.lastName)}
                     </span>
                     <div>
                       <strong>

@@ -13,6 +13,10 @@ function buildUrl(path: string) {
   return `${API_BASE_URL}${path}`;
 }
 
+export function buildJuezPlayerPhotoUrl(playerId: number) {
+  return buildUrl(`/juez-players/${playerId}/photo`);
+}
+
 export async function listJuezPlayers() {
   const response = await fetch(buildUrl("/juez-players"));
   const data = (await response.json().catch(() => ({}))) as Partial<ListPlayersResponse> & { message?: string };

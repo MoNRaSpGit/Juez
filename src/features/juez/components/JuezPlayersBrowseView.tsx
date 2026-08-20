@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
+import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerDivision, JuezPlayerSex } from "../juez.players.types";
 
 type JuezPlayersBrowseViewProps = {
@@ -37,7 +38,7 @@ function JuezPlayerCard({ player }: { player: JuezPlayer }) {
       <div className="juez-player-card__top">
         <div className="juez-player-row">
           <span className="juez-avatar">
-            {player.photoDataUrl ? <img src={player.photoDataUrl} alt="" /> : getInitials(player.name, player.lastName)}
+            {player.hasPhoto ? <img src={buildJuezPlayerPhotoUrl(player.id)} alt="" /> : getInitials(player.name, player.lastName)}
           </span>
           <strong className="juez-player-card__name">
             {player.name} {player.lastName}
