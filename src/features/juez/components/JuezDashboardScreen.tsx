@@ -22,9 +22,11 @@ type JuezDashboardScreenProps = Pick<
   | "filteredPlayers"
   | "handleChangeMatchForm"
   | "handleChangePlayerForm"
+  | "handleChangeTeamForm"
   | "handleConfirmDesignation"
   | "handleCreateMatch"
   | "handleCreatePlayer"
+  | "handleCreateTeam"
   | "handleDesignationChange"
   | "handleLogout"
   | "handleSaveTournament"
@@ -33,23 +35,23 @@ type JuezDashboardScreenProps = Pick<
   | "handleToggleRefereeRole"
   | "isEditingTournament"
   | "isLoadingPlayers"
+  | "isTeamsLoading"
   | "matchForm"
   | "matches"
-  | "playerDivision"
   | "playerForm"
-  | "playerSex"
-  | "playerTeam"
   | "referees"
   | "selectedMatchId"
+  | "selectedTeam"
+  | "selectedTeamId"
   | "setBrowseDivision"
   | "setBrowseSex"
   | "setBrowseTeam"
-  | "setPlayerDivision"
-  | "setPlayerSex"
-  | "setPlayerTeam"
   | "setSelectedMatchId"
+  | "setSelectedTeamId"
   | "setTournamentDraft"
+  | "teamForm"
   | "teamOptions"
+  | "teams"
   | "tournamentDraft"
   | "viewMode"
   | "setViewMode"
@@ -69,9 +71,11 @@ export function JuezDashboardScreen({
   filteredPlayers,
   handleChangeMatchForm,
   handleChangePlayerForm,
+  handleChangeTeamForm,
   handleConfirmDesignation,
   handleCreateMatch,
   handleCreatePlayer,
+  handleCreateTeam,
   handleDesignationChange,
   handleLogout,
   handleSaveTournament,
@@ -80,23 +84,23 @@ export function JuezDashboardScreen({
   handleToggleRefereeRole,
   isEditingTournament,
   isLoadingPlayers,
+  isTeamsLoading,
   matchForm,
   matches,
-  playerDivision,
   playerForm,
-  playerSex,
-  playerTeam,
   referees,
   selectedMatchId,
+  selectedTeam,
+  selectedTeamId,
   setBrowseDivision,
   setBrowseSex,
   setBrowseTeam,
-  setPlayerDivision,
-  setPlayerSex,
-  setPlayerTeam,
   setSelectedMatchId,
+  setSelectedTeamId,
   setTournamentDraft,
+  teamForm,
   teamOptions,
+  teams,
   tournamentDraft,
   viewMode,
   setViewMode
@@ -261,12 +265,14 @@ export function JuezDashboardScreen({
           <JuezPlayersView
             filteredPlayers={filteredPlayers}
             isLoading={isLoadingPlayers}
-            team={playerTeam}
-            setTeam={setPlayerTeam}
-            division={playerDivision}
-            setDivision={setPlayerDivision}
-            sex={playerSex}
-            setSex={setPlayerSex}
+            teams={teams}
+            isTeamsLoading={isTeamsLoading}
+            teamForm={teamForm}
+            onChangeTeamForm={handleChangeTeamForm}
+            onCreateTeam={handleCreateTeam}
+            selectedTeamId={selectedTeamId}
+            onSelectTeam={setSelectedTeamId}
+            selectedTeam={selectedTeam}
             playerForm={playerForm}
             onChangePlayerForm={handleChangePlayerForm}
             onCreatePlayer={handleCreatePlayer}

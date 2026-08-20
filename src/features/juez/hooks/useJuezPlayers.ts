@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { createJuezPlayer, listJuezPlayers } from "../juez.players.client";
 import { INITIAL_JUEZ_PLAYER_FORM, JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
+import { createJuezTeam, listJuezTeams } from "../juez.teams.client";
+import { INITIAL_JUEZ_TEAM_FORM, JuezTeam, JuezTeamFormState } from "../juez.teams.types";
 
 export function useJuezPlayers() {
   const [players, setPlayers] = useState<JuezPlayer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [team, setTeam] = useState("Penarol");
-  const [division, setDivision] = useState<JuezPlayerDivision>("A");
-  const [sex, setSex] = useState<JuezPlayerSex>("masculino");
+
+  const [teams, setTeams] = useState<JuezTeam[]>([]);
+  const [isTeamsLoading, setIsTeamsLoading] = useState(true);
+  const [teamForm, setTeamForm] = useState<JuezTeamFormState>(INITIAL_JUEZ_TEAM_FORM);
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+
   const [playerForm, setPlayerForm] = useState<JuezPlayerFormState>(INITIAL_JUEZ_PLAYER_FORM);
 
   const [browseTeam, setBrowseTeam] = useState("");
@@ -35,30 +40,63 @@ export function useJuezPlayers() {
     };
   }, []);
 
-  const teamOptions = useMemo(() => {
-    const uniqueTeams = new Set(players.map((player) => player.team));
-    return Array.from(uniqueTeams).sort((left, right) => left.localeCompare(right));
-  }, [players]);
-
   useEffect(() => {
-    if (!browseTeam && teamOptions.length) {
-      setBrowseTeam(teamOptions[0]);
+    let active = true;
+
+    async function loadTeams() {
+      try {
+        const items = await listJuezTeams();
+        if (active) setTeams(items);
+      } catch {
+        if (active) toast.error("No se pudieron cargar los equipos.");
+      } finally {
+        if (active) setIsTeamsLoading(false);
+      }
     }
-  }, [browseTeam, teamOptions]);
+
+    void loadTeams();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectedTeam = useMemo(() => teams.find((candidate) => candidate.id === selectedTeamId) ?? null, [teams, selectedTeamId]);
+
+  function handleChangeTeamForm(field: keyof JuezTeamFormState, value: string) {
+    setTeamForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleCreateTeam() {
+    const trimmedName = teamForm.name.trim();
+    if (!trimmedName) {
+      toast.error("Ingresa el nombre del equipo.");
+      return;
+    }
+
+    try {
+      const team = await createJuezTeam({ name: trimmedName, division: teamForm.division, sex: teamForm.sex });
+      setTeams((current) => [...current, team].sort((left, right) => left.name.localeCompare(right.name)));
+      setSelectedTeamId(team.id);
+      setTeamForm(INITIAL_JUEZ_TEAM_FORM);
+      toast.success("Equipo creado.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo crear el equipo.");
+    }
+  }
 
   function handleChangePlayerForm(field: keyof JuezPlayerFormState, value: string) {
     setPlayerForm((current) => ({ ...current, [field]: value }));
   }
 
   async function handleCreatePlayer() {
-    const trimmedTeam = team.trim();
+    if (!selectedTeam) {
+      toast.error("Selecciona un equipo primero.");
+      return;
+    }
+
     const trimmedName = playerForm.name.trim();
     const trimmedLastName = playerForm.lastName.trim();
 
-    if (!trimmedTeam) {
-      toast.error("Ingresa el equipo.");
-      return;
-    }
     if (!trimmedName) {
       toast.error("Ingresa el nombre del jugador.");
       return;
@@ -74,9 +112,9 @@ export function useJuezPlayers() {
 
     try {
       const item = await createJuezPlayer({
-        team: trimmedTeam,
-        division,
-        sex,
+        team: selectedTeam.name,
+        division: selectedTeam.division,
+        sex: selectedTeam.sex,
         name: trimmedName,
         lastName: trimmedLastName,
         expiryDate: playerForm.expiryDate,
@@ -94,9 +132,27 @@ export function useJuezPlayers() {
     }
   }
 
-  const filteredPlayers = players
-    .filter((player) => player.team.toLowerCase() === team.trim().toLowerCase() && player.division === division && player.sex === sex)
-    .sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
+  const filteredPlayers = (
+    selectedTeam
+      ? players.filter(
+          (player) =>
+            player.team.toLowerCase() === selectedTeam.name.trim().toLowerCase() &&
+            player.division === selectedTeam.division &&
+            player.sex === selectedTeam.sex
+        )
+      : []
+  ).sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
+
+  const teamOptions = useMemo(() => {
+    const uniqueTeams = new Set(players.map((player) => player.team));
+    return Array.from(uniqueTeams).sort((left, right) => left.localeCompare(right));
+  }, [players]);
+
+  useEffect(() => {
+    if (!browseTeam && teamOptions.length) {
+      setBrowseTeam(teamOptions[0]);
+    }
+  }, [browseTeam, teamOptions]);
 
   const browsedPlayers = players
     .filter(
@@ -111,12 +167,16 @@ export function useJuezPlayers() {
     players,
     filteredPlayers,
     isLoading,
-    team,
-    setTeam,
-    division,
-    setDivision,
-    sex,
-    setSex,
+
+    teams,
+    isTeamsLoading,
+    teamForm,
+    handleChangeTeamForm,
+    handleCreateTeam,
+    selectedTeamId,
+    setSelectedTeamId,
+    selectedTeam,
+
     playerForm,
     handleChangePlayerForm,
     handleCreatePlayer,
