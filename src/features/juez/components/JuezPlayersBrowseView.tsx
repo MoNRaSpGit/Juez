@@ -102,7 +102,11 @@ export function JuezPlayersBrowseView({
           <div>
             <p className="juez-eyebrow">Filtro</p>
             <h2>Consultar jugadores</h2>
-            <p className="juez-empty-inline">Elegi equipo, division y sexo para ver las tarjetas de esa categoria.</p>
+            <p className="juez-empty-inline">
+              {browseTeam
+                ? "Elegi equipo, division y sexo para ver las tarjetas de esa categoria."
+                : "Mostrando jugadores por vencer o vencidos de todos los equipos. Elegi un equipo para filtrar."}
+            </p>
           </div>
         </div>
 
@@ -110,7 +114,7 @@ export function JuezPlayersBrowseView({
           <label className="juez-field juez-field--full-mobile">
             <span>Equipo</span>
             <select value={browseTeam} onChange={(event) => setBrowseTeam(event.target.value)}>
-              {!teamOptions.length ? <option value="">Sin equipos cargados</option> : null}
+              <option value="">Todos</option>
               {teamOptions.map((teamOption) => (
                 <option key={teamOption} value={teamOption}>
                   {teamOption}
@@ -120,14 +124,18 @@ export function JuezPlayersBrowseView({
           </label>
           <label className="juez-field">
             <span>Division</span>
-            <select value={browseDivision} onChange={(event) => setBrowseDivision(event.target.value as JuezPlayerDivision)}>
+            <select
+              value={browseDivision}
+              disabled={!browseTeam}
+              onChange={(event) => setBrowseDivision(event.target.value as JuezPlayerDivision)}
+            >
               <option value="A">A</option>
               <option value="B">B</option>
             </select>
           </label>
           <label className="juez-field">
             <span>Sexo</span>
-            <select value={browseSex} onChange={(event) => setBrowseSex(event.target.value as JuezPlayerSex)}>
+            <select value={browseSex} disabled={!browseTeam} onChange={(event) => setBrowseSex(event.target.value as JuezPlayerSex)}>
               <option value="masculino">Masculino</option>
               <option value="femenino">Femenino</option>
             </select>
@@ -139,7 +147,7 @@ export function JuezPlayersBrowseView({
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">
-              {browseTeam || "Equipo"} {browseDivision} - {browseSex === "masculino" ? "Masculino" : "Femenino"}
+              {browseTeam ? `${browseTeam} ${browseDivision} - ${browseSex === "masculino" ? "Masculino" : "Femenino"}` : "Todos los equipos"}
             </p>
             <h2>Jugadores</h2>
           </div>
@@ -147,7 +155,11 @@ export function JuezPlayersBrowseView({
 
         {isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
 
-        {!isLoading && !browsedPlayers.length ? <p className="juez-empty-inline">No hay jugadores en esta categoria.</p> : null}
+        {!isLoading && !browsedPlayers.length ? (
+          <p className="juez-empty-inline">
+            {browseTeam ? "No hay jugadores en esta categoria." : "No hay jugadores por vencer ni vencidos."}
+          </p>
+        ) : null}
 
         <div className="juez-player-grid">
           {browsedPlayers.map((player) => (

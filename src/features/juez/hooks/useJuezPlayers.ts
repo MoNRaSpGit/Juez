@@ -4,6 +4,7 @@ import { createJuezPlayer, listJuezPlayers } from "../juez.players.client";
 import { INITIAL_JUEZ_PLAYER_FORM, JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
 import { createJuezTeam, listJuezTeams } from "../juez.teams.client";
 import { INITIAL_JUEZ_TEAM_FORM, JuezTeam, JuezTeamFormState } from "../juez.teams.types";
+import { getPlayerExpiryUrgency } from "../juez.utils";
 
 export function useJuezPlayers() {
   const [players, setPlayers] = useState<JuezPlayer[]>([]);
@@ -148,20 +149,16 @@ export function useJuezPlayers() {
     return Array.from(uniqueTeams).sort((left, right) => left.localeCompare(right));
   }, [players]);
 
-  useEffect(() => {
-    if (!browseTeam && teamOptions.length) {
-      setBrowseTeam(teamOptions[0]);
-    }
-  }, [browseTeam, teamOptions]);
-
-  const browsedPlayers = players
-    .filter(
-      (player) =>
-        player.team.toLowerCase() === browseTeam.trim().toLowerCase() &&
-        player.division === browseDivision &&
-        player.sex === browseSex
-    )
-    .sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
+  const browsedPlayers = (
+    browseTeam
+      ? players.filter(
+          (player) =>
+            player.team.toLowerCase() === browseTeam.trim().toLowerCase() &&
+            player.division === browseDivision &&
+            player.sex === browseSex
+        )
+      : players.filter((player) => getPlayerExpiryUrgency(player.expiryDate) !== "normal")
+  ).sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
 
   return {
     players,
