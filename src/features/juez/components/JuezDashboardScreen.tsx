@@ -19,18 +19,23 @@ type JuezDashboardScreenProps = Pick<
   | "currentTournament"
   | "currentUser"
   | "designationDraft"
-  | "filteredPlayers"
+  | "editForm"
+  | "editingPlayer"
+  | "handleChangeEditForm"
   | "handleChangeMatchForm"
   | "handleChangePlayerForm"
   | "handleChangeTeamForm"
+  | "handleCloseEditPlayer"
   | "handleConfirmDesignation"
   | "handleCreateMatch"
   | "handleCreatePlayer"
   | "handleCreateTeam"
   | "handleDesignationChange"
   | "handleLogout"
+  | "handleOpenEditPlayer"
   | "handleSaveTournament"
   | "handleStartTournamentEdit"
+  | "handleSubmitEditPlayer"
   | "handleToggleAvailability"
   | "handleToggleRefereeRole"
   | "isEditingTournament"
@@ -68,18 +73,23 @@ export function JuezDashboardScreen({
   currentTournament,
   currentUser,
   designationDraft,
-  filteredPlayers,
+  editForm,
+  editingPlayer,
+  handleChangeEditForm,
   handleChangeMatchForm,
   handleChangePlayerForm,
   handleChangeTeamForm,
+  handleCloseEditPlayer,
   handleConfirmDesignation,
   handleCreateMatch,
   handleCreatePlayer,
   handleCreateTeam,
   handleDesignationChange,
   handleLogout,
+  handleOpenEditPlayer,
   handleSaveTournament,
   handleStartTournamentEdit,
+  handleSubmitEditPlayer,
   handleToggleAvailability,
   handleToggleRefereeRole,
   isEditingTournament,
@@ -263,8 +273,6 @@ export function JuezDashboardScreen({
 
         {viewMode === "players" && canManageAdministration ? (
           <JuezPlayersView
-            filteredPlayers={filteredPlayers}
-            isLoading={isLoadingPlayers}
             teams={teams}
             isTeamsLoading={isTeamsLoading}
             teamForm={teamForm}
@@ -290,6 +298,12 @@ export function JuezDashboardScreen({
             setBrowseDivision={setBrowseDivision}
             browseSex={browseSex}
             setBrowseSex={setBrowseSex}
+            editingPlayer={editingPlayer}
+            editForm={editForm}
+            onOpenEditPlayer={handleOpenEditPlayer}
+            onCloseEditPlayer={handleCloseEditPlayer}
+            onChangeEditForm={handleChangeEditForm}
+            onSubmitEditPlayer={handleSubmitEditPlayer}
           />
         ) : null}
       </section>

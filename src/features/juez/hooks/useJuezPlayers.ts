@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { createJuezPlayer, listJuezPlayers } from "../juez.players.client";
+import { createJuezPlayer, listJuezPlayers, updateJuezPlayer } from "../juez.players.client";
 import { INITIAL_JUEZ_PLAYER_FORM, JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
 import { createJuezTeam, listJuezTeams } from "../juez.teams.client";
 import { INITIAL_JUEZ_TEAM_FORM, JuezTeam, JuezTeamFormState } from "../juez.teams.types";
@@ -20,6 +20,9 @@ export function useJuezPlayers() {
   const [browseTeam, setBrowseTeam] = useState("");
   const [browseDivision, setBrowseDivision] = useState<JuezPlayerDivision>("A");
   const [browseSex, setBrowseSex] = useState<JuezPlayerSex>("masculino");
+
+  const [editingPlayer, setEditingPlayer] = useState<JuezPlayer | null>(null);
+  const [editForm, setEditForm] = useState<JuezPlayerFormState>(INITIAL_JUEZ_PLAYER_FORM);
 
   useEffect(() => {
     let active = true;
@@ -133,16 +136,65 @@ export function useJuezPlayers() {
     }
   }
 
-  const filteredPlayers = (
-    selectedTeam
-      ? players.filter(
-          (player) =>
-            player.team.toLowerCase() === selectedTeam.name.trim().toLowerCase() &&
-            player.division === selectedTeam.division &&
-            player.sex === selectedTeam.sex
-        )
-      : []
-  ).sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
+  function handleOpenEditPlayer(player: JuezPlayer) {
+    setEditingPlayer(player);
+    setEditForm({
+      name: player.name,
+      lastName: player.lastName,
+      expiryDate: player.expiryDate,
+      cedula: player.cedula ?? "",
+      phone: player.phone ?? "",
+      birthDate: player.birthDate ?? "",
+      photoDataUrl: ""
+    });
+  }
+
+  function handleCloseEditPlayer() {
+    setEditingPlayer(null);
+    setEditForm(INITIAL_JUEZ_PLAYER_FORM);
+  }
+
+  function handleChangeEditForm(field: keyof JuezPlayerFormState, value: string) {
+    setEditForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handleSubmitEditPlayer() {
+    if (!editingPlayer) return;
+
+    const trimmedName = editForm.name.trim();
+    const trimmedLastName = editForm.lastName.trim();
+
+    if (!trimmedName) {
+      toast.error("Ingresa el nombre del jugador.");
+      return;
+    }
+    if (!trimmedLastName) {
+      toast.error("Ingresa el apellido del jugador.");
+      return;
+    }
+    if (!editForm.expiryDate) {
+      toast.error("Ingresa la fecha de vencimiento.");
+      return;
+    }
+
+    try {
+      const item = await updateJuezPlayer(editingPlayer.id, {
+        name: trimmedName,
+        lastName: trimmedLastName,
+        expiryDate: editForm.expiryDate,
+        cedula: editForm.cedula.trim() || undefined,
+        phone: editForm.phone.trim() || undefined,
+        birthDate: editForm.birthDate || undefined,
+        photoDataUrl: editForm.photoDataUrl || undefined
+      });
+
+      setPlayers((current) => current.map((player) => (player.id === item.id ? item : player)));
+      toast.success("Jugador actualizado.");
+      handleCloseEditPlayer();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo actualizar el jugador.");
+    }
+  }
 
   const teamOptions = useMemo(() => {
     const uniqueTeams = new Set(players.map((player) => player.team));
@@ -162,7 +214,6 @@ export function useJuezPlayers() {
 
   return {
     players,
-    filteredPlayers,
     isLoading,
 
     teams,
@@ -185,6 +236,13 @@ export function useJuezPlayers() {
     setBrowseDivision,
     browseSex,
     setBrowseSex,
-    browsedPlayers
+    browsedPlayers,
+
+    editingPlayer,
+    editForm,
+    handleOpenEditPlayer,
+    handleCloseEditPlayer,
+    handleChangeEditForm,
+    handleSubmitEditPlayer
   };
 }

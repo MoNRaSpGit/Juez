@@ -130,3 +130,17 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.juez-modal__dialog--player {
+  width: min(100%, 620px);
+}
+
+.juez-player-edit__photo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.juez-player-edit__photo .juez-field {
+  flex: 1;
+}

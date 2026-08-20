@@ -54,3 +54,30 @@ export async function createJuezPlayer(payload: {
 
   return data.item;
 }
+
+export async function updateJuezPlayer(
+  playerId: number,
+  payload: {
+    name: string;
+    lastName: string;
+    expiryDate: string;
+    cedula?: string;
+    phone?: string;
+    birthDate?: string;
+    photoDataUrl?: string;
+  }
+) {
+  const response = await fetch(buildUrl(`/juez-players/${playerId}`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = (await response.json().catch(() => ({}))) as Partial<CreatePlayerResponse> & { message?: string };
+
+  if (!response.ok || !data.item) {
+    throw new Error(data.message || "No se pudo actualizar el jugador.");
+  }
+
+  return data.item;
+}

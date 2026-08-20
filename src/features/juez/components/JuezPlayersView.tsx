@@ -1,13 +1,9 @@
 import { ChangeEvent } from "react";
 import { compressImageFile } from "../juez.image";
-import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
-import { JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex, JuezPlayer } from "../juez.players.types";
+import { JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
 import { JuezTeam, JuezTeamFormState } from "../juez.teams.types";
 
 type JuezPlayersViewProps = {
-  filteredPlayers: JuezPlayer[];
-  isLoading: boolean;
-
   teams: JuezTeam[];
   isTeamsLoading: boolean;
   teamForm: JuezTeamFormState;
@@ -22,21 +18,11 @@ type JuezPlayersViewProps = {
   onCreatePlayer: () => void;
 };
 
-function formatDateOnly(value: string) {
-  return new Intl.DateTimeFormat("es-UY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00`));
-}
-
-function getInitials(name: string, lastName: string) {
-  return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
-}
-
 function formatTeamLabel(team: JuezTeam) {
   return `${team.name} - ${team.division} - ${team.sex === "masculino" ? "Masculino" : "Femenino"}`;
 }
 
 export function JuezPlayersView({
-  filteredPlayers,
-  isLoading,
   teams,
   isTeamsLoading,
   teamForm,
@@ -200,52 +186,6 @@ export function JuezPlayersView({
               Agregar jugador
             </button>
           </>
-        ) : null}
-      </article>
-
-      <article className="juez-panel juez-panel--span-2">
-        <div className="juez-panel__heading">
-          <div>
-            <p className="juez-eyebrow">{selectedTeam ? formatTeamLabel(selectedTeam) : "Equipo"}</p>
-            <h2>Jugadores cargados</h2>
-          </div>
-        </div>
-
-        {!selectedTeam ? <p className="juez-empty-inline">Elegi un equipo para ver sus jugadores.</p> : null}
-
-        {selectedTeam && isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
-
-        {selectedTeam && !isLoading && !filteredPlayers.length ? (
-          <p className="juez-empty-inline">Todavia no hay jugadores en este equipo.</p>
-        ) : null}
-
-        {selectedTeam ? (
-          <div className="juez-match-list">
-            {filteredPlayers.map((player) => (
-              <div key={player.id} className="juez-match-card">
-                <div className="juez-match-card__main">
-                  <div className="juez-player-row">
-                    <span className="juez-avatar juez-avatar--small">
-                      {player.hasPhoto ? <img src={buildJuezPlayerPhotoUrl(player.id)} alt="" /> : getInitials(player.name, player.lastName)}
-                    </span>
-                    <div>
-                      <strong>
-                        {player.name} {player.lastName}
-                      </strong>
-                      <p>Vence: {formatDateOnly(player.expiryDate)}</p>
-                    </div>
-                  </div>
-                </div>
-                {player.cedula || player.phone || player.birthDate ? (
-                  <div className="juez-match-card__meta">
-                    {player.cedula ? <span>CI: {player.cedula}</span> : null}
-                    {player.phone ? <span>Tel: {player.phone}</span> : null}
-                    {player.birthDate ? <span>Nace: {formatDateOnly(player.birthDate)}</span> : null}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
         ) : null}
       </article>
     </section>

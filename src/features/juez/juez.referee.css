@@ -176,3 +176,9 @@
   height: 30px;
   font-size: 12px;
 }
+
+.juez-avatar--large {
+  width: 88px;
+  height: 88px;
+  font-size: 28px;
+}

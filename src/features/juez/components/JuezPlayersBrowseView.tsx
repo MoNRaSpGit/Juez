@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
-import { JuezPlayer, JuezPlayerDivision, JuezPlayerSex } from "../juez.players.types";
+import { JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
+import { JuezPlayerEditModal } from "./JuezPlayerEditModal";
 
 type JuezPlayersBrowseViewProps = {
   browsedPlayers: JuezPlayer[];
@@ -13,6 +14,12 @@ type JuezPlayersBrowseViewProps = {
   setBrowseDivision: (value: JuezPlayerDivision) => void;
   browseSex: JuezPlayerSex;
   setBrowseSex: (value: JuezPlayerSex) => void;
+  editingPlayer: JuezPlayer | null;
+  editForm: JuezPlayerFormState;
+  onOpenEditPlayer: (player: JuezPlayer) => void;
+  onCloseEditPlayer: () => void;
+  onChangeEditForm: (field: keyof JuezPlayerFormState, value: string) => void;
+  onSubmitEditPlayer: () => void;
 };
 
 const URGENCY_BADGE_LABEL: Record<string, string> = {
@@ -28,7 +35,7 @@ function getInitials(name: string, lastName: string) {
   return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 }
 
-function JuezPlayerCard({ player }: { player: JuezPlayer }) {
+function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOpenEditPlayer: (player: JuezPlayer) => void }) {
   const [showDetails, setShowDetails] = useState(false);
   const urgency = getPlayerExpiryUrgency(player.expiryDate);
   const badgeLabel = URGENCY_BADGE_LABEL[urgency];
@@ -49,16 +56,22 @@ function JuezPlayerCard({ player }: { player: JuezPlayer }) {
 
       <p className="juez-player-card__expiry">{formatDaysUntilExpiry(player.expiryDate)}</p>
 
-      <button
-        type="button"
-        className={`juez-player-card__details-toggle ${showDetails ? "is-open" : ""}`}
-        onClick={() => setShowDetails((current) => !current)}
-      >
-        {showDetails ? "Ocultar detalle" : "Detalle"}
-        <span className="juez-player-card__details-chevron" aria-hidden="true">
-          ⌄
-        </span>
-      </button>
+      <div className="juez-player-card__actions">
+        <button
+          type="button"
+          className={`juez-player-card__details-toggle ${showDetails ? "is-open" : ""}`}
+          onClick={() => setShowDetails((current) => !current)}
+        >
+          {showDetails ? "Ocultar detalle" : "Detalle"}
+          <span className="juez-player-card__details-chevron" aria-hidden="true">
+            ⌄
+          </span>
+        </button>
+
+        <button type="button" className="juez-player-card__edit" onClick={() => onOpenEditPlayer(player)}>
+          Editar
+        </button>
+      </div>
 
       {showDetails ? (
         <dl className="juez-player-card__details">
@@ -93,7 +106,13 @@ export function JuezPlayersBrowseView({
   browseDivision,
   setBrowseDivision,
   browseSex,
-  setBrowseSex
+  setBrowseSex,
+  editingPlayer,
+  editForm,
+  onOpenEditPlayer,
+  onCloseEditPlayer,
+  onChangeEditForm,
+  onSubmitEditPlayer
 }: JuezPlayersBrowseViewProps) {
   return (
     <section className="juez-layout-grid">
@@ -163,10 +182,20 @@ export function JuezPlayersBrowseView({
 
         <div className="juez-player-grid">
           {browsedPlayers.map((player) => (
-            <JuezPlayerCard key={player.id} player={player} />
+            <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} />
           ))}
         </div>
       </article>
+
+      {editingPlayer ? (
+        <JuezPlayerEditModal
+          player={editingPlayer}
+          editForm={editForm}
+          onChangeEditForm={onChangeEditForm}
+          onSubmit={onSubmitEditPlayer}
+          onClose={onCloseEditPlayer}
+        />
+      ) : null}
     </section>
   );
 }

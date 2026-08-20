@@ -141,6 +141,11 @@
   font: inherit;
   font-weight: 800;
   text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.juez-menu__item:hover {
+  background: #eef2ff;
 }
 
 .juez-menu__item.is-active {
@@ -148,7 +153,16 @@
   color: #0f172a;
 }
 
+.juez-menu__item.is-active:hover {
+  background: #e5e7eb;
+}
+
 .juez-menu__item--danger {
   background: #ffffff;
   color: #0f172a;
+}
+
+.juez-menu__item--danger:hover {
+  background: #fee2e2;
+  color: #b91c1c;
 }

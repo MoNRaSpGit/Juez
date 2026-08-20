@@ -62,7 +62,6 @@ export function useJuezHomePageController() {
     handleConfirmDesignation: matchesState.handleConfirmDesignation,
 
     // players
-    filteredPlayers: playersState.filteredPlayers,
     isLoadingPlayers: playersState.isLoading,
     teams: playersState.teams,
     isTeamsLoading: playersState.isTeamsLoading,
@@ -83,6 +82,12 @@ export function useJuezHomePageController() {
     setBrowseDivision: playersState.setBrowseDivision,
     browseSex: playersState.browseSex,
     setBrowseSex: playersState.setBrowseSex,
+    editingPlayer: playersState.editingPlayer,
+    editForm: playersState.editForm,
+    handleOpenEditPlayer: playersState.handleOpenEditPlayer,
+    handleCloseEditPlayer: playersState.handleCloseEditPlayer,
+    handleChangeEditForm: playersState.handleChangeEditForm,
+    handleSubmitEditPlayer: playersState.handleSubmitEditPlayer,
 
     // ui
     viewMode,
