@@ -4,7 +4,7 @@ export function formatMatchLabel(match: Match) {
   return `${match.homeSide} vs ${match.awaySide}`;
 }
 
-export type JuezPlayerExpiryUrgency = "expired" | "red" | "yellow" | "normal";
+export type JuezPlayerExpiryUrgency = "expired" | "yellow" | "normal";
 
 export function getDaysUntilExpiry(expiryDate: string) {
   const today = new Date();
@@ -17,8 +17,7 @@ export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrge
   const diffDays = getDaysUntilExpiry(expiryDate);
 
   if (diffDays < 0) return "expired";
-  if (diffDays <= 30) return "red";
-  if (diffDays <= 45) return "yellow";
+  if (diffDays <= 30) return "yellow";
   return "normal";
 }
 

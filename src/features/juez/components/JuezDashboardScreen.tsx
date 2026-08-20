@@ -152,7 +152,7 @@ export function JuezDashboardScreen({
                         setMenuOpen(false);
                       }}
                     >
-                      Partidos
+                      Crear Partido
                     </button>
                     <button
                       type="button"
@@ -173,7 +173,7 @@ export function JuezDashboardScreen({
                           setMenuOpen(false);
                         }}
                       >
-                        Jugadores
+                        Crear equipo
                       </button>
                     ) : null}
                     {canManageAdministration ? (
@@ -185,7 +185,7 @@ export function JuezDashboardScreen({
                           setMenuOpen(false);
                         }}
                       >
-                        Consultar Jugadores
+                        Carnet
                       </button>
                     ) : null}
                     {canManageAdministration ? (

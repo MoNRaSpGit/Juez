@@ -53,6 +53,7 @@ export function useJuezPlayers() {
   async function handleCreatePlayer() {
     const trimmedTeam = team.trim();
     const trimmedName = playerForm.name.trim();
+    const trimmedLastName = playerForm.lastName.trim();
 
     if (!trimmedTeam) {
       toast.error("Ingresa el equipo.");
@@ -60,6 +61,10 @@ export function useJuezPlayers() {
     }
     if (!trimmedName) {
       toast.error("Ingresa el nombre del jugador.");
+      return;
+    }
+    if (!trimmedLastName) {
+      toast.error("Ingresa el apellido del jugador.");
       return;
     }
     if (!playerForm.expiryDate) {
@@ -73,9 +78,12 @@ export function useJuezPlayers() {
         division,
         sex,
         name: trimmedName,
+        lastName: trimmedLastName,
         expiryDate: playerForm.expiryDate,
         cedula: playerForm.cedula.trim() || undefined,
-        birthDate: playerForm.birthDate || undefined
+        phone: playerForm.phone.trim() || undefined,
+        birthDate: playerForm.birthDate || undefined,
+        photoDataUrl: playerForm.photoDataUrl || undefined
       });
 
       setPlayers((current) => [...current, item]);
@@ -88,7 +96,7 @@ export function useJuezPlayers() {
 
   const filteredPlayers = players
     .filter((player) => player.team.toLowerCase() === team.trim().toLowerCase() && player.division === division && player.sex === sex)
-    .sort((left, right) => left.name.localeCompare(right.name));
+    .sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
 
   const browsedPlayers = players
     .filter(
@@ -97,7 +105,7 @@ export function useJuezPlayers() {
         player.division === browseDivision &&
         player.sex === browseSex
     )
-    .sort((left, right) => left.name.localeCompare(right.name));
+    .sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
 
   return {
     players,

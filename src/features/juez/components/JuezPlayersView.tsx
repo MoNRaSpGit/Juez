@@ -1,3 +1,4 @@
+import { ChangeEvent } from "react";
 import { JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex, JuezPlayer } from "../juez.players.types";
 
 type JuezPlayersViewProps = {
@@ -18,6 +19,10 @@ function formatDateOnly(value: string) {
   return new Intl.DateTimeFormat("es-UY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00`));
 }
 
+function getInitials(name: string, lastName: string) {
+  return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
+}
+
 export function JuezPlayersView({
   filteredPlayers,
   isLoading,
@@ -31,6 +36,20 @@ export function JuezPlayersView({
   onChangePlayerForm,
   onCreatePlayer
 }: JuezPlayersViewProps) {
+  function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      onChangePlayerForm("photoDataUrl", "");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      onChangePlayerForm("photoDataUrl", typeof reader.result === "string" ? reader.result : "");
+    };
+    reader.readAsDataURL(file);
+  }
+
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
@@ -73,13 +92,29 @@ export function JuezPlayersView({
         </div>
 
         <div className="juez-form-grid juez-form-grid--mobile-first">
-          <label className="juez-field juez-field--full-mobile">
+          <label className="juez-field">
             <span>Nombre</span>
-            <input value={playerForm.name} onChange={(event) => onChangePlayerForm("name", event.target.value)} placeholder="Ana Gonzalez" />
+            <input value={playerForm.name} onChange={(event) => onChangePlayerForm("name", event.target.value)} placeholder="Ana" />
+          </label>
+          <label className="juez-field">
+            <span>Apellido</span>
+            <input
+              value={playerForm.lastName}
+              onChange={(event) => onChangePlayerForm("lastName", event.target.value)}
+              placeholder="Gonzalez"
+            />
           </label>
           <label className="juez-field">
             <span>Vencimiento</span>
             <input type="date" value={playerForm.expiryDate} onChange={(event) => onChangePlayerForm("expiryDate", event.target.value)} />
+          </label>
+          <label className="juez-field">
+            <span>Telefono (opcional)</span>
+            <input
+              value={playerForm.phone}
+              onChange={(event) => onChangePlayerForm("phone", event.target.value)}
+              placeholder="099123456"
+            />
           </label>
           <label className="juez-field">
             <span>Cedula (opcional)</span>
@@ -88,6 +123,10 @@ export function JuezPlayersView({
           <label className="juez-field">
             <span>Nacimiento (opcional)</span>
             <input type="date" value={playerForm.birthDate} onChange={(event) => onChangePlayerForm("birthDate", event.target.value)} />
+          </label>
+          <label className="juez-field juez-field--full-mobile">
+            <span>Foto (opcional)</span>
+            <input type="file" accept="image/*" onChange={handlePhotoChange} />
           </label>
         </div>
 
@@ -116,14 +155,22 @@ export function JuezPlayersView({
           {filteredPlayers.map((player) => (
             <div key={player.id} className="juez-match-card">
               <div className="juez-match-card__main">
-                <div>
-                  <strong>{player.name}</strong>
-                  <p>Vence: {formatDateOnly(player.expiryDate)}</p>
+                <div className="juez-player-row">
+                  <span className="juez-avatar juez-avatar--small">
+                    {player.photoDataUrl ? <img src={player.photoDataUrl} alt="" /> : getInitials(player.name, player.lastName)}
+                  </span>
+                  <div>
+                    <strong>
+                      {player.name} {player.lastName}
+                    </strong>
+                    <p>Vence: {formatDateOnly(player.expiryDate)}</p>
+                  </div>
                 </div>
               </div>
-              {player.cedula || player.birthDate ? (
+              {player.cedula || player.phone || player.birthDate ? (
                 <div className="juez-match-card__meta">
                   {player.cedula ? <span>CI: {player.cedula}</span> : null}
+                  {player.phone ? <span>Tel: {player.phone}</span> : null}
                   {player.birthDate ? <span>Nace: {formatDateOnly(player.birthDate)}</span> : null}
                 </div>
               ) : null}

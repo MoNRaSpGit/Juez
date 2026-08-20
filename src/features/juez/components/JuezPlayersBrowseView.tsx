@@ -16,12 +16,15 @@ type JuezPlayersBrowseViewProps = {
 
 const URGENCY_BADGE_LABEL: Record<string, string> = {
   expired: "Vencido",
-  red: "Vence pronto",
   yellow: "Por vencer"
 };
 
 function formatDateOnly(value: string) {
   return new Intl.DateTimeFormat("es-UY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00`));
+}
+
+function getInitials(name: string, lastName: string) {
+  return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 }
 
 function JuezPlayerCard({ player }: { player: JuezPlayer }) {
@@ -32,7 +35,14 @@ function JuezPlayerCard({ player }: { player: JuezPlayer }) {
   return (
     <article className={`juez-player-card juez-player-card--${urgency}`}>
       <div className="juez-player-card__top">
-        <strong className="juez-player-card__name">{player.name}</strong>
+        <div className="juez-player-row">
+          <span className="juez-avatar">
+            {player.photoDataUrl ? <img src={player.photoDataUrl} alt="" /> : getInitials(player.name, player.lastName)}
+          </span>
+          <strong className="juez-player-card__name">
+            {player.name} {player.lastName}
+          </strong>
+        </div>
         {badgeLabel ? <span className={`juez-player-card__badge juez-player-card__badge--${urgency}`}>{badgeLabel}</span> : null}
       </div>
 
@@ -58,6 +68,10 @@ function JuezPlayerCard({ player }: { player: JuezPlayer }) {
           <div>
             <dt>Cedula</dt>
             <dd>{player.cedula || "Sin cargar"}</dd>
+          </div>
+          <div>
+            <dt>Telefono</dt>
+            <dd>{player.phone || "Sin cargar"}</dd>
           </div>
           <div>
             <dt>Nacimiento</dt>

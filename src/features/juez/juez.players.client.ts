@@ -29,9 +29,12 @@ export async function createJuezPlayer(payload: {
   division: JuezPlayerDivision;
   sex: JuezPlayerSex;
   name: string;
+  lastName: string;
   expiryDate: string;
   cedula?: string;
+  phone?: string;
   birthDate?: string;
+  photoDataUrl?: string;
 }) {
   const response = await fetch(buildUrl("/juez-players"), {
     method: "POST",

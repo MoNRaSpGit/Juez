@@ -33,6 +33,12 @@
   gap: 12px;
 }
 
+.juez-player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .juez-match-card__main strong {
   font-size: 16px;
   margin: 0;
