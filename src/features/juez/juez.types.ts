@@ -1,6 +1,6 @@
 export const ROLE_LABELS = {
-  principal: "Arbitro Principal",
-  secundario: "Arbitro Secundario",
+  principal: "Juez de arriba",
+  secundario: "Juez de abajo",
   planillero: "Planillero"
 } as const;
 

@@ -80,15 +80,15 @@ export function DesignationModal({
           <>
             <div className="juez-designation-result__grid">
               <div className="juez-designation-result__row">
-                <span>Juez arriba</span>
+                <span>{ROLE_LABELS.principal}</span>
                 <strong>{getRefereeName(referees, selectedAssignment.principalRefereeId)}</strong>
               </div>
               <div className="juez-designation-result__row">
-                <span>Juez abajo</span>
+                <span>{ROLE_LABELS.secundario}</span>
                 <strong>{getRefereeName(referees, selectedAssignment.secondaryRefereeId)}</strong>
               </div>
               <div className="juez-designation-result__row">
-                <span>Planillero</span>
+                <span>{ROLE_LABELS.planillero}</span>
                 <strong>{getRefereeName(referees, selectedAssignment.scorerRefereeId)}</strong>
               </div>
             </div>
@@ -111,7 +111,6 @@ export function DesignationModal({
                   <section key={role} className="juez-modal__role">
                     <div className="juez-role-card__header">
                       <h3>{ROLE_LABELS[role]}</h3>
-                      <span>{compatibleReferees.length}</span>
                     </div>
 
                     <div className="juez-judge-pick-list">

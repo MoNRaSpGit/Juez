@@ -1,4 +1,4 @@
-import { RefereeRole } from "../juez.types";
+import { RefereeRole, ROLE_LABELS } from "../juez.types";
 import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
 type JuezAuthScreenProps = Pick<
@@ -91,7 +91,7 @@ export function JuezAuthScreen({
                       onClick={() => handleToggleAuthRole(role)}
                     >
                       <span className="juez-role-toggle__dot" />
-                      {role === "principal" ? "Juez arriba" : role === "secundario" ? "Juez abajo" : "Planillero"}
+                      {ROLE_LABELS[role]}
                     </button>
                   ))}
                 </div>
