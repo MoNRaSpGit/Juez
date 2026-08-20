@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { createJuezPlayer, listJuezPlayers, updateJuezPlayer } from "../juez.players.client";
-import { INITIAL_JUEZ_PLAYER_FORM, JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
+import { INITIAL_JUEZ_PLAYER_FORM, JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
 import { createJuezTeam, listJuezTeams } from "../juez.teams.client";
 import { INITIAL_JUEZ_TEAM_FORM, JuezTeam, JuezTeamFormState } from "../juez.teams.types";
 import { getPlayerExpiryUrgency } from "../juez.utils";
@@ -17,9 +17,7 @@ export function useJuezPlayers() {
 
   const [playerForm, setPlayerForm] = useState<JuezPlayerFormState>(INITIAL_JUEZ_PLAYER_FORM);
 
-  const [browseTeam, setBrowseTeam] = useState("");
-  const [browseDivision, setBrowseDivision] = useState<JuezPlayerDivision>("A");
-  const [browseSex, setBrowseSex] = useState<JuezPlayerSex>("masculino");
+  const [browseTeamId, setBrowseTeamId] = useState<number | null>(null);
 
   const [editingPlayer, setEditingPlayer] = useState<JuezPlayer | null>(null);
   const [editForm, setEditForm] = useState<JuezPlayerFormState>(INITIAL_JUEZ_PLAYER_FORM);
@@ -196,18 +194,15 @@ export function useJuezPlayers() {
     }
   }
 
-  const teamOptions = useMemo(() => {
-    const uniqueTeams = new Set(players.map((player) => player.team));
-    return Array.from(uniqueTeams).sort((left, right) => left.localeCompare(right));
-  }, [players]);
+  const browseTeam = useMemo(() => teams.find((candidate) => candidate.id === browseTeamId) ?? null, [teams, browseTeamId]);
 
   const browsedPlayers = (
     browseTeam
       ? players.filter(
           (player) =>
-            player.team.toLowerCase() === browseTeam.trim().toLowerCase() &&
-            player.division === browseDivision &&
-            player.sex === browseSex
+            player.team.toLowerCase() === browseTeam.name.trim().toLowerCase() &&
+            player.division === browseTeam.division &&
+            player.sex === browseTeam.sex
         )
       : players.filter((player) => getPlayerExpiryUrgency(player.expiryDate) !== "normal")
   ).sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
@@ -229,13 +224,9 @@ export function useJuezPlayers() {
     handleChangePlayerForm,
     handleCreatePlayer,
 
-    teamOptions,
+    browseTeamId,
+    setBrowseTeamId,
     browseTeam,
-    setBrowseTeam,
-    browseDivision,
-    setBrowseDivision,
-    browseSex,
-    setBrowseSex,
     browsedPlayers,
 
     editingPlayer,

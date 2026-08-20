@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
-import { JuezPlayer, JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
+import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
+import { JuezTeam } from "../juez.teams.types";
 import { JuezPlayerEditModal } from "./JuezPlayerEditModal";
 
 type JuezPlayersBrowseViewProps = {
   browsedPlayers: JuezPlayer[];
   isLoading: boolean;
-  teamOptions: string[];
-  browseTeam: string;
-  setBrowseTeam: (value: string) => void;
-  browseDivision: JuezPlayerDivision;
-  setBrowseDivision: (value: JuezPlayerDivision) => void;
-  browseSex: JuezPlayerSex;
-  setBrowseSex: (value: JuezPlayerSex) => void;
+  teams: JuezTeam[];
+  browseTeamId: number | null;
+  setBrowseTeamId: (teamId: number | null) => void;
+  browseTeam: JuezTeam | null;
   editingPlayer: JuezPlayer | null;
   editForm: JuezPlayerFormState;
   onOpenEditPlayer: (player: JuezPlayer) => void;
@@ -21,6 +19,10 @@ type JuezPlayersBrowseViewProps = {
   onChangeEditForm: (field: keyof JuezPlayerFormState, value: string) => void;
   onSubmitEditPlayer: () => void;
 };
+
+function formatTeamLabel(team: JuezTeam) {
+  return `${team.name} - ${team.division} - ${team.sex === "masculino" ? "Masculino" : "Femenino"}`;
+}
 
 const URGENCY_BADGE_LABEL: Record<string, string> = {
   expired: "Vencido",
@@ -100,13 +102,10 @@ function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOp
 export function JuezPlayersBrowseView({
   browsedPlayers,
   isLoading,
-  teamOptions,
+  teams,
+  browseTeamId,
+  setBrowseTeamId,
   browseTeam,
-  setBrowseTeam,
-  browseDivision,
-  setBrowseDivision,
-  browseSex,
-  setBrowseSex,
   editingPlayer,
   editForm,
   onOpenEditPlayer,
@@ -123,51 +122,32 @@ export function JuezPlayersBrowseView({
             <h2>Consultar jugadores</h2>
             <p className="juez-empty-inline">
               {browseTeam
-                ? "Elegi equipo, division y sexo para ver las tarjetas de esa categoria."
+                ? "Mostrando los jugadores de ese equipo."
                 : "Mostrando jugadores por vencer o vencidos de todos los equipos. Elegi un equipo para filtrar."}
             </p>
           </div>
         </div>
 
-        <div className="juez-form-grid juez-form-grid--mobile-first">
-          <label className="juez-field juez-field--full-mobile">
-            <span>Equipo</span>
-            <select value={browseTeam} onChange={(event) => setBrowseTeam(event.target.value)}>
-              <option value="">Todos</option>
-              {teamOptions.map((teamOption) => (
-                <option key={teamOption} value={teamOption}>
-                  {teamOption}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="juez-field">
-            <span>Division</span>
-            <select
-              value={browseDivision}
-              disabled={!browseTeam}
-              onChange={(event) => setBrowseDivision(event.target.value as JuezPlayerDivision)}
-            >
-              <option value="A">A</option>
-              <option value="B">B</option>
-            </select>
-          </label>
-          <label className="juez-field">
-            <span>Sexo</span>
-            <select value={browseSex} disabled={!browseTeam} onChange={(event) => setBrowseSex(event.target.value as JuezPlayerSex)}>
-              <option value="masculino">Masculino</option>
-              <option value="femenino">Femenino</option>
-            </select>
-          </label>
-        </div>
+        <label className="juez-field juez-field--full-mobile">
+          <span>Equipo</span>
+          <select
+            value={browseTeamId ?? ""}
+            onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
+          >
+            <option value="">Todos</option>
+            {teams.map((team) => (
+              <option key={team.id} value={team.id}>
+                {formatTeamLabel(team)}
+              </option>
+            ))}
+          </select>
+        </label>
       </article>
 
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>
-            <p className="juez-eyebrow">
-              {browseTeam ? `${browseTeam} ${browseDivision} - ${browseSex === "masculino" ? "Masculino" : "Femenino"}` : "Todos los equipos"}
-            </p>
+            <p className="juez-eyebrow">{browseTeam ? formatTeamLabel(browseTeam) : "Todos los equipos"}</p>
             <h2>Jugadores</h2>
           </div>
         </div>

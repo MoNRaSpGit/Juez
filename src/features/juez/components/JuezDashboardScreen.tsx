@@ -11,9 +11,8 @@ type JuezDashboardScreenProps = Pick<
   | "availability"
   | "assignments"
   | "authMode"
-  | "browseDivision"
-  | "browseSex"
   | "browseTeam"
+  | "browseTeamId"
   | "browsedPlayers"
   | "canManageAdministration"
   | "currentTournament"
@@ -48,14 +47,11 @@ type JuezDashboardScreenProps = Pick<
   | "selectedMatchId"
   | "selectedTeam"
   | "selectedTeamId"
-  | "setBrowseDivision"
-  | "setBrowseSex"
-  | "setBrowseTeam"
+  | "setBrowseTeamId"
   | "setSelectedMatchId"
   | "setSelectedTeamId"
   | "setTournamentDraft"
   | "teamForm"
-  | "teamOptions"
   | "teams"
   | "tournamentDraft"
   | "viewMode"
@@ -65,9 +61,8 @@ type JuezDashboardScreenProps = Pick<
 export function JuezDashboardScreen({
   availability,
   assignments,
-  browseDivision,
-  browseSex,
   browseTeam,
+  browseTeamId,
   browsedPlayers,
   canManageAdministration,
   currentTournament,
@@ -102,14 +97,11 @@ export function JuezDashboardScreen({
   selectedMatchId,
   selectedTeam,
   selectedTeamId,
-  setBrowseDivision,
-  setBrowseSex,
-  setBrowseTeam,
+  setBrowseTeamId,
   setSelectedMatchId,
   setSelectedTeamId,
   setTournamentDraft,
   teamForm,
-  teamOptions,
   teams,
   tournamentDraft,
   viewMode,
@@ -291,13 +283,10 @@ export function JuezDashboardScreen({
           <JuezPlayersBrowseView
             browsedPlayers={browsedPlayers}
             isLoading={isLoadingPlayers}
-            teamOptions={teamOptions}
+            teams={teams}
+            browseTeamId={browseTeamId}
+            setBrowseTeamId={setBrowseTeamId}
             browseTeam={browseTeam}
-            setBrowseTeam={setBrowseTeam}
-            browseDivision={browseDivision}
-            setBrowseDivision={setBrowseDivision}
-            browseSex={browseSex}
-            setBrowseSex={setBrowseSex}
             editingPlayer={editingPlayer}
             editForm={editForm}
             onOpenEditPlayer={handleOpenEditPlayer}
