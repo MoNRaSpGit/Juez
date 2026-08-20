@@ -5,11 +5,21 @@ import { JuezTeam } from "../juez.teams.types";
 
 const CLUB_OPTIONS = ["Club Estudiante", "Club Cerrito", "Polideportivo"] as const;
 
-const SEX_OPTIONS: JuezPlayerSex[] = ["masculino", "femenino"];
-const DIVISION_OPTIONS: JuezPlayerDivision[] = ["A", "B"];
+type MatchCategory = { division: JuezPlayerDivision; sex: JuezPlayerSex };
 
-function formatSexLabel(sex: JuezPlayerSex) {
-  return sex === "masculino" ? "Masculino" : "Femenino";
+const CATEGORY_OPTIONS: MatchCategory[] = [
+  { division: "A", sex: "masculino" },
+  { division: "B", sex: "masculino" },
+  { division: "A", sex: "femenino" },
+  { division: "B", sex: "femenino" }
+];
+
+function formatCategoryLabel(category: MatchCategory) {
+  return `${category.sex === "masculino" ? "Masculino" : "Femenino"} ${category.division}`;
+}
+
+function isSameCategory(left: MatchCategory | null, right: MatchCategory) {
+  return left?.division === right.division && left?.sex === right.sex;
 }
 
 type PublishMatchFormProps = {
@@ -37,19 +47,13 @@ export function PublishMatchForm({
   onTournamentDraftChange,
   onSaveTournament
 }: PublishMatchFormProps) {
-  const [sex, setSex] = useState<JuezPlayerSex | null>(null);
-  const [division, setDivision] = useState<JuezPlayerDivision | null>(null);
+  const [category, setCategory] = useState<MatchCategory | null>(null);
 
-  function handleChangeSex(nextSex: JuezPlayerSex) {
-    setSex(nextSex);
-    setDivision(null);
-  }
-
-  const categoryTeams =
-    sex && division
-      ? teams.filter((team) => team.division === division && team.sex === sex).sort((left, right) => left.name.localeCompare(right.name))
-      : [];
-  const category = sex && division ? { sex, division } : null;
+  const categoryTeams = category
+    ? teams
+        .filter((team) => team.division === category.division && team.sex === category.sex)
+        .sort((left, right) => left.name.localeCompare(right.name))
+    : [];
 
   return (
     <article className="juez-panel juez-panel--span-2">
@@ -81,40 +85,21 @@ export function PublishMatchForm({
       </div>
 
       <div className="juez-field juez-field--full-mobile">
-        <span>Sexo</span>
+        <span>Categoria</span>
         <div className="juez-role-toggle-row">
-          {SEX_OPTIONS.map((option) => (
+          {CATEGORY_OPTIONS.map((option) => (
             <button
-              key={option}
+              key={`${option.division}-${option.sex}`}
               type="button"
-              className={`juez-role-toggle ${sex === option ? "is-checked" : ""}`}
-              onClick={() => handleChangeSex(option)}
+              className={`juez-role-toggle ${isSameCategory(category, option) ? "is-checked" : ""}`}
+              onClick={() => setCategory(option)}
             >
               <span className="juez-role-toggle__dot" />
-              {formatSexLabel(option)}
+              {formatCategoryLabel(option)}
             </button>
           ))}
         </div>
       </div>
-
-      {sex ? (
-        <div className="juez-field juez-field--full-mobile">
-          <span>Division</span>
-          <div className="juez-role-toggle-row">
-            {DIVISION_OPTIONS.map((option) => (
-              <button
-                key={option}
-                type="button"
-                className={`juez-role-toggle ${division === option ? "is-checked" : ""}`}
-                onClick={() => setDivision(option)}
-              >
-                <span className="juez-role-toggle__dot" />
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
 
       <div className="juez-form-grid juez-form-grid--mobile-first">
         <div className="juez-field juez-field--full-mobile">
