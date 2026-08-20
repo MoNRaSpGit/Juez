@@ -1,7 +1,6 @@
-import { ChangeEvent } from "react";
-import { compressImageFile } from "../juez.image";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
+import { JuezPhotoInput } from "./JuezPhotoInput";
 
 type JuezPlayerEditModalProps = {
   player: JuezPlayer;
@@ -16,18 +15,6 @@ function getInitials(name: string, lastName: string) {
 }
 
 export function JuezPlayerEditModal({ player, editForm, onChangeEditForm, onSubmit, onClose }: JuezPlayerEditModalProps) {
-  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const compressed = await compressImageFile(file);
-      onChangeEditForm("photoDataUrl", compressed);
-    } catch {
-      onChangeEditForm("photoDataUrl", "");
-    }
-  }
-
   const previewSrc = editForm.photoDataUrl || (player.hasPhoto ? buildJuezPlayerPhotoUrl(player.id) : "");
 
   return (
@@ -53,15 +40,11 @@ export function JuezPlayerEditModal({ player, editForm, onChangeEditForm, onSubm
           </button>
         </div>
 
-        <div className="juez-player-edit__photo">
-          <span className="juez-avatar juez-avatar--large">
-            {previewSrc ? <img src={previewSrc} alt="" /> : getInitials(editForm.name, editForm.lastName)}
-          </span>
-          <label className="juez-field">
-            <span>Foto (opcional)</span>
-            <input type="file" accept="image/*" onChange={handlePhotoChange} />
-          </label>
-        </div>
+        <JuezPhotoInput
+          previewSrc={previewSrc}
+          initials={getInitials(editForm.name, editForm.lastName)}
+          onPhotoChange={(dataUrl) => onChangeEditForm("photoDataUrl", dataUrl)}
+        />
 
         <div className="juez-form-grid juez-form-grid--mobile-first">
           <label className="juez-field juez-field--full-mobile">

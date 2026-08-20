@@ -1,7 +1,6 @@
-import { ChangeEvent } from "react";
-import { compressImageFile } from "../juez.image";
 import { JuezPlayerDivision, JuezPlayerFormState, JuezPlayerSex } from "../juez.players.types";
 import { JuezTeam, JuezTeamFormState } from "../juez.teams.types";
+import { JuezPhotoInput } from "./JuezPhotoInput";
 
 type JuezPlayersViewProps = {
   teams: JuezTeam[];
@@ -22,6 +21,10 @@ function formatTeamLabel(team: JuezTeam) {
   return `${team.name} - ${team.division} - ${team.sex === "masculino" ? "Masculino" : "Femenino"}`;
 }
 
+function getInitials(name: string, lastName: string) {
+  return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
+}
+
 export function JuezPlayersView({
   teams,
   isTeamsLoading,
@@ -35,21 +38,6 @@ export function JuezPlayersView({
   onChangePlayerForm,
   onCreatePlayer
 }: JuezPlayersViewProps) {
-  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
-      onChangePlayerForm("photoDataUrl", "");
-      return;
-    }
-
-    try {
-      const compressed = await compressImageFile(file);
-      onChangePlayerForm("photoDataUrl", compressed);
-    } catch {
-      onChangePlayerForm("photoDataUrl", "");
-    }
-  }
-
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
@@ -176,11 +164,13 @@ export function JuezPlayersView({
                   onChange={(event) => onChangePlayerForm("birthDate", event.target.value)}
                 />
               </label>
-              <label className="juez-field juez-field--full-mobile">
-                <span>Foto (opcional)</span>
-                <input type="file" accept="image/*" onChange={handlePhotoChange} />
-              </label>
             </div>
+
+            <JuezPhotoInput
+              previewSrc={playerForm.photoDataUrl}
+              initials={getInitials(playerForm.name, playerForm.lastName)}
+              onPhotoChange={(dataUrl) => onChangePlayerForm("photoDataUrl", dataUrl)}
+            />
 
             <button type="button" className="juez-button juez-button--primary juez-button--full-mobile" onClick={onCreatePlayer}>
               Agregar jugador
