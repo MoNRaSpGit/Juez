@@ -98,6 +98,24 @@
   color: #475569;
 }
 
+.juez-vs-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.juez-vs-field input {
+  flex: 1;
+  min-width: 0;
+}
+
+.juez-vs-field__vs {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #475569;
+}
+
 .juez-field input,
 .juez-field select,
 .juez-tournament-box__editor input {

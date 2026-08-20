@@ -37,7 +37,6 @@ export function DesignationModal({
   onClose
 }: DesignationModalProps) {
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === match.id);
-  const selectedAvailability = availability.filter((entry) => entry.matchId === match.id);
   const selectedRefereeIds = Object.values(designationDraft).filter(Boolean);
 
   const [isRedesignating, setIsRedesignating] = useState(false);
@@ -71,10 +70,11 @@ export function DesignationModal({
           </button>
         </div>
 
-        <div className="juez-modal__summary">
-          <span>{selectedAvailability.length} arbitros confirmados</span>
-          {selectedAssignment ? <span>Ya asignado</span> : null}
-        </div>
+        {selectedAssignment ? (
+          <div className="juez-modal__summary">
+            <span>Ya asignado</span>
+          </div>
+        ) : null}
 
         {!showPicker && selectedAssignment ? (
           <>

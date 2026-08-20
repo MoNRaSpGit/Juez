@@ -14,18 +14,13 @@ export function MatchList({ matches, selectedMatchId, onSelectMatch }: MatchList
         <div>
           <p className="juez-eyebrow">Jornada</p>
           <h2>Partidos publicados</h2>
-          <p className="juez-empty-inline">Doble click en un partido para ver o designar sus jueces.</p>
+          <p className="juez-empty-inline">Tocá &quot;Ver&quot; en un partido para ver o designar sus jueces.</p>
         </div>
       </div>
 
       <div className="juez-match-list">
         {matches.map((match) => (
-          <button
-            key={match.id}
-            type="button"
-            className={`juez-match-card ${selectedMatchId === match.id ? "is-active" : ""}`}
-            onDoubleClick={() => onSelectMatch(match.id)}
-          >
+          <div key={match.id} className={`juez-match-card ${selectedMatchId === match.id ? "is-active" : ""}`}>
             <div className="juez-match-card__main">
               <div>
                 <strong>{formatMatchLabel(match)}</strong>
@@ -37,7 +32,12 @@ export function MatchList({ matches, selectedMatchId, onSelectMatch }: MatchList
               <span>{match.venue}</span>
               <span>{formatMatchDate(match.date, match.time)}</span>
             </div>
-          </button>
+            <div className="juez-match-card__footer">
+              <button type="button" className="juez-button juez-button--ghost" onClick={() => onSelectMatch(match.id)}>
+                Ver
+              </button>
+            </div>
+          </div>
         ))}
       </div>
     </article>

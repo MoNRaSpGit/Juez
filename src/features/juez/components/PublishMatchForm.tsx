@@ -55,22 +55,24 @@ export function PublishMatchForm({
       </div>
 
       <div className="juez-form-grid juez-form-grid--mobile-first">
-        <label className="juez-field juez-field--full-mobile">
-          <span>Cuadro A</span>
-          <input
-            value={matchForm.homeSide}
-            onChange={(event) => onChangeMatchForm("homeSide", event.target.value)}
-            placeholder="Atenas"
-          />
-        </label>
-        <label className="juez-field juez-field--full-mobile">
-          <span>Cuadro B</span>
-          <input
-            value={matchForm.awaySide}
-            onChange={(event) => onChangeMatchForm("awaySide", event.target.value)}
-            placeholder="Trouville"
-          />
-        </label>
+        <div className="juez-field juez-field--full-mobile">
+          <span>Partido</span>
+          <div className="juez-vs-field">
+            <input
+              value={matchForm.homeSide}
+              onChange={(event) => onChangeMatchForm("homeSide", event.target.value)}
+              placeholder="Atenas"
+              aria-label="Equipo local"
+            />
+            <span className="juez-vs-field__vs">Vs</span>
+            <input
+              value={matchForm.awaySide}
+              onChange={(event) => onChangeMatchForm("awaySide", event.target.value)}
+              placeholder="Trouville"
+              aria-label="Equipo visitante"
+            />
+          </div>
+        </div>
         <label className="juez-field juez-field--full-mobile">
           <span>Lugar / Club</span>
           <select value={matchForm.venue} onChange={(event) => onChangeMatchForm("venue", event.target.value)}>
