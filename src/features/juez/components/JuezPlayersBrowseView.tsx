@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
@@ -20,8 +20,12 @@ type JuezPlayersBrowseViewProps = {
   onSubmitEditPlayer: () => void;
 };
 
+function formatComboLabel(team: JuezTeam) {
+  return `${team.division} - ${team.sex === "masculino" ? "Masculino" : "Femenino"}`;
+}
+
 function formatTeamLabel(team: JuezTeam) {
-  return `${team.name} - ${team.division} - ${team.sex === "masculino" ? "Masculino" : "Femenino"}`;
+  return `${team.name} - ${formatComboLabel(team)}`;
 }
 
 const URGENCY_BADGE_LABEL: Record<string, string> = {
@@ -38,7 +42,6 @@ function getInitials(name: string, lastName: string) {
 }
 
 function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOpenEditPlayer: (player: JuezPlayer) => void }) {
-  const [showDetails, setShowDetails] = useState(false);
   const urgency = getPlayerExpiryUrgency(player.expiryDate);
   const badgeLabel = URGENCY_BADGE_LABEL[urgency];
 
@@ -49,9 +52,12 @@ function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOp
           <span className="juez-avatar">
             {player.hasPhoto ? <img src={buildJuezPlayerPhotoUrl(player.id)} alt="" /> : getInitials(player.name, player.lastName)}
           </span>
-          <strong className="juez-player-card__name">
-            {player.name} {player.lastName}
-          </strong>
+          <div>
+            <strong className="juez-player-card__name">
+              {player.name} {player.lastName}
+            </strong>
+            <p className="juez-player-card__team">de {player.team}</p>
+          </div>
         </div>
         {badgeLabel ? <span className={`juez-player-card__badge juez-player-card__badge--${urgency}`}>{badgeLabel}</span> : null}
       </div>
@@ -59,42 +65,29 @@ function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOp
       <p className="juez-player-card__expiry">{formatDaysUntilExpiry(player.expiryDate)}</p>
 
       <div className="juez-player-card__actions">
-        <button
-          type="button"
-          className={`juez-player-card__details-toggle ${showDetails ? "is-open" : ""}`}
-          onClick={() => setShowDetails((current) => !current)}
-        >
-          {showDetails ? "Ocultar detalle" : "Detalle"}
-          <span className="juez-player-card__details-chevron" aria-hidden="true">
-            ⌄
-          </span>
-        </button>
-
         <button type="button" className="juez-player-card__edit" onClick={() => onOpenEditPlayer(player)}>
           Editar
         </button>
       </div>
 
-      {showDetails ? (
-        <dl className="juez-player-card__details">
-          <div>
-            <dt>Vencimiento</dt>
-            <dd>{formatDateOnly(player.expiryDate)}</dd>
-          </div>
-          <div>
-            <dt>Cedula</dt>
-            <dd>{player.cedula || "Sin cargar"}</dd>
-          </div>
-          <div>
-            <dt>Telefono</dt>
-            <dd>{player.phone || "Sin cargar"}</dd>
-          </div>
-          <div>
-            <dt>Nacimiento</dt>
-            <dd>{player.birthDate ? `${formatDateOnly(player.birthDate)} (${getAge(player.birthDate)} anios)` : "Sin cargar"}</dd>
-          </div>
-        </dl>
-      ) : null}
+      <dl className="juez-player-card__details">
+        <div>
+          <dt>Vencimiento</dt>
+          <dd>{formatDateOnly(player.expiryDate)}</dd>
+        </div>
+        <div>
+          <dt>Cedula</dt>
+          <dd>{player.cedula || "Sin cargar"}</dd>
+        </div>
+        <div>
+          <dt>Telefono</dt>
+          <dd>{player.phone || "Sin cargar"}</dd>
+        </div>
+        <div>
+          <dt>Nacimiento</dt>
+          <dd>{player.birthDate ? `${formatDateOnly(player.birthDate)} (${getAge(player.birthDate)} anios)` : "Sin cargar"}</dd>
+        </div>
+      </dl>
     </article>
   );
 }
@@ -113,13 +106,36 @@ export function JuezPlayersBrowseView({
   onChangeEditForm,
   onSubmitEditPlayer
 }: JuezPlayersBrowseViewProps) {
+  const teamNames = useMemo(
+    () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
+    [teams]
+  );
+
+  const [teamName, setTeamName] = useState(() => browseTeam?.name ?? "");
+
+  const matchingTeams = useMemo(() => teams.filter((team) => team.name === teamName), [teams, teamName]);
+  const needsCombo = matchingTeams.length > 1;
+  const isPendingCombo = needsCombo && !browseTeamId;
+
+  function handleChangeTeamName(name: string) {
+    setTeamName(name);
+
+    if (!name) {
+      setBrowseTeamId(null);
+      return;
+    }
+
+    const matches = teams.filter((team) => team.name === name);
+    setBrowseTeamId(matches.length === 1 ? matches[0].id : null);
+  }
+
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>
             <p className="juez-eyebrow">Filtro</p>
-            <h2>Consultar jugadores</h2>
+            <h2>Consulta de carnet de jugador</h2>
             <p className="juez-empty-inline">
               {browseTeam
                 ? "Mostrando los jugadores de ese equipo."
@@ -128,20 +144,36 @@ export function JuezPlayersBrowseView({
           </div>
         </div>
 
-        <label className="juez-field juez-field--full-mobile">
-          <span>Equipo</span>
-          <select
-            value={browseTeamId ?? ""}
-            onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
-          >
-            <option value="">Todos</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>
-                {formatTeamLabel(team)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="juez-form-grid juez-form-grid--mobile-first">
+          <label className="juez-field juez-field--full-mobile">
+            <span>Equipo</span>
+            <select value={teamName} onChange={(event) => handleChangeTeamName(event.target.value)}>
+              <option value="">Todos</option>
+              {teamNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {needsCombo ? (
+            <label className="juez-field juez-field--full-mobile">
+              <span>Division y sexo</span>
+              <select
+                value={browseTeamId ?? ""}
+                onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
+              >
+                <option value="">Selecciona division y sexo</option>
+                {matchingTeams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {formatComboLabel(team)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+        </div>
       </article>
 
       <article className="juez-panel juez-panel--span-2">
@@ -154,17 +186,21 @@ export function JuezPlayersBrowseView({
 
         {isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
 
-        {!isLoading && !browsedPlayers.length ? (
+        {isPendingCombo ? <p className="juez-empty-inline">Elegi division y sexo para ver las tarjetas.</p> : null}
+
+        {!isLoading && !isPendingCombo && !browsedPlayers.length ? (
           <p className="juez-empty-inline">
             {browseTeam ? "No hay jugadores en esta categoria." : "No hay jugadores por vencer ni vencidos."}
           </p>
         ) : null}
 
-        <div className="juez-player-grid">
-          {browsedPlayers.map((player) => (
-            <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} />
-          ))}
-        </div>
+        {!isPendingCombo ? (
+          <div className="juez-player-grid">
+            {browsedPlayers.map((player) => (
+              <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} />
+            ))}
+          </div>
+        ) : null}
       </article>
 
       {editingPlayer ? (
