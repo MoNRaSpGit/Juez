@@ -143,6 +143,32 @@ export function useAuthSession() {
     }));
   }
 
+  function loginWithTestReferee(matchEmail: string, fallback: Referee) {
+    const existing = referees.find((referee) => referee.email?.toLowerCase() === matchEmail.toLowerCase());
+    const matched = existing ?? fallback;
+
+    if (!existing) {
+      setReferees((current) => [matched, ...current]);
+    }
+
+    setCurrentUserId(matched.id);
+    setAuthForm(createEmptyAuthForm());
+    toast.success("Sesion iniciada.");
+  }
+
+  // Accesos rapidos de prueba para los botones de la pantalla de login.
+  function handleQuickLogin(preset: "admin" | "juez" | "ramon") {
+    if (preset === "admin") {
+      loginWithTestReferee("admin", INITIAL_REFEREES[0]);
+      return;
+    }
+    if (preset === "juez") {
+      loginWithTestReferee("lucia@juez.local", INITIAL_REFEREES[1]);
+      return;
+    }
+    loginWithTestReferee("ramon@juez.local", INITIAL_REFEREES[2]);
+  }
+
   async function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -174,16 +200,13 @@ export function useAuthSession() {
 
       // Acceso rapido de prueba para el rol juez, en espejo del bypass de admin.
       if (email === "juez" && password === "juez") {
-        const existingTestJudge = referees.find((referee) => referee.email === "lucia@juez.local");
-        const matchedTestJudge = existingTestJudge ?? INITIAL_REFEREES[1];
+        loginWithTestReferee("lucia@juez.local", INITIAL_REFEREES[1]);
+        return;
+      }
 
-        if (!existingTestJudge) {
-          setReferees((current) => [matchedTestJudge, ...current]);
-        }
-
-        setCurrentUserId(matchedTestJudge.id);
-        setAuthForm(createEmptyAuthForm());
-        toast.success("Sesion iniciada.");
+      // Segundo usuario de prueba, con los 3 roles de juez.
+      if (email === "ramon" && password === "ramon") {
+        loginWithTestReferee("ramon@juez.local", INITIAL_REFEREES[2]);
         return;
       }
 
@@ -279,6 +302,7 @@ export function useAuthSession() {
     handleChangeAuthField,
     handleToggleAuthRole,
     handleToggleRefereeRole,
+    handleQuickLogin,
     setAuthForm,
     setAuthMode,
     logout

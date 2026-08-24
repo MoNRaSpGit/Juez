@@ -36,6 +36,18 @@
   line-height: 1.5;
 }
 
+.juez-auth-quick-login {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.juez-auth-quick-login .juez-button {
+  flex: 1 1 auto;
+  font-size: 13px;
+}
+
 .juez-auth-form {
   display: grid;
   gap: 14px;

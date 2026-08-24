@@ -3,7 +3,14 @@ import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
 type JuezAuthScreenProps = Pick<
   JuezHomePageController,
-  "authMode" | "authForm" | "handleAuthSubmit" | "handleChangeAuthField" | "handleToggleAuthRole" | "setAuthForm" | "setAuthMode"
+  | "authMode"
+  | "authForm"
+  | "handleAuthSubmit"
+  | "handleChangeAuthField"
+  | "handleToggleAuthRole"
+  | "handleQuickLogin"
+  | "setAuthForm"
+  | "setAuthMode"
 >;
 
 export function JuezAuthScreen({
@@ -12,6 +19,7 @@ export function JuezAuthScreen({
   handleAuthSubmit,
   handleChangeAuthField,
   handleToggleAuthRole,
+  handleQuickLogin,
   setAuthForm,
   setAuthMode
 }: JuezAuthScreenProps) {
@@ -24,9 +32,19 @@ export function JuezAuthScreen({
             <h1>Ingresar</h1>
             <p className="juez-auth-card__copy">Accedé con tu correo y contraseña para seguir con tus designaciones.</p>
             {authMode === "login" ? (
-              <p className="juez-auth-card__test-hint">
-                Pruebas rapidas: apreta <strong>Entrar</strong> sin escribir nada (admin) &middot; <strong>juez / juez</strong> (arbitro)
-              </p>
+              <>
+                <p className="juez-auth-card__test-hint">
+                  Pruebas rapidas: apreta <strong>Entrar</strong> sin escribir nada (admin)
+                </p>
+                <div className="juez-auth-quick-login">
+                  <button type="button" className="juez-button juez-button--ghost" onClick={() => handleQuickLogin("juez")}>
+                    Entrar como Lucia (2 roles)
+                  </button>
+                  <button type="button" className="juez-button juez-button--ghost" onClick={() => handleQuickLogin("ramon")}>
+                    Entrar como JuezRamon (3 roles)
+                  </button>
+                </div>
+              </>
             ) : null}
           </div>
 

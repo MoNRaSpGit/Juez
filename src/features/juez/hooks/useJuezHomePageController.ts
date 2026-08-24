@@ -35,6 +35,7 @@ export function useJuezHomePageController() {
     handleChangeAuthField: auth.handleChangeAuthField,
     handleToggleAuthRole: auth.handleToggleAuthRole,
     handleToggleRefereeRole: auth.handleToggleRefereeRole,
+    handleQuickLogin: auth.handleQuickLogin,
     setAuthForm: auth.setAuthForm,
     setAuthMode: auth.setAuthMode,
     handleLogout,
