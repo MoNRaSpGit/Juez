@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { formatDaysUntilExpiry, getAge, getPlayerExpiryUrgency } from "../juez.utils";
+import { formatDaysUntilExpiry, getPlayerExpiryUrgency } from "../juez.utils";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
 import { JuezTeam } from "../juez.teams.types";
@@ -33,10 +33,6 @@ const URGENCY_BADGE_LABEL: Record<string, string> = {
   yellow: "Por vencer"
 };
 
-function formatDateOnly(value: string) {
-  return new Intl.DateTimeFormat("es-UY", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00`));
-}
-
 function getInitials(name: string, lastName: string) {
   return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 }
@@ -69,25 +65,6 @@ function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOp
           Editar
         </button>
       </div>
-
-      <dl className="juez-player-card__details">
-        <div>
-          <dt>Vencimiento</dt>
-          <dd>{formatDateOnly(player.expiryDate)}</dd>
-        </div>
-        <div>
-          <dt>Cedula</dt>
-          <dd>{player.cedula || "Sin cargar"}</dd>
-        </div>
-        <div>
-          <dt>Telefono</dt>
-          <dd>{player.phone || "Sin cargar"}</dd>
-        </div>
-        <div>
-          <dt>Nacimiento</dt>
-          <dd>{player.birthDate ? `${formatDateOnly(player.birthDate)} (${getAge(player.birthDate)} anios)` : "Sin cargar"}</dd>
-        </div>
-      </dl>
     </article>
   );
 }
