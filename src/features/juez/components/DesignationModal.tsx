@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Assignment, AvailabilityEntry, Match, Referee, RefereeRole, ROLE_LABELS } from "../juez.types";
 import { formatCurrency, formatMatchDate, formatMatchLabel, getCompatibleReferees, getRefereeEarnings } from "../juez.utils";
 
@@ -8,8 +7,11 @@ type DesignationModalProps = {
   availability: AvailabilityEntry[];
   assignments: Assignment[];
   designationDraft: Record<RefereeRole, string>;
+  isRedesignating: boolean;
   onDesignationChange: (role: RefereeRole, refereeId: string) => void;
   onConfirmDesignation: () => void;
+  onResetAssignment: (matchId: string) => void;
+  onStartRedesignation: (matchId: string) => void;
   onClose: () => void;
 };
 
@@ -32,18 +34,15 @@ export function DesignationModal({
   availability,
   assignments,
   designationDraft,
+  isRedesignating,
   onDesignationChange,
   onConfirmDesignation,
+  onResetAssignment,
+  onStartRedesignation,
   onClose
 }: DesignationModalProps) {
   const selectedAssignment = assignments.find((assignment) => assignment.matchId === match.id);
   const selectedRefereeIds = Object.values(designationDraft).filter(Boolean);
-
-  const [isRedesignating, setIsRedesignating] = useState(false);
-
-  useEffect(() => {
-    setIsRedesignating(false);
-  }, [match.id]);
 
   const showPicker = !selectedAssignment || isRedesignating;
 
@@ -94,8 +93,11 @@ export function DesignationModal({
             </div>
 
             <div className="juez-modal__footer">
-              <button type="button" className="juez-button juez-button--primary" onClick={() => setIsRedesignating(true)}>
+              <button type="button" className="juez-button juez-button--primary" onClick={() => onStartRedesignation(match.id)}>
                 Redesignar jueces
+              </button>
+              <button type="button" className="juez-button juez-button--ghost" onClick={() => onResetAssignment(match.id)}>
+                Reiniciar designacion
               </button>
             </div>
           </>

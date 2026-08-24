@@ -7,6 +7,7 @@ import {
   listJuezAssignments,
   listJuezAvailability,
   listJuezMatches,
+  resetJuezAssignment,
   toggleJuezAvailability
 } from "../juez.matches.client";
 import { Assignment, AvailabilityEntry, Match, MatchFormState, Referee, RefereeRole } from "../juez.types";
@@ -41,6 +42,7 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
   const [selectedMatchId, setSelectedMatchIdState] = useState("");
   const [matchForm, setMatchForm] = useState<MatchFormState>(EMPTY_MATCH_FORM);
   const [designationDraft, setDesignationDraft] = useState<Record<RefereeRole, string>>(EMPTY_DRAFT);
+  const [redesigningMatchId, setRedesigningMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -74,8 +76,13 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
 
   function handleSelectMatch(matchId: string) {
     setSelectedMatchIdState(matchId);
+    setRedesigningMatchId(null);
     const existingAssignment = assignments.find((assignment) => assignment.matchId === matchId);
     setDesignationDraft(createDesignationDraftFromAssignment(existingAssignment));
+  }
+
+  function handleStartRedesignation(matchId: string) {
+    setRedesigningMatchId(matchId);
   }
 
   async function handleCreateMatch() {
@@ -145,6 +152,7 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
       setMatches((current) => current.map((match) => (match.id === selectedMatch.id ? { ...match, status: "assigned" } : match)));
       setSelectedMatchIdState("");
       setDesignationDraft(EMPTY_DRAFT);
+      setRedesigningMatchId(null);
       toast.success("Designacion oficial confirmada.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo confirmar la designacion.");
@@ -155,6 +163,19 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
     setDesignationDraft(EMPTY_DRAFT);
   }
 
+  async function handleResetAssignment(matchId: string) {
+    try {
+      const items = await resetJuezAssignment(matchId);
+      setAssignments(items);
+      setMatches((current) => current.map((match) => (match.id === matchId ? { ...match, status: "open" } : match)));
+      setDesignationDraft(EMPTY_DRAFT);
+      setRedesigningMatchId(null);
+      toast.success("Designacion reiniciada. Ya podes volver a designar.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo reiniciar la designacion.");
+    }
+  }
+
   return {
     matches,
     availability,
@@ -162,12 +183,15 @@ export function useMatchesAndDesignation({ currentTournament, currentUser }: Use
     selectedMatchId,
     matchForm,
     designationDraft,
+    redesigningMatchId,
     handleChangeMatchForm,
     setSelectedMatchId: handleSelectMatch,
     handleCreateMatch,
     handleToggleAvailability,
     handleDesignationChange,
     handleConfirmDesignation,
+    handleResetAssignment,
+    handleStartRedesignation,
     resetDesignationDraft
   };
 }

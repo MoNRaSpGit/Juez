@@ -75,3 +75,11 @@ export async function confirmJuezAssignment(
   const data = await parseOrThrow<ListAssignmentsResponse>(response, "No se pudo confirmar la designacion.");
   return data.items ?? [];
 }
+
+export async function resetJuezAssignment(matchId: string) {
+  const response = await fetch(buildUrl(`/juez-matches/${matchId}/assignment`), {
+    method: "DELETE"
+  });
+  const data = await parseOrThrow<ListAssignmentsResponse>(response, "No se pudo reiniciar la designacion.");
+  return data.items ?? [];
+}

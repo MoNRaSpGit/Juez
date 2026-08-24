@@ -32,6 +32,8 @@ type JuezDashboardScreenProps = Pick<
   | "handleDesignationChange"
   | "handleLogout"
   | "handleOpenEditPlayer"
+  | "handleResetAssignment"
+  | "handleStartRedesignation"
   | "handleSaveTournament"
   | "handleStartTournamentEdit"
   | "handleSubmitEditPlayer"
@@ -43,6 +45,7 @@ type JuezDashboardScreenProps = Pick<
   | "matchForm"
   | "matches"
   | "playerForm"
+  | "redesigningMatchId"
   | "referees"
   | "selectedMatchId"
   | "selectedTeam"
@@ -82,6 +85,8 @@ export function JuezDashboardScreen({
   handleDesignationChange,
   handleLogout,
   handleOpenEditPlayer,
+  handleResetAssignment,
+  handleStartRedesignation,
   handleSaveTournament,
   handleStartTournamentEdit,
   handleSubmitEditPlayer,
@@ -93,6 +98,7 @@ export function JuezDashboardScreen({
   matchForm,
   matches,
   playerForm,
+  redesigningMatchId,
   referees,
   selectedMatchId,
   selectedTeam,
@@ -236,6 +242,7 @@ export function JuezDashboardScreen({
             selectedMatchId={selectedMatchId}
             matchForm={matchForm}
             designationDraft={designationDraft}
+            redesigningMatchId={redesigningMatchId}
             currentTournament={currentTournament}
             isEditingTournament={isEditingTournament}
             tournamentDraft={tournamentDraft}
@@ -244,6 +251,8 @@ export function JuezDashboardScreen({
             onCreateMatch={handleCreateMatch}
             onDesignationChange={handleDesignationChange}
             onConfirmDesignation={handleConfirmDesignation}
+            onResetAssignment={handleResetAssignment}
+            onStartRedesignation={handleStartRedesignation}
             onStartTournamentEdit={handleStartTournamentEdit}
             onTournamentDraftChange={setTournamentDraft}
             onSaveTournament={handleSaveTournament}

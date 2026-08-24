@@ -14,6 +14,7 @@ type JuezAdminViewProps = {
   selectedMatchId: string;
   matchForm: MatchFormState;
   designationDraft: Record<RefereeRole, string>;
+  redesigningMatchId: string | null;
   currentTournament: string;
   isEditingTournament: boolean;
   tournamentDraft: string;
@@ -22,6 +23,8 @@ type JuezAdminViewProps = {
   onCreateMatch: () => void;
   onDesignationChange: (role: RefereeRole, refereeId: string) => void;
   onConfirmDesignation: () => void;
+  onResetAssignment: (matchId: string) => void;
+  onStartRedesignation: (matchId: string) => void;
   onStartTournamentEdit: () => void;
   onTournamentDraftChange: (value: string) => void;
   onSaveTournament: () => void;
@@ -36,6 +39,7 @@ export function JuezAdminView({
   selectedMatchId,
   matchForm,
   designationDraft,
+  redesigningMatchId,
   currentTournament,
   isEditingTournament,
   tournamentDraft,
@@ -44,6 +48,8 @@ export function JuezAdminView({
   onCreateMatch,
   onDesignationChange,
   onConfirmDesignation,
+  onResetAssignment,
+  onStartRedesignation,
   onStartTournamentEdit,
   onTournamentDraftChange,
   onSaveTournament
@@ -65,7 +71,12 @@ export function JuezAdminView({
         onSaveTournament={onSaveTournament}
       />
 
-      <MatchList matches={matches} selectedMatchId={selectedMatchId} onSelectMatch={onSelectMatch} />
+      <MatchList
+        matches={matches}
+        selectedMatchId={selectedMatchId}
+        redesigningMatchId={redesigningMatchId}
+        onSelectMatch={onSelectMatch}
+      />
 
       <RefereeEarningsPanel referees={referees} assignments={assignments} matches={matches} />
 
@@ -76,8 +87,11 @@ export function JuezAdminView({
           availability={availability}
           assignments={assignments}
           designationDraft={designationDraft}
+          isRedesignating={redesigningMatchId === selectedMatch.id}
           onDesignationChange={onDesignationChange}
           onConfirmDesignation={onConfirmDesignation}
+          onResetAssignment={onResetAssignment}
+          onStartRedesignation={onStartRedesignation}
           onClose={() => onSelectMatch("")}
         />
       ) : null}

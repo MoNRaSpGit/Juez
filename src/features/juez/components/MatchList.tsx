@@ -4,10 +4,11 @@ import { formatMatchDate, formatMatchLabel, getStatusLabel, getStatusTone } from
 type MatchListProps = {
   matches: Match[];
   selectedMatchId: string;
+  redesigningMatchId: string | null;
   onSelectMatch: (matchId: string) => void;
 };
 
-export function MatchList({ matches, selectedMatchId, onSelectMatch }: MatchListProps) {
+export function MatchList({ matches, selectedMatchId, redesigningMatchId, onSelectMatch }: MatchListProps) {
   return (
     <article className="juez-panel juez-panel--span-2">
       <div className="juez-panel__heading">
@@ -19,14 +20,19 @@ export function MatchList({ matches, selectedMatchId, onSelectMatch }: MatchList
       </div>
 
       <div className="juez-match-list">
-        {matches.map((match) => (
+        {matches.map((match) => {
+          const isRedesignating = redesigningMatchId === match.id;
+          const statusLabel = isRedesignating ? "Redesignando" : getStatusLabel(match.status);
+          const statusTone = isRedesignating ? "amber" : getStatusTone(match.status);
+
+          return (
           <div key={match.id} className={`juez-match-card ${selectedMatchId === match.id ? "is-active" : ""}`}>
             <div className="juez-match-card__main">
               <div>
                 <strong>{formatMatchLabel(match)}</strong>
                 <p>{match.tournament}</p>
               </div>
-              <span className={`juez-pill juez-pill--${getStatusTone(match.status)}`}>{getStatusLabel(match.status)}</span>
+              <span className={`juez-pill juez-pill--${statusTone}`}>{statusLabel}</span>
             </div>
             <div className="juez-match-card__meta">
               <span>{match.venue}</span>
@@ -38,7 +44,8 @@ export function MatchList({ matches, selectedMatchId, onSelectMatch }: MatchList
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </article>
   );

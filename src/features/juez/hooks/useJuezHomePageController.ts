@@ -54,12 +54,15 @@ export function useJuezHomePageController() {
     selectedMatchId: matchesState.selectedMatchId,
     matchForm: matchesState.matchForm,
     designationDraft: matchesState.designationDraft,
+    redesigningMatchId: matchesState.redesigningMatchId,
     handleChangeMatchForm: matchesState.handleChangeMatchForm,
     setSelectedMatchId: matchesState.setSelectedMatchId,
     handleCreateMatch: matchesState.handleCreateMatch,
     handleToggleAvailability: matchesState.handleToggleAvailability,
     handleDesignationChange: matchesState.handleDesignationChange,
     handleConfirmDesignation: matchesState.handleConfirmDesignation,
+    handleResetAssignment: matchesState.handleResetAssignment,
+    handleStartRedesignation: matchesState.handleStartRedesignation,
 
     // players
     isLoadingPlayers: playersState.isLoading,
