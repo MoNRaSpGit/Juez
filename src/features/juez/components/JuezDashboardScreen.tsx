@@ -61,6 +61,15 @@ type JuezDashboardScreenProps = Pick<
   | "setViewMode"
 >;
 
+// Pedido explicito (06/10/2026): "por ahora ocultarle todo menos lo que
+// muestra que jugador esta vencido... saca la parte de crear partido,
+// pero no lo borres, solo oculto". En vez de borrar las vistas de
+// Crear Partido / Jueces / Crear equipo / Admin, quedan atras de este
+// flag -- false las esconde del menu y de la pantalla, sin tocar el
+// resto del codigo. Para volver a mostrarlas, alcanza con poner esto en
+// true.
+const SHOW_FULL_JUEZ_MENU = false;
+
 export function JuezDashboardScreen({
   availability,
   assignments,
@@ -156,27 +165,31 @@ export function JuezDashboardScreen({
                   </div>
 
                   <div className="juez-menu__group">
-                    <button
-                      type="button"
-                      className={`juez-menu__item ${viewMode === "matches" ? "is-active" : ""}`}
-                      onClick={() => {
-                        setViewMode("matches");
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Crear Partido
-                    </button>
-                    <button
-                      type="button"
-                      className={`juez-menu__item ${viewMode === "referees" ? "is-active" : ""}`}
-                      onClick={() => {
-                        setViewMode("referees");
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Jueces
-                    </button>
-                    {canManageAdministration ? (
+                    {SHOW_FULL_JUEZ_MENU ? (
+                      <button
+                        type="button"
+                        className={`juez-menu__item ${viewMode === "matches" ? "is-active" : ""}`}
+                        onClick={() => {
+                          setViewMode("matches");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Crear Partido
+                      </button>
+                    ) : null}
+                    {SHOW_FULL_JUEZ_MENU ? (
+                      <button
+                        type="button"
+                        className={`juez-menu__item ${viewMode === "referees" ? "is-active" : ""}`}
+                        onClick={() => {
+                          setViewMode("referees");
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Jueces
+                      </button>
+                    ) : null}
+                    {SHOW_FULL_JUEZ_MENU && canManageAdministration ? (
                       <button
                         type="button"
                         className={`juez-menu__item ${viewMode === "players" ? "is-active" : ""}`}
@@ -200,7 +213,7 @@ export function JuezDashboardScreen({
                         Carnet
                       </button>
                     ) : null}
-                    {canManageAdministration ? (
+                    {SHOW_FULL_JUEZ_MENU && canManageAdministration ? (
                       <button
                         type="button"
                         className={`juez-menu__item ${viewMode === "administration" ? "is-active" : ""}`}
@@ -232,7 +245,7 @@ export function JuezDashboardScreen({
           </div>
         </header>
 
-        {viewMode === "matches" ? (
+        {SHOW_FULL_JUEZ_MENU && viewMode === "matches" ? (
           <JuezAdminView
             matches={matches}
             referees={referees}
@@ -259,7 +272,7 @@ export function JuezDashboardScreen({
           />
         ) : null}
 
-        {viewMode === "referees" ? (
+        {SHOW_FULL_JUEZ_MENU && viewMode === "referees" ? (
           <JuezRefereeView
             currentReferee={currentUser!}
             matches={matches}
@@ -269,11 +282,11 @@ export function JuezDashboardScreen({
           />
         ) : null}
 
-        {viewMode === "administration" && canManageAdministration ? (
+        {SHOW_FULL_JUEZ_MENU && viewMode === "administration" && canManageAdministration ? (
           <JuezAdministrationView referees={referees} assignments={assignments} onToggleRefereeRole={handleToggleRefereeRole} />
         ) : null}
 
-        {viewMode === "players" && canManageAdministration ? (
+        {SHOW_FULL_JUEZ_MENU && viewMode === "players" && canManageAdministration ? (
           <JuezPlayersView
             teams={teams}
             isTeamsLoading={isTeamsLoading}

@@ -8,7 +8,11 @@ export type { AuthFormState, AuthMode } from "./useAuthSession";
 export type ViewMode = "matches" | "referees" | "administration" | "players" | "players-browse";
 
 export function useJuezHomePageController() {
-  const [viewMode, setViewMode] = useState<ViewMode>("matches");
+  // "players-browse" (Carnet, muestra jugadores por vencer/vencidos) por
+  // defecto (06/10/2026, pedido explicito: "por ahora ocultar todo menos
+  // lo que muestra que jugador esta vencido"). El resto de las vistas
+  // sigue existiendo, solo oculto -- ver JuezDashboardScreen.tsx.
+  const [viewMode, setViewMode] = useState<ViewMode>("players-browse");
 
   const auth = useAuthSession();
   const tournament = useTournamentSettings();
