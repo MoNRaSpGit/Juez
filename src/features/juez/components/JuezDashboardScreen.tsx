@@ -8,6 +8,7 @@ import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
 type JuezDashboardScreenProps = Pick<
   JuezHomePageController,
+  | "allPlayers"
   | "availability"
   | "assignments"
   | "browseTeam"
@@ -70,6 +71,7 @@ type JuezDashboardScreenProps = Pick<
 const SHOW_FULL_JUEZ_MENU = false;
 
 export function JuezDashboardScreen({
+  allPlayers,
   availability,
   assignments,
   browseTeam,
@@ -306,6 +308,7 @@ export function JuezDashboardScreen({
 
         {viewMode === "players-browse" ? (
           <JuezPlayersBrowseView
+            allPlayers={allPlayers}
             browsedPlayers={browsedPlayers}
             isLoading={isLoadingPlayers}
             teams={teams}

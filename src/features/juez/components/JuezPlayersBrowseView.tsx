@@ -6,6 +6,11 @@ import { JuezTeam } from "../juez.teams.types";
 import { JuezPlayerEditModal } from "./JuezPlayerEditModal";
 
 type JuezPlayersBrowseViewProps = {
+  // Lista completa, sin filtrar (06/10/2026, pedido explicito: "pone tipo
+  // diferentes categorias 'sin vencimiento' 'sin cedula' etc asi los
+  // dividimos y los podemos arreglar bien") -- se usa para armar las
+  // categorias de abajo cuando no hay equipo elegido.
+  allPlayers: JuezPlayer[];
   browsedPlayers: JuezPlayer[];
   isLoading: boolean;
   teams: JuezTeam[];
@@ -34,7 +39,16 @@ function formatTeamLabel(team: JuezTeam) {
 
 const URGENCY_BADGE_LABEL: Record<string, string> = {
   expired: "Vencido",
-  yellow: "Por vencer"
+  yellow: "Por vencer",
+  review: "Sin vencimiento"
+};
+
+type StatusFilter = "problemas" | "sin_vencimiento" | "sin_cedula";
+
+const STATUS_FILTER_LABEL: Record<StatusFilter, string> = {
+  problemas: "Vencidos / por vencer",
+  sin_vencimiento: "Sin vencimiento",
+  sin_cedula: "Sin cedula"
 };
 
 function getInitials(name: string, lastName: string) {
@@ -71,6 +85,7 @@ function JuezPlayerCard({
       </div>
 
       <p className="juez-player-card__expiry">{formatDaysUntilExpiry(player.expiryDate)}</p>
+      {!player.cedula ? <p className="juez-player-card__no-cedula">Sin cedula cargada</p> : null}
 
       {canEdit ? (
         <div className="juez-player-card__actions">
@@ -84,6 +99,7 @@ function JuezPlayerCard({
 }
 
 export function JuezPlayersBrowseView({
+  allPlayers,
   browsedPlayers,
   isLoading,
   teams,
@@ -98,6 +114,35 @@ export function JuezPlayersBrowseView({
   onSubmitEditPlayer,
   canEdit
 }: JuezPlayersBrowseViewProps) {
+  // Categorias (06/10/2026, pedido explicito): separar "sin vencimiento
+  // cargado" y "sin cedula cargada" de los vencidos de verdad, para poder
+  // ir arreglandolos de a uno sin que se mezclen. Solo aplica cuando no
+  // hay un equipo elegido (con equipo elegido se ve el plantel completo
+  // igual que antes).
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("problemas");
+
+  const statusCounts = useMemo(
+    () => ({
+      problemas: allPlayers.filter((player) => {
+        const urgency = getPlayerExpiryUrgency(player.expiryDate);
+        return urgency === "expired" || urgency === "yellow";
+      }).length,
+      sin_vencimiento: allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review").length,
+      sin_cedula: allPlayers.filter((player) => !player.cedula).length
+    }),
+    [allPlayers]
+  );
+
+  const playersForStatus = useMemo(() => {
+    if (statusFilter === "sin_vencimiento") {
+      return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review");
+    }
+    if (statusFilter === "sin_cedula") {
+      return allPlayers.filter((player) => !player.cedula);
+    }
+    return browsedPlayers;
+  }, [statusFilter, allPlayers, browsedPlayers]);
+
   const teamNames = useMemo(
     () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
     [teams]
@@ -176,19 +221,34 @@ export function JuezPlayersBrowseView({
           </div>
         </div>
 
+        {!browseTeam ? (
+          <div className="juez-status-filters">
+            {(Object.keys(STATUS_FILTER_LABEL) as StatusFilter[]).map((status) => (
+              <button
+                key={status}
+                type="button"
+                className={statusFilter === status ? "juez-status-chip is-active" : "juez-status-chip"}
+                onClick={() => setStatusFilter(status)}
+              >
+                {STATUS_FILTER_LABEL[status]} <strong>{statusCounts[status]}</strong>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
 
         {isPendingCombo ? <p className="juez-empty-inline">Elegi division y sexo para ver las tarjetas.</p> : null}
 
-        {!isLoading && !isPendingCombo && !browsedPlayers.length ? (
+        {!isLoading && !isPendingCombo && !playersForStatus.length ? (
           <p className="juez-empty-inline">
-            {browseTeam ? "No hay jugadores en esta categoria." : "No hay jugadores por vencer ni vencidos."}
+            {browseTeam ? "No hay jugadores en esta categoria." : "No hay jugadores en esta categoria."}
           </p>
         ) : null}
 
         {!isPendingCombo ? (
           <div className="juez-player-grid">
-            {browsedPlayers.map((player) => (
+            {playersForStatus.map((player) => (
               <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} canEdit={canEdit} />
             ))}
           </div>

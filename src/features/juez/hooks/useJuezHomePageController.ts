@@ -66,6 +66,7 @@ export function useJuezHomePageController() {
     handleStartRedesignation: matchesState.handleStartRedesignation,
 
     // players
+    allPlayers: playersState.players,
     isLoadingPlayers: playersState.isLoading,
     teams: playersState.teams,
     isTeamsLoading: playersState.isTeamsLoading,

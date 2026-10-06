@@ -191,10 +191,60 @@
   border: 2px solid #dc2626;
 }
 
+/* "Sin vencimiento" (06/10/2026, pedido explicito): gris/azul neutro a
+   proposito -- no es un vencido de verdad, no tiene que leerse como
+   alarma roja. */
+.juez-player-card__badge--review {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+}
+
+.juez-player-card--review {
+  border: 2px solid #94a3b8;
+}
+
+.juez-player-card__no-cedula {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b45309;
+}
+
 .juez-player-card__actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Chips de categoria (06/10/2026, pedido explicito): "Vencidos/por
+   vencer", "Sin vencimiento", "Sin cedula" -- separadas para poder ir
+   arreglando los datos de a una categoria sin que se mezclen. */
+.juez-status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.juez-status-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.juez-status-chip strong {
+  margin-left: 4px;
+}
+
+.juez-status-chip.is-active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
 }
 
 .juez-player-card__edit {

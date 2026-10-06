@@ -4,7 +4,14 @@ export function formatMatchLabel(match: Match) {
   return `${match.homeSide} vs ${match.awaySide}`;
 }
 
-export type JuezPlayerExpiryUrgency = "expired" | "yellow" | "normal";
+// Fecha "centinela" (06/10/2026, pedido explicito) para jugadores
+// importados sin fecha de vencimiento real en el documento original --
+// nunca es una fecha de vencimiento de verdad, asi que no cuenta como
+// "Vencido" (eso molestaba, se mezclaba con los que si estan vencidos de
+// verdad). Tiene su propia categoria "Sin vencimiento" (urgency "review").
+export const PLAYER_EXPIRY_REVIEW_SENTINEL = "1111-01-01";
+
+export type JuezPlayerExpiryUrgency = "expired" | "yellow" | "normal" | "review";
 
 export function getDaysUntilExpiry(expiryDate: string) {
   const today = new Date();
@@ -14,6 +21,8 @@ export function getDaysUntilExpiry(expiryDate: string) {
 }
 
 export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrgency {
+  if (expiryDate === PLAYER_EXPIRY_REVIEW_SENTINEL) return "review";
+
   const diffDays = getDaysUntilExpiry(expiryDate);
 
   if (diffDays < 0) return "expired";
@@ -22,6 +31,8 @@ export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrge
 }
 
 export function formatDaysUntilExpiry(expiryDate: string) {
+  if (expiryDate === PLAYER_EXPIRY_REVIEW_SENTINEL) return "Sin fecha de vencimiento cargada";
+
   const diffDays = getDaysUntilExpiry(expiryDate);
 
   if (diffDays < 0) {

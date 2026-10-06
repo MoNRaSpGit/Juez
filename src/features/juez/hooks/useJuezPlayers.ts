@@ -204,7 +204,13 @@ export function useJuezPlayers() {
             player.division === browseTeam.division &&
             player.sex === browseTeam.sex
         )
-      : players.filter((player) => getPlayerExpiryUrgency(player.expiryDate) !== "normal")
+      : players.filter((player) => {
+          const urgency = getPlayerExpiryUrgency(player.expiryDate);
+          // "review" (sin fecha de vencimiento real cargada) tiene su
+          // propia categoria aparte -- no se mezcla con los vencidos de
+          // verdad (ver JuezPlayersBrowseView.tsx, filtro por estado).
+          return urgency !== "normal" && urgency !== "review";
+        })
   ).sort((left, right) => left.lastName.localeCompare(right.lastName) || left.name.localeCompare(right.name));
 
   return {
