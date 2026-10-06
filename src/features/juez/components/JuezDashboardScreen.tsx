@@ -10,7 +10,6 @@ type JuezDashboardScreenProps = Pick<
   JuezHomePageController,
   | "availability"
   | "assignments"
-  | "authMode"
   | "browseTeam"
   | "browseTeamId"
   | "browsedPlayers"
@@ -201,18 +200,21 @@ export function JuezDashboardScreen({
                         Crear equipo
                       </button>
                     ) : null}
-                    {canManageAdministration ? (
-                      <button
-                        type="button"
-                        className={`juez-menu__item ${viewMode === "players-browse" ? "is-active" : ""}`}
-                        onClick={() => {
-                          setViewMode("players-browse");
-                          setMenuOpen(false);
-                        }}
-                      >
-                        Carnet
-                      </button>
-                    ) : null}
+                    {/* Carnet visible para cualquier usuario logueado (admin o
+                        usuario), no solo admin -- pedido explicito
+                        (06/10/2026): "el admin va a poder modificar los
+                        datos y el usuario solo verlos" -- el usuario
+                        tiene que poder entrar igual, solo que sin editar. */}
+                    <button
+                      type="button"
+                      className={`juez-menu__item ${viewMode === "players-browse" ? "is-active" : ""}`}
+                      onClick={() => {
+                        setViewMode("players-browse");
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Carnet
+                    </button>
                     {SHOW_FULL_JUEZ_MENU && canManageAdministration ? (
                       <button
                         type="button"
@@ -302,7 +304,7 @@ export function JuezDashboardScreen({
           />
         ) : null}
 
-        {viewMode === "players-browse" && canManageAdministration ? (
+        {viewMode === "players-browse" ? (
           <JuezPlayersBrowseView
             browsedPlayers={browsedPlayers}
             isLoading={isLoadingPlayers}
@@ -316,6 +318,7 @@ export function JuezDashboardScreen({
             onCloseEditPlayer={handleCloseEditPlayer}
             onChangeEditForm={handleChangeEditForm}
             onSubmitEditPlayer={handleSubmitEditPlayer}
+            canEdit={canManageAdministration}
           />
         ) : null}
       </section>

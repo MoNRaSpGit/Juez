@@ -1,28 +1,12 @@
-import { RefereeRole, ROLE_LABELS } from "../juez.types";
 import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
-type JuezAuthScreenProps = Pick<
-  JuezHomePageController,
-  | "authMode"
-  | "authForm"
-  | "handleAuthSubmit"
-  | "handleChangeAuthField"
-  | "handleToggleAuthRole"
-  | "handleQuickLogin"
-  | "setAuthForm"
-  | "setAuthMode"
->;
+type JuezAuthScreenProps = Pick<JuezHomePageController, "authForm" | "handleAuthSubmit" | "handleChangeAuthField">;
 
-export function JuezAuthScreen({
-  authMode,
-  authForm,
-  handleAuthSubmit,
-  handleChangeAuthField,
-  handleToggleAuthRole,
-  handleQuickLogin,
-  setAuthForm,
-  setAuthMode
-}: JuezAuthScreenProps) {
+// Login simple (06/10/2026, pedido explicito: "hacerlo bien simple,
+// pone un login normal, saca todo eso que tiene" -- sin registro, sin
+// roles, sin pruebas rapidas). 2 cuentas fijas: admin/admin y
+// usuario/usuario (ver useAuthSession.ts).
+export function JuezAuthScreen({ authForm, handleAuthSubmit, handleChangeAuthField }: JuezAuthScreenProps) {
   return (
     <main className="juez-app juez-app--auth">
       <section className="juez-shell juez-shell--auth">
@@ -30,39 +14,16 @@ export function JuezAuthScreen({
           <div className="juez-auth-card__header">
             <p className="juez-eyebrow">SaasPro Juez</p>
             <h1>Ingresar</h1>
-            <p className="juez-auth-card__copy">Accedé con tu correo y contraseña para seguir con tus designaciones.</p>
-            {authMode === "login" ? (
-              <>
-                <p className="juez-auth-card__test-hint">
-                  Pruebas rapidas: apreta <strong>Entrar</strong> sin escribir nada (admin)
-                </p>
-                <div className="juez-auth-quick-login">
-                  <button type="button" className="juez-button juez-button--ghost" onClick={() => handleQuickLogin("juez")}>
-                    Entrar como Lucia (2 roles)
-                  </button>
-                  <button type="button" className="juez-button juez-button--ghost" onClick={() => handleQuickLogin("ramon")}>
-                    Entrar como JuezRamon (3 roles)
-                  </button>
-                </div>
-              </>
-            ) : null}
           </div>
 
           <form className="juez-auth-form" onSubmit={handleAuthSubmit}>
-            {authMode === "register" ? (
-              <label className="juez-field">
-                <span>Nombre</span>
-                <input value={authForm.name} onChange={(event) => handleChangeAuthField("name", event.target.value)} />
-              </label>
-            ) : null}
-
             <label className="juez-field">
-              <span>Email</span>
+              <span>Usuario</span>
               <input
-                type="email"
-                value={authForm.email}
-                onChange={(event) => handleChangeAuthField("email", event.target.value)}
-                placeholder="tuemail@correo.com"
+                value={authForm.username}
+                onChange={(event) => handleChangeAuthField("username", event.target.value)}
+                autoFocus
+                autoComplete="username"
               />
             </label>
 
@@ -70,79 +31,15 @@ export function JuezAuthScreen({
               <span>Contraseña</span>
               <input
                 type="password"
-                minLength={authMode === "register" ? 12 : undefined}
-                autoComplete={authMode === "register" ? "new-password" : "current-password"}
                 value={authForm.password}
                 onChange={(event) => handleChangeAuthField("password", event.target.value)}
-                placeholder="********"
+                autoComplete="current-password"
               />
-              {authMode === "register" ? (
-                <small className="juez-field-help">
-                  12 caracteres o mas, con mayuscula, minuscula, numero y simbolo.
-                </small>
-              ) : null}
             </label>
 
-            {authMode === "register" ? (
-              <label className="juez-field">
-                <span>Confirmar contraseña</span>
-                <input
-                  type="password"
-                  minLength={12}
-                  autoComplete="new-password"
-                  value={authForm.confirmPassword}
-                  onChange={(event) => handleChangeAuthField("confirmPassword", event.target.value)}
-                  placeholder="********"
-                />
-              </label>
-            ) : null}
-
-            {authMode === "register" ? (
-              <div className="juez-auth-roles">
-                <span className="juez-field-label">Roles</span>
-                <div className="juez-role-toggle-row">
-                  {(["principal", "secundario", "planillero"] as RefereeRole[]).map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      className={`juez-role-toggle ${authForm.roles[role] ? "is-checked" : ""}`}
-                      onClick={() => handleToggleAuthRole(role)}
-                    >
-                      <span className="juez-role-toggle__dot" />
-                      {ROLE_LABELS[role]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
             <button type="submit" className="juez-button juez-button--primary juez-button--full-mobile">
-              {authMode === "login" ? "Entrar" : "Crear cuenta"}
+              Entrar
             </button>
-
-            <div className="juez-auth-switch">
-              <span>{authMode === "login" ? "¿No tenés cuenta?" : "¿Ya tenés cuenta?"}</span>
-              <button
-                type="button"
-                className="juez-auth-switch__link"
-                onClick={() => {
-                  setAuthMode(authMode === "login" ? "register" : "login");
-                  setAuthForm({
-                    name: "",
-                    email: "",
-                    password: "",
-                    confirmPassword: "",
-                    roles: {
-                      principal: false,
-                      secundario: false,
-                      planillero: false
-                    }
-                  });
-                }}
-              >
-                {authMode === "login" ? "Regístrese aquí" : "Volver al ingreso"}
-              </button>
-            </div>
           </form>
         </section>
       </section>

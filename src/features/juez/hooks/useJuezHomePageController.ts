@@ -4,7 +4,7 @@ import { useJuezPlayers } from "./useJuezPlayers";
 import { useMatchesAndDesignation } from "./useMatchesAndDesignation";
 import { useTournamentSettings } from "./useTournamentSettings";
 
-export type { AuthFormState, AuthMode } from "./useAuthSession";
+export type { AuthFormState } from "./useAuthSession";
 export type ViewMode = "matches" | "referees" | "administration" | "players" | "players-browse";
 
 export function useJuezHomePageController() {
@@ -24,24 +24,20 @@ export function useJuezHomePageController() {
 
   function handleLogout() {
     auth.logout();
-    setViewMode("matches");
+    setViewMode("players-browse");
     matchesState.resetDesignationDraft();
   }
 
   return {
     // auth
-    authMode: auth.authMode,
     authForm: auth.authForm,
     canManageAdministration: auth.canManageAdministration,
     currentUser: auth.currentUser,
     referees: auth.referees,
     handleAuthSubmit: auth.handleAuthSubmit,
     handleChangeAuthField: auth.handleChangeAuthField,
-    handleToggleAuthRole: auth.handleToggleAuthRole,
     handleToggleRefereeRole: auth.handleToggleRefereeRole,
-    handleQuickLogin: auth.handleQuickLogin,
     setAuthForm: auth.setAuthForm,
-    setAuthMode: auth.setAuthMode,
     handleLogout,
 
     // tournament

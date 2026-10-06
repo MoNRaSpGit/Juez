@@ -18,6 +18,10 @@ type JuezPlayersBrowseViewProps = {
   onCloseEditPlayer: () => void;
   onChangeEditForm: (field: keyof JuezPlayerFormState, value: string) => void;
   onSubmitEditPlayer: () => void;
+  // Usuario de solo lectura (06/10/2026, pedido explicito: "el admin va a
+  // poder modificar los datos y el usuario solo verlos") -- sin boton de
+  // Editar ni modal cuando es false.
+  canEdit: boolean;
 };
 
 function formatComboLabel(team: JuezTeam) {
@@ -37,7 +41,15 @@ function getInitials(name: string, lastName: string) {
   return `${name[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 }
 
-function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOpenEditPlayer: (player: JuezPlayer) => void }) {
+function JuezPlayerCard({
+  player,
+  onOpenEditPlayer,
+  canEdit
+}: {
+  player: JuezPlayer;
+  onOpenEditPlayer: (player: JuezPlayer) => void;
+  canEdit: boolean;
+}) {
   const urgency = getPlayerExpiryUrgency(player.expiryDate);
   const badgeLabel = URGENCY_BADGE_LABEL[urgency];
 
@@ -60,11 +72,13 @@ function JuezPlayerCard({ player, onOpenEditPlayer }: { player: JuezPlayer; onOp
 
       <p className="juez-player-card__expiry">{formatDaysUntilExpiry(player.expiryDate)}</p>
 
-      <div className="juez-player-card__actions">
-        <button type="button" className="juez-player-card__edit" onClick={() => onOpenEditPlayer(player)}>
-          Editar
-        </button>
-      </div>
+      {canEdit ? (
+        <div className="juez-player-card__actions">
+          <button type="button" className="juez-player-card__edit" onClick={() => onOpenEditPlayer(player)}>
+            Editar
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -81,7 +95,8 @@ export function JuezPlayersBrowseView({
   onOpenEditPlayer,
   onCloseEditPlayer,
   onChangeEditForm,
-  onSubmitEditPlayer
+  onSubmitEditPlayer,
+  canEdit
 }: JuezPlayersBrowseViewProps) {
   const teamNames = useMemo(
     () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
@@ -174,13 +189,13 @@ export function JuezPlayersBrowseView({
         {!isPendingCombo ? (
           <div className="juez-player-grid">
             {browsedPlayers.map((player) => (
-              <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} />
+              <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} canEdit={canEdit} />
             ))}
           </div>
         ) : null}
       </article>
 
-      {editingPlayer ? (
+      {editingPlayer && canEdit ? (
         <JuezPlayerEditModal
           player={editingPlayer}
           editForm={editForm}
