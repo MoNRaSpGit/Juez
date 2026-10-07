@@ -150,28 +150,22 @@ export function JuezPlayersBrowseView({
     return []; // sin pestana elegida: pantalla en blanco a proposito
   }, [browseTeam, browsedPlayers, statusFilter, allPlayers]);
 
-  const teamNames = useMemo(
-    () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
+  // Antes era un selector en 2 pasos (nombre, despues division/sexo si
+  // habia mas de un equipo con ese nombre) -- pedido explicito (07/10/2026,
+  // bug reportado: "pongo Alma Fuerte y no me muestra ninguno"): varios
+  // clubes (Alma Fuerte, Cerrito, Ubuntu, Peñarol...) tienen 2 o 3 equipos
+  // con el mismo nombre, y el segundo paso quedaba escondido/confuso --
+  // se perdia ahi. Ahora es un solo selector con cada equipo ya
+  // distinguido por nombre + division + sexo en la misma linea, nada que
+  // elegir en 2 pasos.
+  const sortedTeams = useMemo(
+    () =>
+      [...teams].sort(
+        (left, right) =>
+          left.name.localeCompare(right.name) || left.division.localeCompare(right.division) || left.sex.localeCompare(right.sex)
+      ),
     [teams]
   );
-
-  const [teamName, setTeamName] = useState(() => browseTeam?.name ?? "");
-
-  const matchingTeams = useMemo(() => teams.filter((team) => team.name === teamName), [teams, teamName]);
-  const needsCombo = matchingTeams.length > 1;
-  const isPendingCombo = needsCombo && !browseTeamId;
-
-  function handleChangeTeamName(name: string) {
-    setTeamName(name);
-
-    if (!name) {
-      setBrowseTeamId(null);
-      return;
-    }
-
-    const matches = teams.filter((team) => team.name === name);
-    setBrowseTeamId(matches.length === 1 ? matches[0].id : null);
-  }
 
   return (
     <section className="juez-layout-grid">
@@ -181,9 +175,7 @@ export function JuezPlayersBrowseView({
             <p className="juez-eyebrow">Filtro</p>
             <h2>Consulta de carnet de jugador</h2>
             <p className="juez-empty-inline">
-              {browseTeam
-                ? "Mostrando los jugadores de ese equipo."
-                : "Mostrando jugadores por vencer o vencidos de todos los equipos. Elegi un equipo para filtrar."}
+              {browseTeam ? "Mostrando los jugadores de ese equipo." : "Elegi un equipo, o una pestana de abajo, para ver jugadores."}
             </p>
           </div>
         </div>
@@ -191,32 +183,18 @@ export function JuezPlayersBrowseView({
         <div className="juez-form-grid juez-form-grid--mobile-first">
           <label className="juez-field juez-field--full-mobile">
             <span>Equipo</span>
-            <select value={teamName} onChange={(event) => handleChangeTeamName(event.target.value)}>
+            <select
+              value={browseTeamId ?? ""}
+              onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
+            >
               <option value="">Todos</option>
-              {teamNames.map((name) => (
-                <option key={name} value={name}>
-                  {name}
+              {sortedTeams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {formatTeamLabel(team)}
                 </option>
               ))}
             </select>
           </label>
-
-          {needsCombo ? (
-            <label className="juez-field juez-field--full-mobile">
-              <span>Division y sexo</span>
-              <select
-                value={browseTeamId ?? ""}
-                onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
-              >
-                <option value="">Selecciona division y sexo</option>
-                {matchingTeams.map((team) => (
-                  <option key={team.id} value={team.id}>
-                    {formatComboLabel(team)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
         </div>
       </article>
 
@@ -245,23 +223,19 @@ export function JuezPlayersBrowseView({
 
         {isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
 
-        {isPendingCombo ? <p className="juez-empty-inline">Elegi division y sexo para ver las tarjetas.</p> : null}
-
-        {!isLoading && !isPendingCombo && !browseTeam && !statusFilter ? (
+        {!isLoading && !browseTeam && !statusFilter ? (
           <p className="juez-empty-inline">Elegi una pestana (Vencidos, Por vencer, Inactivos...) o un equipo para ver jugadores.</p>
         ) : null}
 
-        {!isLoading && !isPendingCombo && (browseTeam || statusFilter) && !playersForStatus.length ? (
+        {!isLoading && (browseTeam || statusFilter) && !playersForStatus.length ? (
           <p className="juez-empty-inline">No hay jugadores en esta categoria.</p>
         ) : null}
 
-        {!isPendingCombo ? (
-          <div className="juez-player-grid">
-            {playersForStatus.map((player) => (
-              <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} canEdit={canEdit} />
-            ))}
-          </div>
-        ) : null}
+        <div className="juez-player-grid">
+          {playersForStatus.map((player) => (
+            <JuezPlayerCard key={player.id} player={player} onOpenEditPlayer={onOpenEditPlayer} canEdit={canEdit} />
+          ))}
+        </div>
       </article>
 
       {editingPlayer && canEdit ? (
