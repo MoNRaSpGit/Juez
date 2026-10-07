@@ -140,16 +140,6 @@ export function JuezPlayersBrowseView({
     [allPlayers]
   );
 
-  const playersForStatus = useMemo(() => {
-    if (browseTeam) return browsedPlayers;
-    if (statusFilter === "vencidos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "expired");
-    if (statusFilter === "por_vencer") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "yellow");
-    if (statusFilter === "inactivos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "inactive");
-    if (statusFilter === "sin_vencimiento") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review");
-    if (statusFilter === "sin_cedula") return allPlayers.filter((player) => !player.cedula);
-    return []; // sin pestana elegida: pantalla en blanco a proposito
-  }, [browseTeam, browsedPlayers, statusFilter, allPlayers]);
-
   // Antes era un selector en 2 pasos (nombre, despues division/sexo si
   // habia mas de un equipo con ese nombre) -- pedido explicito (07/10/2026,
   // bug reportado: "pongo Alma Fuerte y no me muestra ninguno"): varios
@@ -167,12 +157,11 @@ export function JuezPlayersBrowseView({
     [teams]
   );
 
-  // Filtro en 3 pasos (07/10/2026, pedido explicito): "pone el equipo...
-  // despues si es A... despues si es femenino o masculino, y segun lo
-  // que filtre va a salir en pantalla". Convive con el selector de abajo
-  // ("Todos") -- este arma el mismo browseTeamId cuando con lo elegido
-  // queda un solo equipo posible; si no, no fuerza nada y queda como
-  // estaba.
+  // Filtro en 3 pasos, progresivo (07/10/2026, pedido explicito): "elijo
+  // el club, me salen todos los del club (masculino y femenino). Elijo
+  // A, me salen todos los de A". No espera a que quede un solo equipo --
+  // cada paso que se agrega achica la lista de jugadores, no de equipos.
+  // Convive con el selector de abajo ("Todos") -- usar uno limpia el otro.
   const clubNames = useMemo(
     () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
     [teams]
@@ -180,13 +169,29 @@ export function JuezPlayersBrowseView({
   const [stepClub, setStepClub] = useState("");
   const [stepDivision, setStepDivision] = useState<"" | "A" | "B">("");
   const [stepSex, setStepSex] = useState<"" | "masculino" | "femenino">("");
+  const isStepFilterActive = Boolean(stepClub || stepDivision || stepSex);
 
-  function applyStepFilter(club: string, division: "" | "A" | "B", sex: "" | "masculino" | "femenino") {
-    const matches = teams.filter(
-      (team) => (!club || team.name === club) && (!division || team.division === division) && (!sex || team.sex === sex)
-    );
-    setBrowseTeamId(matches.length === 1 ? matches[0].id : null);
-  }
+  const stepFilteredPlayers = useMemo(
+    () =>
+      allPlayers.filter(
+        (player) =>
+          (!stepClub || player.team.toLowerCase() === stepClub.toLowerCase()) &&
+          (!stepDivision || player.division === stepDivision) &&
+          (!stepSex || player.sex === stepSex)
+      ),
+    [allPlayers, stepClub, stepDivision, stepSex]
+  );
+
+  const playersForStatus = useMemo(() => {
+    if (browseTeam) return browsedPlayers;
+    if (isStepFilterActive) return stepFilteredPlayers;
+    if (statusFilter === "vencidos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "expired");
+    if (statusFilter === "por_vencer") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "yellow");
+    if (statusFilter === "inactivos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "inactive");
+    if (statusFilter === "sin_vencimiento") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review");
+    if (statusFilter === "sin_cedula") return allPlayers.filter((player) => !player.cedula);
+    return []; // sin pestana elegida: pantalla en blanco a proposito
+  }, [browseTeam, browsedPlayers, isStepFilterActive, stepFilteredPlayers, statusFilter, allPlayers]);
 
   return (
     <section className="juez-layout-grid">
@@ -207,9 +212,8 @@ export function JuezPlayersBrowseView({
             <select
               value={stepClub}
               onChange={(event) => {
-                const club = event.target.value;
-                setStepClub(club);
-                applyStepFilter(club, stepDivision, stepSex);
+                setStepClub(event.target.value);
+                setBrowseTeamId(null);
               }}
             >
               <option value="">Elegi un club</option>
@@ -230,9 +234,8 @@ export function JuezPlayersBrowseView({
                   type="button"
                   className={stepDivision === division ? "juez-toggle-btn is-active" : "juez-toggle-btn"}
                   onClick={() => {
-                    const next = stepDivision === division ? "" : division;
-                    setStepDivision(next);
-                    applyStepFilter(stepClub, next, stepSex);
+                    setStepDivision((current) => (current === division ? "" : division));
+                    setBrowseTeamId(null);
                   }}
                 >
                   <span className="juez-toggle-btn__light" />
@@ -256,9 +259,8 @@ export function JuezPlayersBrowseView({
                   type="button"
                   className={stepSex === sex ? "juez-toggle-btn is-active" : "juez-toggle-btn"}
                   onClick={() => {
-                    const next = stepSex === sex ? "" : sex;
-                    setStepSex(next);
-                    applyStepFilter(stepClub, stepDivision, next);
+                    setStepSex((current) => (current === sex ? "" : sex));
+                    setBrowseTeamId(null);
                   }}
                 >
                   <span className="juez-toggle-btn__light" />
@@ -295,7 +297,13 @@ export function JuezPlayersBrowseView({
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>
-            <p className="juez-eyebrow">{browseTeam ? formatTeamLabel(browseTeam) : "Todos los equipos"}</p>
+            <p className="juez-eyebrow">
+              {browseTeam
+                ? formatTeamLabel(browseTeam)
+                : isStepFilterActive
+                  ? [stepClub, stepDivision, stepSex && (stepSex === "masculino" ? "Masculino" : "Femenino")].filter(Boolean).join(" - ")
+                  : "Todos los equipos"}
+            </p>
             <h2>Jugadores</h2>
           </div>
         </div>
@@ -317,11 +325,11 @@ export function JuezPlayersBrowseView({
 
         {isLoading ? <p className="juez-empty-inline">Cargando jugadores...</p> : null}
 
-        {!isLoading && !browseTeam && !statusFilter ? (
+        {!isLoading && !browseTeam && !isStepFilterActive && !statusFilter ? (
           <p className="juez-empty-inline">Elegi una pestana (Vencidos, Por vencer, Inactivos...) o un equipo para ver jugadores.</p>
         ) : null}
 
-        {!isLoading && (browseTeam || statusFilter) && !playersForStatus.length ? (
+        {!isLoading && (browseTeam || isStepFilterActive || statusFilter) && !playersForStatus.length ? (
           <p className="juez-empty-inline">No hay jugadores en esta categoria.</p>
         ) : null}
 
