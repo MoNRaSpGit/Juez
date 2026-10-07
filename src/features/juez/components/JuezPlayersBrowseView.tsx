@@ -214,6 +214,7 @@ export function JuezPlayersBrowseView({
               onChange={(event) => {
                 setStepClub(event.target.value);
                 setBrowseTeamId(null);
+                setStatusFilter(null);
               }}
             >
               <option value="">Elegi un club</option>
@@ -236,6 +237,7 @@ export function JuezPlayersBrowseView({
                   onClick={() => {
                     setStepDivision((current) => (current === division ? "" : division));
                     setBrowseTeamId(null);
+                    setStatusFilter(null);
                   }}
                 >
                   <span className="juez-toggle-btn__light" />
@@ -261,6 +263,7 @@ export function JuezPlayersBrowseView({
                   onClick={() => {
                     setStepSex((current) => (current === sex ? "" : sex));
                     setBrowseTeamId(null);
+                    setStatusFilter(null);
                   }}
                 >
                   <span className="juez-toggle-btn__light" />
@@ -281,6 +284,7 @@ export function JuezPlayersBrowseView({
                 setStepClub("");
                 setStepDivision("");
                 setStepSex("");
+                setStatusFilter(null);
               }}
             >
               <option value="">Todos</option>
@@ -315,7 +319,13 @@ export function JuezPlayersBrowseView({
                 key={status}
                 type="button"
                 className={statusFilter === status ? "juez-status-chip is-active" : "juez-status-chip"}
-                onClick={() => setStatusFilter((current) => (current === status ? null : status))}
+                onClick={() => {
+                  setStatusFilter((current) => (current === status ? null : status));
+                  setBrowseTeamId(null);
+                  setStepClub("");
+                  setStepDivision("");
+                  setStepSex("");
+                }}
               >
                 {STATUS_FILTER_LABEL[status]} <strong>{statusCounts[status]}</strong>
               </button>
