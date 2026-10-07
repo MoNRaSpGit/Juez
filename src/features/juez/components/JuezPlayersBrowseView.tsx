@@ -167,6 +167,27 @@ export function JuezPlayersBrowseView({
     [teams]
   );
 
+  // Filtro en 3 pasos (07/10/2026, pedido explicito): "pone el equipo...
+  // despues si es A... despues si es femenino o masculino, y segun lo
+  // que filtre va a salir en pantalla". Convive con el selector de abajo
+  // ("Todos") -- este arma el mismo browseTeamId cuando con lo elegido
+  // queda un solo equipo posible; si no, no fuerza nada y queda como
+  // estaba.
+  const clubNames = useMemo(
+    () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
+    [teams]
+  );
+  const [stepClub, setStepClub] = useState("");
+  const [stepDivision, setStepDivision] = useState<"" | "A" | "B">("");
+  const [stepSex, setStepSex] = useState<"" | "masculino" | "femenino">("");
+
+  function applyStepFilter(club: string, division: "" | "A" | "B", sex: "" | "masculino" | "femenino") {
+    const matches = teams.filter(
+      (team) => (!club || team.name === club) && (!division || team.division === division) && (!sex || team.sex === sex)
+    );
+    setBrowseTeamId(matches.length === 1 ? matches[0].id : null);
+  }
+
   return (
     <section className="juez-layout-grid">
       <article className="juez-panel juez-panel--span-2">
@@ -182,10 +203,68 @@ export function JuezPlayersBrowseView({
 
         <div className="juez-form-grid juez-form-grid--mobile-first">
           <label className="juez-field juez-field--full-mobile">
-            <span>Equipo</span>
+            <span>Club</span>
+            <select
+              value={stepClub}
+              onChange={(event) => {
+                const club = event.target.value;
+                setStepClub(club);
+                applyStepFilter(club, stepDivision, stepSex);
+              }}
+            >
+              <option value="">Elegi un club</option>
+              {clubNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="juez-field">
+            <span>Division</span>
+            <select
+              value={stepDivision}
+              onChange={(event) => {
+                const division = event.target.value as "" | "A" | "B";
+                setStepDivision(division);
+                applyStepFilter(stepClub, division, stepSex);
+              }}
+            >
+              <option value="">Todas</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+            </select>
+          </label>
+
+          <label className="juez-field">
+            <span>Sexo</span>
+            <select
+              value={stepSex}
+              onChange={(event) => {
+                const sex = event.target.value as "" | "masculino" | "femenino";
+                setStepSex(sex);
+                applyStepFilter(stepClub, stepDivision, sex);
+              }}
+            >
+              <option value="">Ambos</option>
+              <option value="masculino">Masculino</option>
+              <option value="femenino">Femenino</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="juez-form-grid juez-form-grid--mobile-first">
+          <label className="juez-field juez-field--full-mobile">
+            <span>O elegi de la lista completa</span>
             <select
               value={browseTeamId ?? ""}
-              onChange={(event) => setBrowseTeamId(event.target.value ? Number(event.target.value) : null)}
+              onChange={(event) => {
+                setBrowseTeamId(event.target.value ? Number(event.target.value) : null);
+                setStepClub("");
+                setStepDivision("");
+                setStepSex("");
+              }}
             >
               <option value="">Todos</option>
               {sortedTeams.map((team) => (
