@@ -221,37 +221,52 @@ export function JuezPlayersBrowseView({
             </select>
           </label>
 
-          <label className="juez-field">
+          <div className="juez-field">
             <span>Division</span>
-            <select
-              value={stepDivision}
-              onChange={(event) => {
-                const division = event.target.value as "" | "A" | "B";
-                setStepDivision(division);
-                applyStepFilter(stepClub, division, stepSex);
-              }}
-            >
-              <option value="">Todas</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-            </select>
-          </label>
+            <div className="juez-toggle-buttons">
+              {(["A", "B"] as const).map((division) => (
+                <button
+                  key={division}
+                  type="button"
+                  className={stepDivision === division ? "juez-toggle-btn is-active" : "juez-toggle-btn"}
+                  onClick={() => {
+                    const next = stepDivision === division ? "" : division;
+                    setStepDivision(next);
+                    applyStepFilter(stepClub, next, stepSex);
+                  }}
+                >
+                  <span className="juez-toggle-btn__light" />
+                  {division}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <label className="juez-field">
+          <div className="juez-field">
             <span>Sexo</span>
-            <select
-              value={stepSex}
-              onChange={(event) => {
-                const sex = event.target.value as "" | "masculino" | "femenino";
-                setStepSex(sex);
-                applyStepFilter(stepClub, stepDivision, sex);
-              }}
-            >
-              <option value="">Ambos</option>
-              <option value="masculino">Masculino</option>
-              <option value="femenino">Femenino</option>
-            </select>
-          </label>
+            <div className="juez-toggle-buttons">
+              {(
+                [
+                  ["masculino", "Masculino"],
+                  ["femenino", "Femenino"]
+                ] as const
+              ).map(([sex, label]) => (
+                <button
+                  key={sex}
+                  type="button"
+                  className={stepSex === sex ? "juez-toggle-btn is-active" : "juez-toggle-btn"}
+                  onClick={() => {
+                    const next = stepSex === sex ? "" : sex;
+                    setStepSex(next);
+                    applyStepFilter(stepClub, stepDivision, next);
+                  }}
+                >
+                  <span className="juez-toggle-btn__light" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="juez-form-grid juez-form-grid--mobile-first">
