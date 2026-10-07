@@ -40,13 +40,21 @@ function formatTeamLabel(team: JuezTeam) {
 const URGENCY_BADGE_LABEL: Record<string, string> = {
   expired: "Vencido",
   yellow: "Por vencer",
-  review: "Sin vencimiento"
+  review: "Sin vencimiento",
+  inactive: "Inactivo"
 };
 
-type StatusFilter = "problemas" | "sin_vencimiento" | "sin_cedula";
+// Pedido explicito (07/10/2026): "al principio que no se vea nada, todo
+// en blanco... si paso a la pestana vencidos me muestra todos los
+// vencidos, por vencer los que les faltan pocos dias, inactivos los que
+// llevan mas de 3 meses vencidos". null = pantalla inicial, sin pestana
+// elegida todavia.
+type StatusFilter = "vencidos" | "por_vencer" | "inactivos" | "sin_vencimiento" | "sin_cedula" | null;
 
-const STATUS_FILTER_LABEL: Record<StatusFilter, string> = {
-  problemas: "Vencidos / por vencer",
+const STATUS_FILTER_LABEL: Record<Exclude<StatusFilter, null>, string> = {
+  vencidos: "Vencidos",
+  por_vencer: "Por vencer",
+  inactivos: "Inactivos",
   sin_vencimiento: "Sin vencimiento",
   sin_cedula: "Sin cedula"
 };
@@ -114,19 +122,18 @@ export function JuezPlayersBrowseView({
   onSubmitEditPlayer,
   canEdit
 }: JuezPlayersBrowseViewProps) {
-  // Categorias (06/10/2026, pedido explicito): separar "sin vencimiento
-  // cargado" y "sin cedula cargada" de los vencidos de verdad, para poder
-  // ir arreglandolos de a uno sin que se mezclen. Solo aplica cuando no
-  // hay un equipo elegido (con equipo elegido se ve el plantel completo
-  // igual que antes).
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("problemas");
+  // Pestanas (07/10/2026, pedido explicito): arranca en blanco (null),
+  // sin mostrar nada, hasta que se elija una pestana o un equipo. Con
+  // equipo elegido se ignora la pestana y se ve el plantel completo
+  // (igual que antes) -- las pestanas son solo para cuando no hay
+  // equipo, para ir navegando por estado.
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(null);
 
   const statusCounts = useMemo(
     () => ({
-      problemas: allPlayers.filter((player) => {
-        const urgency = getPlayerExpiryUrgency(player.expiryDate);
-        return urgency === "expired" || urgency === "yellow";
-      }).length,
+      vencidos: allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "expired").length,
+      por_vencer: allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "yellow").length,
+      inactivos: allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "inactive").length,
       sin_vencimiento: allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review").length,
       sin_cedula: allPlayers.filter((player) => !player.cedula).length
     }),
@@ -134,14 +141,14 @@ export function JuezPlayersBrowseView({
   );
 
   const playersForStatus = useMemo(() => {
-    if (statusFilter === "sin_vencimiento") {
-      return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review");
-    }
-    if (statusFilter === "sin_cedula") {
-      return allPlayers.filter((player) => !player.cedula);
-    }
-    return browsedPlayers;
-  }, [statusFilter, allPlayers, browsedPlayers]);
+    if (browseTeam) return browsedPlayers;
+    if (statusFilter === "vencidos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "expired");
+    if (statusFilter === "por_vencer") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "yellow");
+    if (statusFilter === "inactivos") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "inactive");
+    if (statusFilter === "sin_vencimiento") return allPlayers.filter((player) => getPlayerExpiryUrgency(player.expiryDate) === "review");
+    if (statusFilter === "sin_cedula") return allPlayers.filter((player) => !player.cedula);
+    return []; // sin pestana elegida: pantalla en blanco a proposito
+  }, [browseTeam, browsedPlayers, statusFilter, allPlayers]);
 
   const teamNames = useMemo(
     () => Array.from(new Set(teams.map((team) => team.name))).sort((left, right) => left.localeCompare(right)),
@@ -223,12 +230,12 @@ export function JuezPlayersBrowseView({
 
         {!browseTeam ? (
           <div className="juez-status-filters">
-            {(Object.keys(STATUS_FILTER_LABEL) as StatusFilter[]).map((status) => (
+            {(Object.keys(STATUS_FILTER_LABEL) as Exclude<StatusFilter, null>[]).map((status) => (
               <button
                 key={status}
                 type="button"
                 className={statusFilter === status ? "juez-status-chip is-active" : "juez-status-chip"}
-                onClick={() => setStatusFilter(status)}
+                onClick={() => setStatusFilter((current) => (current === status ? null : status))}
               >
                 {STATUS_FILTER_LABEL[status]} <strong>{statusCounts[status]}</strong>
               </button>
@@ -240,10 +247,12 @@ export function JuezPlayersBrowseView({
 
         {isPendingCombo ? <p className="juez-empty-inline">Elegi division y sexo para ver las tarjetas.</p> : null}
 
-        {!isLoading && !isPendingCombo && !playersForStatus.length ? (
-          <p className="juez-empty-inline">
-            {browseTeam ? "No hay jugadores en esta categoria." : "No hay jugadores en esta categoria."}
-          </p>
+        {!isLoading && !isPendingCombo && !browseTeam && !statusFilter ? (
+          <p className="juez-empty-inline">Elegi una pestana (Vencidos, Por vencer, Inactivos...) o un equipo para ver jugadores.</p>
+        ) : null}
+
+        {!isLoading && !isPendingCombo && (browseTeam || statusFilter) && !playersForStatus.length ? (
+          <p className="juez-empty-inline">No hay jugadores en esta categoria.</p>
         ) : null}
 
         {!isPendingCombo ? (

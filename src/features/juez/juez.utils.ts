@@ -11,7 +11,15 @@ export function formatMatchLabel(match: Match) {
 // verdad). Tiene su propia categoria "Sin vencimiento" (urgency "review").
 export const PLAYER_EXPIRY_REVIEW_SENTINEL = "1111-01-01";
 
-export type JuezPlayerExpiryUrgency = "expired" | "yellow" | "normal" | "review";
+// "Inactivo" (07/10/2026, pedido explicito): "las personas que estan
+// vencidas con mas de 3 meses pasarlas a inactivos... no esta jugando,
+// no aparece en vencidos, aparece en una pestana aparte". Se calcula solo
+// a partir de la fecha (no es un campo que se guarde aparte) -- si en
+// algun momento se le edita la fecha de vencimiento, sale solo de esta
+// categoria, sin necesidad de un boton de "reactivar".
+export const INACTIVE_AFTER_DAYS_OVERDUE = 90;
+
+export type JuezPlayerExpiryUrgency = "inactive" | "expired" | "yellow" | "normal" | "review";
 
 export function getDaysUntilExpiry(expiryDate: string) {
   const today = new Date();
@@ -25,6 +33,7 @@ export function getPlayerExpiryUrgency(expiryDate: string): JuezPlayerExpiryUrge
 
   const diffDays = getDaysUntilExpiry(expiryDate);
 
+  if (diffDays < -INACTIVE_AFTER_DAYS_OVERDUE) return "inactive";
   if (diffDays < 0) return "expired";
   if (diffDays <= 30) return "yellow";
   return "normal";

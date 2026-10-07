@@ -203,6 +203,19 @@
   border: 2px solid #94a3b8;
 }
 
+/* "Inactivo" (07/10/2026, pedido explicito): vencido hace mas de 3
+   meses, ya no esta jugando -- marron/neutro, distinto del rojo de
+   "Vencido" para que se note a simple vista que es otra categoria. */
+.juez-player-card__badge--inactive {
+  background: rgba(120, 53, 15, 0.1);
+  color: #78350f;
+}
+
+.juez-player-card--inactive {
+  border: 2px solid #a8a29e;
+  opacity: 0.85;
+}
+
 .juez-player-card__no-cedula {
   margin: 2px 0 0;
   font-size: 12px;
