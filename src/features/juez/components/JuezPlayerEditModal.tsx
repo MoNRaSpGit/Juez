@@ -1,5 +1,6 @@
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
+import { JuezDateField } from "./JuezDateField";
 import { JuezPhotoInput } from "./JuezPhotoInput";
 
 type JuezPlayerEditModalProps = {
@@ -49,7 +50,7 @@ export function JuezPlayerEditModal({ player, editForm, onChangeEditForm, onSubm
         <div className="juez-form-grid juez-form-grid--mobile-first">
           <label className="juez-field juez-field--full-mobile">
             <span>Vencimiento</span>
-            <input type="date" value={editForm.expiryDate} onChange={(event) => onChangeEditForm("expiryDate", event.target.value)} />
+            <JuezDateField value={editForm.expiryDate} onChange={(isoDate) => onChangeEditForm("expiryDate", isoDate)} />
           </label>
           <label className="juez-field">
             <span>Nombre</span>
@@ -73,7 +74,7 @@ export function JuezPlayerEditModal({ player, editForm, onChangeEditForm, onSubm
           </label>
           <label className="juez-field juez-field--full-mobile">
             <span>Nacimiento (opcional)</span>
-            <input type="date" value={editForm.birthDate} onChange={(event) => onChangeEditForm("birthDate", event.target.value)} />
+            <JuezDateField value={editForm.birthDate} onChange={(isoDate) => onChangeEditForm("birthDate", isoDate)} />
           </label>
         </div>
 

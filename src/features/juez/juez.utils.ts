@@ -52,6 +52,45 @@ export function formatDaysUntilExpiry(expiryDate: string) {
   return diffDays === 1 ? "Vence en 1 dia" : `Vence en ${diffDays} dias`;
 }
 
+// Para el input de fecha "a mano" en Editar jugador (10/10/2026, pedido
+// explicito: "que se pueda poner a mano con el formato 09/10/2027") --
+// convierte entre el ISO que usa el resto del codigo/la base (yyyy-mm-dd)
+// y lo que el usuario tipea (dd/mm/yyyy).
+export function isoDateToDisplay(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!match) return "";
+  return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
+function daysInMonth(year: number, month: number) {
+  return new Date(year, month, 0).getDate();
+}
+
+// Recibe los digitos que fue tipeando el usuario (sin las barras) y, si ya
+// completo los 8 (ddmmyyyy), devuelve la fecha ISO lista para guardar --
+// con el dia recortado al maximo real del mes (ej: "31/02" -> 28 o 29).
+// Si todavia no completo los 8 digitos, devuelve null (no hay nada valido
+// para guardar todavia).
+export function displayDigitsToIsoDate(digits: string): string | null {
+  if (digits.length !== 8) return null;
+
+  const day = Number(digits.slice(0, 2));
+  const month = Math.min(Math.max(Number(digits.slice(2, 4)), 1), 12);
+  const year = Number(digits.slice(4, 8));
+  const clampedDay = Math.min(Math.max(day, 1), daysInMonth(year, month));
+
+  return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(clampedDay).padStart(2, "0")}`;
+}
+
+// Arma el texto mostrado en el input (con las barras) a partir de lo que
+// el usuario va tipeando, aceptando solo digitos.
+export function formatDateInputDraft(rawValue: string): string {
+  const digits = rawValue.replace(/\D/g, "").slice(0, 8);
+  if (digits.length > 4) return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+  if (digits.length > 2) return `${digits.slice(0, 2)}/${digits.slice(2, 4)}`;
+  return digits;
+}
+
 export function getAge(birthDate: string) {
   const today = new Date();
   const birth = new Date(`${birthDate}T00:00:00`);
