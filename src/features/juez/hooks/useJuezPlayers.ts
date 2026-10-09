@@ -6,7 +6,10 @@ import { createJuezTeam, listJuezTeams } from "../juez.teams.client";
 import { INITIAL_JUEZ_TEAM_FORM, JuezTeam, JuezTeamFormState } from "../juez.teams.types";
 import { getPlayerExpiryUrgency } from "../juez.utils";
 
-export function useJuezPlayers() {
+// "actor" (10/10/2026, pedido explicito: auditoria) -- quien esta
+// logueado ahora mismo (id de ACCOUNTS en useAuthSession.ts), para que el
+// backend sepa quien agrego/edito que en saas_juez_audit_log.
+export function useJuezPlayers(actor: string) {
   const [players, setPlayers] = useState<JuezPlayer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -76,7 +79,7 @@ export function useJuezPlayers() {
     }
 
     try {
-      const team = await createJuezTeam({ name: trimmedName, division: teamForm.division, sex: teamForm.sex });
+      const team = await createJuezTeam({ name: trimmedName, division: teamForm.division, sex: teamForm.sex, actor });
       setTeams((current) => [...current, team].sort((left, right) => left.name.localeCompare(right.name)));
       setSelectedTeamId(team.id);
       setTeamForm(INITIAL_JUEZ_TEAM_FORM);
@@ -123,7 +126,8 @@ export function useJuezPlayers() {
         cedula: playerForm.cedula.trim() || undefined,
         phone: playerForm.phone.trim() || undefined,
         birthDate: playerForm.birthDate || undefined,
-        photoDataUrl: playerForm.photoDataUrl || undefined
+        photoDataUrl: playerForm.photoDataUrl || undefined,
+        actor
       });
 
       setPlayers((current) => [...current, item]);
@@ -183,7 +187,8 @@ export function useJuezPlayers() {
         cedula: editForm.cedula.trim() || undefined,
         phone: editForm.phone.trim() || undefined,
         birthDate: editForm.birthDate || undefined,
-        photoDataUrl: editForm.photoDataUrl || undefined
+        photoDataUrl: editForm.photoDataUrl || undefined,
+        actor
       });
 
       setPlayers((current) => current.map((player) => (player.id === item.id ? item : player)));

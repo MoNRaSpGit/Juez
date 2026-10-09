@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "react-toastify";
+import { recordJuezLogin } from "../juez.audit.client";
 import { Referee } from "../juez.types";
 
 export type AuthFormState = {
@@ -90,6 +91,7 @@ export function useAuthSession() {
 
     setCurrentUserId(username);
     setAuthForm(createEmptyAuthForm());
+    recordJuezLogin(username);
     toast.success("Sesion iniciada.");
   }
 

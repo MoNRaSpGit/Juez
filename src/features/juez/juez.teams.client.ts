@@ -25,7 +25,12 @@ export async function listJuezTeams() {
   return data.items ?? [];
 }
 
-export async function createJuezTeam(payload: { name: string; division: JuezPlayerDivision; sex: JuezPlayerSex }) {
+export async function createJuezTeam(payload: {
+  name: string;
+  division: JuezPlayerDivision;
+  sex: JuezPlayerSex;
+  actor?: string;
+}) {
   const response = await fetch(buildUrl("/juez-teams"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },

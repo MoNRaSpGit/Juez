@@ -39,6 +39,7 @@ export async function createJuezPlayer(payload: {
   phone?: string;
   birthDate?: string;
   photoDataUrl?: string;
+  actor?: string;
 }) {
   const response = await fetch(buildUrl("/juez-players"), {
     method: "POST",
@@ -65,6 +66,7 @@ export async function updateJuezPlayer(
     phone?: string;
     birthDate?: string;
     photoDataUrl?: string;
+    actor?: string;
   }
 ) {
   const response = await fetch(buildUrl(`/juez-players/${playerId}`), {

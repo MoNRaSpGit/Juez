@@ -20,7 +20,7 @@ export function useJuezHomePageController() {
     currentTournament: tournament.currentTournament,
     currentUser: auth.currentUser
   });
-  const playersState = useJuezPlayers();
+  const playersState = useJuezPlayers(auth.currentUser?.id ?? "desconocido");
 
   function handleLogout() {
     auth.logout();
