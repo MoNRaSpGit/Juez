@@ -162,7 +162,13 @@ export function JuezDashboardScreen({
                 <div id="juez-menu-panel" className="juez-menu__panel">
                   <div className="juez-menu__user">
                     <span className="juez-menu__user-avatar">{currentUserInitials}</span>
-                    <strong>{currentUser?.name}</strong>
+                    <div className="juez-menu__user-info">
+                      <span className="juez-menu__user-label">Conectado como</span>
+                      <strong>{currentUser?.name}</strong>
+                      <span className={`juez-menu__role-badge ${canManageAdministration ? "juez-menu__role-badge--admin" : ""}`}>
+                        {canManageAdministration ? "Administrador" : "Solo lectura"}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="juez-menu__group">
@@ -240,6 +246,9 @@ export function JuezDashboardScreen({
                         handleLogout();
                       }}
                     >
+                      <span className="juez-menu__item-icon" aria-hidden="true">
+                        <LogoutIcon />
+                      </span>
                       Salir
                     </button>
                   </div>
@@ -342,6 +351,16 @@ function UserMenuIcon() {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M20 21a8 8 0 0 0-16 0" />
       <circle cx="12" cy="8" r="4" />
+    </svg>
+  );
+}
+
+function LogoutIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
     </svg>
   );
 }
