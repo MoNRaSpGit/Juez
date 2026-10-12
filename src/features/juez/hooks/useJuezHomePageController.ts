@@ -26,6 +26,11 @@ export function useJuezHomePageController() {
     auth.logout();
     setViewMode("players-browse");
     matchesState.resetDesignationDraft();
+    // Si la sesion anterior era "camila" (cuenta fija en un equipo), el
+    // equipo elegido quedaba pegado para la proxima cuenta que entrara
+    // (10/10/2026, bug reportado: "entre con admin y toy viendo
+    // peñarol fem") -- se limpia al salir.
+    playersState.setBrowseTeamId(null);
   }
 
   return {
