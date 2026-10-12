@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatDaysUntilExpiry, getPlayerExpiryUrgency } from "../juez.utils";
 import { buildJuezPlayerPhotoUrl } from "../juez.players.client";
 import { JuezPlayer, JuezPlayerFormState } from "../juez.players.types";
@@ -27,6 +27,10 @@ type JuezPlayersBrowseViewProps = {
   // poder modificar los datos y el usuario solo verlos") -- sin boton de
   // Editar ni modal cuando es false.
   canEdit: boolean;
+  // Cuenta restringida a un solo equipo (10/10/2026, pedido explicito:
+  // "camila", solo ve Peñarol Fem) -- oculta todo el panel de filtros
+  // (club/division/sexo/selector) y fija browseTeamId en este valor.
+  lockedTeamId?: number;
 };
 
 function formatComboLabel(team: JuezTeam) {
@@ -120,8 +124,14 @@ export function JuezPlayersBrowseView({
   onCloseEditPlayer,
   onChangeEditForm,
   onSubmitEditPlayer,
-  canEdit
+  canEdit,
+  lockedTeamId
 }: JuezPlayersBrowseViewProps) {
+  useEffect(() => {
+    if (lockedTeamId !== undefined && browseTeamId !== lockedTeamId) {
+      setBrowseTeamId(lockedTeamId);
+    }
+  }, [lockedTeamId, browseTeamId, setBrowseTeamId]);
   // Pestanas (07/10/2026, pedido explicito): arranca en blanco (null),
   // sin mostrar nada, hasta que se elija una pestana o un equipo. Con
   // equipo elegido se ignora la pestana y se ve el plantel completo
@@ -195,6 +205,7 @@ export function JuezPlayersBrowseView({
 
   return (
     <section className="juez-layout-grid">
+      {lockedTeamId === undefined ? (
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">
           <div>
@@ -297,6 +308,7 @@ export function JuezPlayersBrowseView({
           </label>
         </div>
       </article>
+      ) : null}
 
       <article className="juez-panel juez-panel--span-2">
         <div className="juez-panel__heading">

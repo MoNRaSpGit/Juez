@@ -10,12 +10,18 @@ export type AuthFormState = {
 
 const SESSION_STORAGE_KEY = "juez-session";
 
-// Login simple, 2 cuentas fijas (06/10/2026, pedido explicito: "vamos a
+// Login simple, cuentas fijas (06/10/2026, pedido explicito: "vamos a
 // cambiar el login, hacerlo bien simple... una cuenta admin/admin y una
 // usuario/usuario -- el admin va a poder modificar los datos y el
 // usuario solo verlos"). Sin registro, sin roles, sin backend de
 // cuentas -- eso queda intacto en juez.auth.client.ts por si se vuelve
 // a necesitar, pero el login ya no lo usa.
+//
+// "camila" (10/10/2026, pedido explicito): cuenta de solo lectura
+// restringida a un unico equipo (Peñarol Fem = team id 69 en
+// saas_juez_teams: Peñarol, division A, femenino) -- ver lockedTeamId en
+// juez.types.ts. Contraseña propia (ya no vale "password === username"
+// como con admin/usuario).
 const ACCOUNTS: Record<string, Referee> = {
   admin: {
     id: "admin",
@@ -23,7 +29,8 @@ const ACCOUNTS: Record<string, Referee> = {
     roles: ["principal", "secundario", "planillero"],
     city: "Montevideo",
     accountRole: "admin",
-    email: "admin"
+    email: "admin",
+    password: "admin"
   },
   usuario: {
     id: "usuario",
@@ -31,7 +38,19 @@ const ACCOUNTS: Record<string, Referee> = {
     roles: ["planillero"],
     city: "Montevideo",
     accountRole: "juez",
-    email: "usuario"
+    email: "usuario",
+    password: "usuario"
+  },
+  camila: {
+    id: "camila",
+    name: "Camila",
+    roles: ["planillero"],
+    city: "Montevideo",
+    accountRole: "juez",
+    email: "camila",
+    password: "camila54321",
+    lockedTeamId: 69,
+    lockedTeamLabel: "Peñarol Fem"
   }
 };
 
@@ -83,8 +102,9 @@ export function useAuthSession() {
 
     const username = authForm.username.trim().toLowerCase();
     const password = authForm.password.trim();
+    const account = ACCOUNTS[username];
 
-    if (!ACCOUNTS[username] || password !== username) {
+    if (!account || password !== account.password) {
       toast.error("Usuario o contraseña incorrectos.");
       return;
     }

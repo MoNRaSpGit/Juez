@@ -212,7 +212,11 @@ export function JuezDashboardScreen({
                         usuario), no solo admin -- pedido explicito
                         (06/10/2026): "el admin va a poder modificar los
                         datos y el usuario solo verlos" -- el usuario
-                        tiene que poder entrar igual, solo que sin editar. */}
+                        tiene que poder entrar igual, solo que sin editar.
+                        Si la cuenta tiene lockedTeamId (10/10/2026,
+                        pedido explicito: "camila", solo lectura de un
+                        equipo), esta es la UNICA pestana y usa su nombre
+                        en vez de "Carnet". */}
                     <button
                       type="button"
                       className={`juez-menu__item ${viewMode === "players-browse" ? "is-active" : ""}`}
@@ -221,7 +225,7 @@ export function JuezDashboardScreen({
                         setMenuOpen(false);
                       }}
                     >
-                      Carnet
+                      {currentUser?.lockedTeamLabel ?? "Carnet"}
                     </button>
                     {SHOW_FULL_JUEZ_MENU && canManageAdministration ? (
                       <button
@@ -331,6 +335,7 @@ export function JuezDashboardScreen({
             onChangeEditForm={handleChangeEditForm}
             onSubmitEditPlayer={handleSubmitEditPlayer}
             canEdit={canManageAdministration}
+            lockedTeamId={currentUser?.lockedTeamId}
           />
         ) : null}
       </section>

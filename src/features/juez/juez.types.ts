@@ -20,6 +20,13 @@ export type Referee = {
   accountRole: "admin" | "juez";
   email?: string;
   password?: string;
+  // Cuenta restringida a un solo equipo (10/10/2026, pedido explicito:
+  // "que solo pueda ver una pestaña que se llame Peñarol Fem... no pueda
+  // editar ni nada, solo ver") -- si esta seteado, el menu muestra una
+  // sola pestana con lockedTeamLabel en vez de "Carnet", y esa vista
+  // queda fija en ese equipo (ver JuezDashboardScreen/JuezPlayersBrowseView).
+  lockedTeamId?: number;
+  lockedTeamLabel?: string;
 };
 
 export type MatchStatus = "open" | "closed" | "assigned";
