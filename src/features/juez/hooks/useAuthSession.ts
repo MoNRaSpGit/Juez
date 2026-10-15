@@ -58,10 +58,17 @@ function createEmptyAuthForm(): AuthFormState {
   return { username: "", password: "" };
 }
 
+// sessionStorage, NO localStorage (14/10/2026, pedido explicito): "si
+// cierra la app que no quede ninguna sesion activa... si entra otro se
+// tiene que volver a loguear" -- localStorage sobrevive aunque se cierre
+// la app del todo (el admin quedaba logueado para quien abriera despues).
+// sessionStorage se borra solo al cerrar la pestaña/app, pero sigue
+// sirviendo para no perder la sesion con un simple refresh de pagina
+// mientras se sigue usando.
 function loadStoredSession() {
   if (typeof window === "undefined") return "";
   try {
-    return window.localStorage.getItem(SESSION_STORAGE_KEY) || "";
+    return window.sessionStorage.getItem(SESSION_STORAGE_KEY) || "";
   } catch {
     return "";
   }
@@ -79,7 +86,7 @@ export function useAuthSession() {
   useEffect(() => {
     if (!currentUserId) {
       try {
-        window.localStorage.removeItem(SESSION_STORAGE_KEY);
+        window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
       } catch {
         // ignore
       }
@@ -87,7 +94,7 @@ export function useAuthSession() {
     }
 
     try {
-      window.localStorage.setItem(SESSION_STORAGE_KEY, currentUserId);
+      window.sessionStorage.setItem(SESSION_STORAGE_KEY, currentUserId);
     } catch {
       // ignore
     }
