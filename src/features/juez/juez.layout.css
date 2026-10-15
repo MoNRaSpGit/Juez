@@ -16,9 +16,18 @@ body {
   overflow-x: hidden;
 }
 
+/* Pedido explicito (14/10/2026): "cuando no hay nada seleccionado... el
+   pie de pagina aparece subido, deberia estar abajo nomas" -- con el
+   Carnet en blanco (sin equipo/pestana elegida) el contenido es bajito y
+   el pie quedaba pegado justo debajo, a mitad de pantalla. Flex column +
+   margin-top:auto en .juez-footer (ver juez.footer.css) lo clava abajo
+   del todo cuando el contenido no llega a llenar el alto de pantalla, y
+   sigue empujandose solo hacia abajo cuando el contenido crece. */
 .juez-app {
   min-height: 100vh;
   overflow-x: clip;
+  display: flex;
+  flex-direction: column;
 }
 
 .juez-shell {
