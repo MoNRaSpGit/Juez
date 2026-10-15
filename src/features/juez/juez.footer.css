@@ -1,28 +1,33 @@
-/* Pie de pagina (14/10/2026, tercera vuelta, pedido explicito): una sola
-   linea -- "Desarrollado por" + logo + WhatsApp a continuacion, todo
-   junto, alineado a la derecha. Sin copyright, sin chip con fondo. */
+/* Pie de pagina (14/10/2026). Pedido explicito, reportado como "quedo
+   como una seccion mas, no como un pie... quiero que fuera oscura esa
+   parte para que sobresalgan los colores y la letra, como tiene QQ" --
+   antes era una tarjeta blanca mas, del mismo ancho y estilo que el
+   resto de los paneles (.juez-shell, centrado, max-width:1200px). Ahora
+   es una franja oscura de ANCHO COMPLETO, hermana de .juez-shell (ver
+   JuezDashboardScreen.tsx), con el mismo navy que ya usa el degradado de
+   arriba del todo (#0f172a) para que quede como un "bookend" oscuro
+   arriba y abajo, con el contenido claro en el medio. */
 .juez-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 14px;
-  padding: 14px 20px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(219, 229, 243, 0.95);
+  width: 100%;
+  padding: 16px 28px;
+  background: #0f172a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .juez-footer-credit {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: #64748b;
+  color: #94a3b8;
   text-decoration: none;
   font-size: 12.5px;
   transition: color 0.15s ease;
 }
 
 .juez-footer-credit:hover {
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .juez-footer-logo {
@@ -35,7 +40,7 @@
 .juez-footer-divider {
   width: 1px;
   height: 14px;
-  background: #e2e8f0;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .juez-footer-whatsapp-icon {
@@ -45,5 +50,5 @@
 
 .juez-footer-credit span:last-child {
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
 }

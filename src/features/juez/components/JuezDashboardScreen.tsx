@@ -339,9 +339,14 @@ export function JuezDashboardScreen({
             lockedTeamId={currentUser?.lockedTeamId}
           />
         ) : null}
-
-        <Footer />
       </section>
+
+      {/* Pedido explicito (14/10/2026): "quedo como una seccion mas, no
+          como un pie" -- se saca de .juez-shell (que esta centrado con
+          max-width:1200px, como el resto de los paneles) y se pone como
+          hermano directo del shell, para que sea una franja de ancho
+          completo, igual que el pie de QQ. */}
+      <Footer />
     </main>
   );
 }
