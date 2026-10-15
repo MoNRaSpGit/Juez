@@ -8,6 +8,7 @@ import "./juez.mobile.css";
 import "./juez.desktop.css";
 import "./juez.layout.css";
 import "./juez.auth.css";
+import "./juez.footer.css";
 import { JuezAuthScreen } from "./components/JuezAuthScreen";
 import { JuezDashboardScreen } from "./components/JuezDashboardScreen";
 import { useJuezHomePageController } from "./hooks/useJuezHomePageController";

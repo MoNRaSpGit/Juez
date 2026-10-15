@@ -1,0 +1,74 @@
+/* Pie de pagina con nuestra propaganda (14/10/2026, pedido explicito,
+   mismo criterio que frontend-qq). */
+.juez-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-top: 14px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(219, 229, 243, 0.95);
+  font-size: 13px;
+  color: #64748b;
+}
+
+.juez-footer-copyright {
+  white-space: nowrap;
+}
+
+.juez-footer-credit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.juez-footer-credit:hover {
+  background: #eef2ff;
+  border-color: #6366f1;
+}
+
+.juez-footer-credit-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.juez-footer-logo {
+  display: block;
+  height: 24px;
+  width: auto;
+  border-radius: 5px;
+}
+
+.juez-footer-divider {
+  width: 1px;
+  height: 16px;
+  background: #e2e8f0;
+}
+
+.juez-footer-whatsapp-icon {
+  color: #25d366;
+  flex-shrink: 0;
+}
+
+.juez-footer-credit span:last-child {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+@media (max-width: 480px) {
+  .juez-footer {
+    justify-content: center;
+    text-align: center;
+    padding: 14px;
+  }
+}

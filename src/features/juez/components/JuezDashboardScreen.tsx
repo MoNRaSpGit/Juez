@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Footer } from "./Footer";
 import { JuezAdminView } from "./JuezAdminView";
 import { JuezAdministrationView } from "./JuezAdministrationView";
 import { JuezPlayersBrowseView } from "./JuezPlayersBrowseView";
@@ -338,6 +339,8 @@ export function JuezDashboardScreen({
             lockedTeamId={currentUser?.lockedTeamId}
           />
         ) : null}
+
+        <Footer />
       </section>
     </main>
   );
