@@ -53,6 +53,21 @@
   gap: 14px;
 }
 
+/* Pedido explicito (20/10/2026): el error de login queda fijo dentro del
+   cartel, entre la contraseña y "Entrar" -- no como un toast que
+   desaparece solo. Se borra con F5, no automaticamente. */
+.juez-auth-error {
+  margin: -4px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .juez-field-help {
   display: block;
   margin-top: 6px;

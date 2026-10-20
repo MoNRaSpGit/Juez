@@ -90,6 +90,11 @@ function loadStoredSession() {
 export function useAuthSession() {
   const [authForm, setAuthForm] = useState<AuthFormState>(() => createEmptyAuthForm());
   const [currentUserId, setCurrentUserId] = useState<string>(() => loadStoredSession());
+  // Pedido explicito (20/10/2026): el error de login tiene que quedar fijo
+  // dentro del cartel de login (entre la contraseña y "Entrar"), no como
+  // un toast que desaparece solo -- se borra con F5 (o al tipear de
+  // nuevo), nunca por las suyas.
+  const [authError, setAuthError] = useState("");
 
   const currentUser = currentUserId && ACCOUNTS[currentUserId] ? ACCOUNTS[currentUserId] : null;
   // El admin puede modificar datos (editar jugadores); el usuario solo
@@ -127,7 +132,7 @@ export function useAuthSession() {
     // muestra un error inventado por nosotros (no es un error real) y
     // deja constancia de que alguien lo probo. El admin real es "voley".
     if (username === "admin" && password === "admin") {
-      toast.error("Algo salió mal, error 505");
+      setAuthError("Algo salió mal, error 505");
       recordJuezLogin("admin", true);
       return;
     }
@@ -135,10 +140,11 @@ export function useAuthSession() {
     const account = ACCOUNTS[username];
 
     if (!account || password !== account.password) {
-      toast.error("Usuario o contraseña incorrectos.");
+      setAuthError("Usuario o contraseña incorrectos.");
       return;
     }
 
+    setAuthError("");
     setCurrentUserId(username);
     setAuthForm(createEmptyAuthForm());
     recordJuezLogin(username);
@@ -158,6 +164,7 @@ export function useAuthSession() {
 
   return {
     authForm,
+    authError,
     referees: Object.values(ACCOUNTS),
     currentUser,
     canManageAdministration,

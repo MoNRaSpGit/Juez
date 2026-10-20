@@ -36,6 +36,7 @@ export function useJuezHomePageController() {
   return {
     // auth
     authForm: auth.authForm,
+    authError: auth.authError,
     canManageAdministration: auth.canManageAdministration,
     currentUser: auth.currentUser,
     referees: auth.referees,

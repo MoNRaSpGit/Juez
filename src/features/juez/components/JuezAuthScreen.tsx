@@ -1,12 +1,12 @@
 import { JuezHomePageController } from "../hooks/useJuezHomePageController";
 
-type JuezAuthScreenProps = Pick<JuezHomePageController, "authForm" | "handleAuthSubmit" | "handleChangeAuthField">;
+type JuezAuthScreenProps = Pick<JuezHomePageController, "authForm" | "authError" | "handleAuthSubmit" | "handleChangeAuthField">;
 
 // Login simple (06/10/2026, pedido explicito: "hacerlo bien simple,
 // pone un login normal, saca todo eso que tiene" -- sin registro, sin
 // roles, sin pruebas rapidas). 2 cuentas fijas: admin/admin y
 // usuario/usuario (ver useAuthSession.ts).
-export function JuezAuthScreen({ authForm, handleAuthSubmit, handleChangeAuthField }: JuezAuthScreenProps) {
+export function JuezAuthScreen({ authForm, authError, handleAuthSubmit, handleChangeAuthField }: JuezAuthScreenProps) {
   return (
     <main className="juez-app juez-app--auth">
       <section className="juez-shell juez-shell--auth">
@@ -36,6 +36,8 @@ export function JuezAuthScreen({ authForm, handleAuthSubmit, handleChangeAuthFie
                 autoComplete="current-password"
               />
             </label>
+
+            {authError && <p className="juez-auth-error">{authError}</p>}
 
             <button type="submit" className="juez-button juez-button--primary juez-button--full-mobile">
               Entrar
