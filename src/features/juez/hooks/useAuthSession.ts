@@ -22,10 +22,6 @@ const SESSION_STORAGE_KEY = "juez-session";
 // saas_juez_teams: Peñarol, division A, femenino) -- ver lockedTeamId en
 // juez.types.ts. Contraseña propia (ya no vale "password === username"
 // como con admin/usuario).
-// Señuelo (20/10/2026, pedido explicito): admin/admin ya NO deja entrar
-// (ver handleAuthSubmit, el error "505" es inventado por nosotros) -- el
-// admin real ahora es "voley". La cuenta admin queda en este objeto solo
-// para que el chequeo de abajo la reconozca y dispare el señuelo.
 const ACCOUNTS: Record<string, Referee> = {
   admin: {
     id: "admin",
@@ -127,15 +123,6 @@ export function useAuthSession() {
 
     const username = authForm.username.trim().toLowerCase();
     const password = authForm.password.trim();
-
-    // Señuelo (20/10/2026, pedido explicito): admin/admin nunca entra --
-    // muestra un error inventado por nosotros (no es un error real) y
-    // deja constancia de que alguien lo probo. El admin real es "voley".
-    if (username === "admin" && password === "admin") {
-      setAuthError("Algo salió mal, error 505");
-      recordJuezLogin("admin", true);
-      return;
-    }
 
     const account = ACCOUNTS[username];
 
