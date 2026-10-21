@@ -1,4 +1,4 @@
-const CACHE_NAME = "juez-pwa-v1";
+const CACHE_NAME = "juez-pwa-v2";
 
 function getBasePath() {
   const scopeUrl = new URL(self.registration.scope);
@@ -42,8 +42,17 @@ self.addEventListener("fetch", (event) => {
   const basePath = getBasePath();
   const requestUrl = new URL(event.request.url);
 
-  if (requestUrl.pathname.endsWith("/app-build.json") || requestUrl.pathname.endsWith("/index.html")) {
-    event.respondWith(fetch(event.request, { cache: "no-store" }));
+  // Toda navegacion (abrir/recargar la app, no solo /index.html literal)
+  // va siempre a la red -- si no, esta entrada queda fija desde el
+  // install() y nunca se actualiza con los deploys nuevos, sirviendo un
+  // HTML viejo con referencias a JS/CSS que ya no existen (pantalla
+  // blanca hasta que por casualidad el navegador decida no usar el SW).
+  if (
+    event.request.mode === "navigate" ||
+    requestUrl.pathname.endsWith("/app-build.json") ||
+    requestUrl.pathname.endsWith("/index.html")
+  ) {
+    event.respondWith(fetch(event.request, { cache: "no-store" }).catch(() => caches.match(`${basePath}index.html`)));
     return;
   }
 

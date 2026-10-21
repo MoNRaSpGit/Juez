@@ -15,7 +15,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <App />
       <AppUpdateNotice />
       <ToastContainer
-        position="bottom-right"
+        position="top-right"
         autoClose={3200}
         hideProgressBar
         newestOnTop
